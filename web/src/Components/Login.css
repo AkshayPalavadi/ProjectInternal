@@ -1,0 +1,152 @@
+.login-main-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100vw;
+  background-image: url("../assets/background.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  font-family: Arial, sans-serif;
+}
+
+.login-container {
+  background: #fff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.15);
+  width: 400px;
+  max-width: 90%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.header img {
+  width: 100px;
+  border-radius: 50%;
+  margin: 10px;
+}
+
+.header h1 {
+  font-size: 30px;
+  margin: 0;
+  color: #333;
+}
+
+.header p {
+  text-align: center;
+  font-size: 15px;
+  color: #555;
+  margin: 2px 0 0 0;
+  padding-top: 5px;
+}
+
+hr {
+  margin: 20px 0;
+  border: none;
+  border-top: 1px solid #ddd;
+}
+
+.heading {
+  text-align: center;
+  font-size: 30px;
+  margin-bottom: 20px;
+  color: #2c3e50;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.login-form input,
+.login-form select {
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  /* width: 100%; */
+}
+
+.login-form input:focus,
+.login-form select:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0px 0px 4px rgba(74, 144, 226, 0.4);
+}
+
+.role-select {
+  cursor: pointer;
+}
+
+.password-input {
+  position: relative;
+}
+
+.password-input input {
+  width: 87%;
+  padding-right: 40px; /* space for eye icon */
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #555;
+}
+
+button {
+  margin-top: 40px;
+  padding: 12px;
+  background: #279630;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #218838;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+.contact-text {
+  text-align: center;
+  font-size: 14px;
+  margin-top: 15px;
+}
+
+.contact-text span {
+  font-weight: bold;
+  color: #4a90e2;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.error {
+  color: red;
+  margin-bottom: 10px;
+}

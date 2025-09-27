@@ -1,0 +1,241 @@
+/* src/Leaves.css */
+
+/* Reset */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: auto; /* allow scroll */
+}
+
+.leaves-page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background-size: 250px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f7f7f7;
+  padding: 20px;
+
+  overflow-y: auto; /* single scrollbar */
+  box-sizing: border-box;
+}
+
+.form-box {
+  background: rgba(255, 255, 255, 0.97);
+  padding: 25px;
+  border-radius: 12px;
+  width: 450px;
+  max-width: 100%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  text-align: left;
+}
+
+.form-box h2 {
+  margin-bottom: 10px;
+  text-align: center;
+  color: #222;
+}
+
+.leaves-count {
+  font-weight: bold;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  color: green;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.form-group p {
+  color: red;
+}
+
+input[type="date"],
+input[type="text"],
+input[type="file"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  background: #5f615f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.submit-btn:active {
+  background-color: #218838;
+  transform: scale(0.98);
+}
+
+/* Status Bar */
+.status-bar {
+  margin-top: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.status-bar::before {
+  content: "";
+  position: absolute;
+  top: 17px;
+  left: 10%;
+  right: 10%;
+  height: 4px;
+  background: #ddd;
+  z-index: 0;
+}
+
+.status-step {
+  text-align: center;
+  flex: 1;
+  position: relative;
+  z-index: 1;
+}
+
+.status-step .circle {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  background: #ddd;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-bottom: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+}
+
+.status-step.active .circle {
+  background: #28a745;
+}
+
+.status-step p {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+  color: #333;
+}
+
+/* Approved Button */
+.approved-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 10px;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: 0.3s ease;
+  text-align: center;
+}
+
+.approved-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Popup Modal */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.popup-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  width: 320px;
+  max-width: 90%;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+  animation: popupFade 0.3s ease-in-out;
+}
+
+.popup-box h3 {
+  margin-bottom: 10px;
+  color: #28a745;
+}
+
+.popup-box button {
+  margin-top: 15px;
+  padding: 8px 16px;
+  background: #28a745;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.popup-box button:hover {
+  background: #218838;
+}
+
+@keyframes popupFade {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Prevent body scroll when popup open */
+body.popup-open {
+  overflow: hidden;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-box {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .status-bar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .status-bar::before {
+    display: none;
+  }
+
+  .status-step {
+    margin-bottom: 12px;
+    text-align: left;
+  }
+}
