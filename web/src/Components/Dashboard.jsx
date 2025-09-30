@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   PieChart,
   Pie,
@@ -9,91 +9,152 @@ import {
 } from "recharts";
 import "./Dashboard.css";
 
-// Helper to calculate project status
+// ✅ Project status for table & filtering
 const calculateStatus = (startDate, duration) => {
   const start = new Date(startDate);
   const end = new Date(start);
   end.setDate(start.getDate() + duration - 1);
   const today = new Date();
 
-  if (today < start) return "Idle";
+  if (today < start) return "Future";
   if (today >= start && today <= end) return "In Progress";
   return "Completed";
 };
 
-// Helper to calculate pie chart data for all projects including idle days
+// ✅ Helper for timeline chart with detailed mapping
 const getAllProjectDays = (projects) => {
-  if (projects.length === 0) return [{ name: "Idle", value: 1 }];
+  if (projects.length === 0)
+    return {
+      chartData: [{ name: "Idle days", value: 1 }],
+      detailMap: { "Idle days": [{ range: "N/A", label: "No projects" }] },
+    };
 
-  // Sort projects by start date
+  const today = new Date();
   const sorted = [...projects].sort(
     (a, b) => new Date(a.startDate) - new Date(b.startDate)
   );
 
-  const today = new Date();
-  let lastEnd = new Date(sorted[0].startDate);
   let completedDays = 0;
   let inProgressDays = 0;
   let idleDays = 0;
+  let futureDays = 0;
+
+  let details = {
+    "Completed days": [],
+    "In Progress days": [],
+    "Idle days": [],
+    "Future days": [],
+  };
+
+  let lastEnd = null;
 
   sorted.forEach((p) => {
     const start = new Date(p.startDate);
     const end = new Date(start);
     end.setDate(start.getDate() + p.duration - 1);
 
-    // Count idle days between lastEnd and start
-    const gap = Math.max(0, Math.floor((start - lastEnd) / (1000 * 60 * 60 * 24)));
-    idleDays += gap;
-
-    if (today < start) {
-      idleDays += p.duration;
-    } else if (today >= start && today <= end) {
-      inProgressDays += Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1;
-      const remaining = p.duration - Math.floor((today - start) / (1000 * 60 * 60 * 24)) - 1;
-      // idleDays += remaining;
-    } else {
-      completedDays += p.duration;
+    // idle gap between projects
+    if (lastEnd && start > lastEnd) {
+      const gap = Math.floor((start - lastEnd) / (1000 * 60 * 60 * 24));
+      if (gap > 0) {
+        idleDays += gap;
+        details["Idle days"].push({
+          range: `${lastEnd.toDateString()} → ${new Date(
+            start.getTime() - 86400000
+          ).toDateString()}`,
+          label: `${gap} idle days`,
+        });
+      }
     }
 
-    // Update lastEnd
-    lastEnd = new Date(Math.max(lastEnd, end));
+    if (today < start) {
+      futureDays += p.duration;
+      details["Future days"].push({
+        range: `${start.toDateString()} → ${end.toDateString()}`,
+        label: `${p.name}: ${p.duration} days`,
+      });
+    } else if (today >= start && today <= end) {
+      const daysPassed =
+        Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1;
+      const remaining = p.duration - daysPassed;
+      completedDays += daysPassed;
+      inProgressDays += remaining;
+
+      details["Completed days"].push({
+        range: `${start.toDateString()} → ${today.toDateString()}`,
+        label: `${p.name}: ${daysPassed} days`,
+      });
+
+      if (remaining > 0) {
+        details["In Progress days"].push({
+          range: `${new Date(today.getTime() + 86400000).toDateString()} → ${end.toDateString()}`,
+          label: `${p.name}: ${remaining} days`,
+        });
+      }
+    } else {
+      completedDays += p.duration;
+      details["Completed days"].push({
+        range: `${start.toDateString()} → ${end.toDateString()}`,
+        label: `${p.name}: ${p.duration} days`,
+      });
+    }
+
+    lastEnd = new Date(end);
     lastEnd.setDate(lastEnd.getDate() + 1);
   });
 
-  // Count idle days after last project till today
-  const gapAfterLast = Math.max(
-    0,
-    Math.floor((today - lastEnd) / (1000 * 60 * 60 * 24)) + 1
-  );
-  idleDays += gapAfterLast;
+  return {
+    chartData: [
+      { name: "Completed days", value: completedDays },
+      { name: "In Progress days", value: inProgressDays },
+      { name: "Idle days", value: idleDays },
+      { name: "Future days", value: futureDays },
+    ],
+    detailMap: details,
+  };
+};
 
-  return [
-    { name: "Completed", value: completedDays },
-    { name: "In Progress", value: inProgressDays },
-    { name: "Idle", value: idleDays },
-  ];
+// ✅ Custom tooltip for timeline pie
+const CustomTooltip = ({ active, payload, detailMap }) => {
+  if (active && payload && payload.length) {
+    const label = payload[0].name;
+    return (
+      <div className="custom-tooltip">
+        <h4>{label}</h4>
+        <ul>
+          {detailMap[label]?.map((d, i) => (
+            <li key={i}>
+              <strong>{d.label}</strong> ({d.range})
+            </li>
+          )) || <li>No data</li>}
+        </ul>
+      </div>
+    );
+  }
+  return null;
 };
 
 function Dashboard({
   totalLeaves,
   leavesUsed,
-  totalDays,
   presentDays,
   absentDays,
   projects,
 }) {
+  const [selectedProject, setSelectedProject] = useState(null);
+
   const remainingLeaves = totalLeaves - leavesUsed;
 
-  // Pie Colors
   const COLORS = {
-    Completed: "#00C49F",
-    "In Progress": "#FF8042",
-    Idle: "#FF9999",
+    "Completed days": "#00C49F",
+    "In Progress days": "#FF8042",
+    "Idle days": "#FF9999", // red
+    "Future days": "#757575", // gray
   };
 
-  const timelineData = getAllProjectDays(projects);
+  const { chartData: timelineData, detailMap } = getAllProjectDays(projects);
 
-  // Current projects in progress
+  // ✅ FIX: Check against "In Progress" (not "In Progress days")
   const inProgressProjects = projects.filter(
     (p) => calculateStatus(p.startDate, p.duration) === "In Progress"
   );
@@ -104,7 +165,6 @@ function Dashboard({
 
       {/* Leaves & Attendance */}
       <div className="charts-row">
-        {/* Leaves Chart */}
         <div className="chart-card">
           <h2>Leaves</h2>
           <ResponsiveContainer width="100%" height={250}>
@@ -120,8 +180,8 @@ function Dashboard({
                 dataKey="value"
                 label
               >
-                <Cell fill={COLORS.Completed} />
-                <Cell fill={COLORS["In Progress"]} />
+                <Cell fill={"#00C49F"} />
+                <Cell fill={"#FF8042"} />
               </Pie>
               <Tooltip />
               <Legend />
@@ -129,7 +189,6 @@ function Dashboard({
           </ResponsiveContainer>
         </div>
 
-        {/* Attendance Chart */}
         <div className="chart-card">
           <h2>Attendance</h2>
           <ResponsiveContainer width="100%" height={250}>
@@ -145,8 +204,8 @@ function Dashboard({
                 dataKey="value"
                 label
               >
-                <Cell fill={COLORS.Completed} />
-                <Cell fill={COLORS["In Progress"]} />
+                <Cell fill={"#00C49F"} />
+                <Cell fill={"#FF8042"} />
               </Pie>
               <Tooltip />
               <Legend />
@@ -155,7 +214,7 @@ function Dashboard({
         </div>
       </div>
 
-      {/* Current Projects Pie Charts Horizontal */}
+      {/* Current Projects */}
       <div className="charts-row">
         {inProgressProjects.length > 0 ? (
           inProgressProjects.map((project, idx) => {
@@ -174,8 +233,8 @@ function Dashboard({
                   <PieChart>
                     <Pie
                       data={[
-                        { name: "Completed", value: daysPassed },
-                        { name: "Remaining", value: remainingDays },
+                        { name: "Completed days", value: daysPassed },
+                        { name: "In Progress days", value: remainingDays },
                       ]}
                       cx="50%"
                       cy="50%"
@@ -183,8 +242,8 @@ function Dashboard({
                       dataKey="value"
                       label
                     >
-                      <Cell fill={COLORS.Completed} />
-                      <Cell fill={COLORS["In Progress"]} />
+                      <Cell fill={"#00C49F"} />
+                      <Cell fill={"#FF8042"} />
                     </Pie>
                     <Tooltip />
                     <Legend />
@@ -200,7 +259,7 @@ function Dashboard({
             );
           })
         ) : (
-          <div style={{ color: COLORS.Idle, fontWeight: "bold" }}>
+          <div style={{ color: COLORS["Idle days"], fontWeight: "bold" }}>
             No current projects
           </div>
         )}
@@ -224,17 +283,17 @@ function Dashboard({
                   <Cell key={idx} fill={COLORS[entry.name]} />
                 ))}
               </Pie>
-              <Tooltip />
+              <Tooltip content={<CustomTooltip detailMap={detailMap} />} />
               <Legend />
             </PieChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* Project Table */}
+      {/* Projects Table */}
       <div className="completed-projects">
         <h2>Projects Overview</h2>
-        <table>
+        <table className="projects-table">
           <thead>
             <tr>
               <th>Project Name</th>
@@ -244,14 +303,41 @@ function Dashboard({
             </tr>
           </thead>
           <tbody>
-            {projects.map((p, idx) => (
-              <tr key={idx}>
-                <td>{p.name}</td>
-                <td>{p.startDate}</td>
-                <td>{p.duration}</td>
-                <td>{calculateStatus(p.startDate, p.duration)}</td>
-              </tr>
-            ))}
+            {projects.map((p, idx) => {
+              const isSelected = selectedProject?.name === p.name;
+              return (
+                <React.Fragment key={idx}>
+                  <tr
+                    onClick={() =>
+                      setSelectedProject(isSelected ? null : p)
+                    }
+                    className={isSelected ? "active-row" : ""}
+                  >
+                    <td>{p.name}</td>
+                    <td>{p.startDate}</td>
+                    <td>{p.duration}</td>
+                    <td>{calculateStatus(p.startDate, p.duration)}</td>
+                  </tr>
+                  {isSelected && (
+                    <tr className="details-row">
+                      <td colSpan={4}>
+                        <div className="details-box">
+                          <p>
+                            <strong>Project:</strong> {p.name}
+                          </p>
+                          <p>
+                            <strong>Project Start Date:</strong> {p.startDate}
+                          </p>
+                          <p>
+                            <strong>Duration:</strong> {p.duration} days
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
+              );
+            })}
           </tbody>
         </table>
       </div>

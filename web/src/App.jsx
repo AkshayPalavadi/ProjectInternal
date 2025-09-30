@@ -18,7 +18,7 @@ function App() {
   const [employeeData, setEmployeeData] = useState({
     totalLeaves: totalLeaves,
     leavesUsed: leavesUsed,
-    totalDays: totalDays,
+    // totalDays: totalDays,
     presentDays: totalDays - absentDays,
     absentDays: absentDays,
     projects: [],
@@ -28,7 +28,7 @@ function App() {
   const [projectName, setProjectName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [duration, setDuration] = useState("");
-  const [status, setStatus] = useState("In Progress");
+  // const [status, setStatus] = useState("In Progress");
 
 const calculateStatus = (startDate, duration) => {
   const start = new Date(startDate);
@@ -140,7 +140,7 @@ const handleAddProject = () => {
                 <Dashboard
                   totalLeaves={employeeData.totalLeaves}
                   leavesUsed={employeeData.leavesUsed}
-                  totalDays={employeeData.totalDays}
+                  // totalDays={employeeData.totalDays}
                   presentDays={employeeData.presentDays}
                   absentDays={employeeData.absentDays}
                   projects={employeeData.projects}

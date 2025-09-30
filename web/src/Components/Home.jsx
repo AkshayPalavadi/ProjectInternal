@@ -1,33 +1,76 @@
-// Home.jsx
-import { useState } from "react";
-import bottomImage from "../assets/logo.jpg"; 
-import logo from "../assets/logo.jpg"; // add your logo file in assets
+import { useState, useEffect } from "react";
+import img1 from "../assets/girlsGroup.jpeg";
+import img2 from "../assets/boysGroup.jpeg";
+import img3 from "../assets/img1.jpeg";
+import img4 from "../assets/girlsGroup1.jpeg";
+import logo from "../assets/logo.jpg"
+
 import "./Home.css";
 
+// Images array with individual width and height
+const images = [
+  { src: img1, width: 900, height: 500 },
+  { src: img2, width: 900, height: 500 },
+  { src: img3, width: 900, height: 500 },
+  { src: img4, width: 900, height: 500 },
+];
+
 export default function Home() {
-  const scrollText = "Dhatvi Business Solutions Pvt.Ltd. ";
-  const italicText = "Driving Technology, Delivering Trust";
+  const [current, setCurrent] = useState(0);
+
+  // Auto-slide every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % images.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const prevSlide = () => setCurrent(current === 0 ? images.length - 1 : current - 1);
+  const nextSlide = () => setCurrent((current + 1) % images.length);
+  const goToSlide = (index) => setCurrent(index);
 
   return (
     <div className="home-container">
+      {/* Scrolling Text */}
       <div className="scrolling-text">
         <div className="scrolling-content">
-          <span>
-            <img src={logo} alt="Logo" className="scroll-logo" />
-            {scrollText}
-            <i>{italicText}</i>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-          </span>
-          <span>
-            <img src={logo} alt="Logo" className="scroll-logo" />
-            {scrollText}
-            <i>{italicText}</i>
-            &nbsp;&nbsp;&nbsp;&nbsp;
-          </span>
+          <img src={logo} alt="Logo" className="scroll-logo"/>
+          <div className="title">
+            <p>Dhatvi Business Solutions Pvt.Ltd.</p>
+            <p className="tagline"><i>Driving Technology, Delivering Trust</i></p>
+          </div>
         </div>
       </div>
-       <div className="bottom-image">
-        <img src={bottomImage} alt="Bottom" />
+
+      {/* Carousel */}
+      <div className="images">
+        {/* Arrows */}
+        <span className="arrow arrow-left" onClick={prevSlide}>&#10094;</span>
+        <span className="arrow arrow-right" onClick={nextSlide}>&#10095;</span>
+
+        <div className="image-track" style={{ transform: `translateX(-${current * 100}%)` }}>
+          {images.map((img, index) => (
+            <div className="image-slide" key={index}>
+              <img
+                src={img.src}
+                alt={`slide-${index}`}
+                style={{ width: `${img.width}px`, height: `${img.height}px`, objectFit: "contain" }}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Dots */}
+      <div className="dots">
+        {images.map((_, index) => (
+          <span
+            key={index}
+            className={`dot ${index === current ? "active" : ""}`}
+            onClick={() => goToSlide(index)}
+          ></span>
+        ))}
       </div>
     </div>
   );
