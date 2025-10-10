@@ -122,7 +122,7 @@ function SidebarLayout({ userName, setUserName, userPhoto, setUserPhoto }) {
             </Link>
           </li>
         </ul>
-
+        
         {/* Logout Button */}
         <div className="logout-button">
           <button onClick={handleLogout}>Logout</button>

@@ -1,84 +1,62 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
 import SidebarLayout from "./Components/SidebarLayout.jsx";
 import Home from "./Components/Home.jsx";
 import Dashboard from "./Components/Dashboard.jsx";
 import Leaves from "./Components/Leaves.jsx";
 import Profile from "./Components/Profile.jsx";
 import Login from "./Components/Login.jsx";
+import Admin from "./Components/Admin.jsx"
+
 
 function App() {
-  // Leaves & Attendance state
+  // Leaves & Attendance
   const totalLeaves = 12;
-  const [leavesUsed, setLeavesUsed] = useState(4);
   const totalDays = 30;
+
+  const [leavesUsed, setLeavesUsed] = useState(4);
   const [absentDays, setAbsentDays] = useState(4);
 
-  // Employee Data with projects
+  // Employee data
   const [employeeData, setEmployeeData] = useState({
-    totalLeaves: totalLeaves,
-    leavesUsed: leavesUsed,
-    // totalDays: totalDays,
+    totalLeaves,
+    leavesUsed,
     presentDays: totalDays - absentDays,
-    absentDays: absentDays,
+    absentDays,
     projects: [],
   });
 
-  // Temporary inputs for adding project
-  const [projectName, setProjectName] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [duration, setDuration] = useState("");
-  // const [status, setStatus] = useState("In Progress");
-
-const calculateStatus = (startDate, duration) => {
-  const start = new Date(startDate);
-  const end = new Date(start);
-  end.setDate(start.getDate() + duration);
-
-  const today = new Date();
-
-  if (today < start) return "Not Started";
-  if (today >= start && today <= end) return "In Progress";
-  return "Completed";
-};
-
-const handleAddProject = () => {
-  if (!projectName || !startDate || !duration) {
-    alert("Please fill all fields");
-    return;
-  }
-
-  const projectDuration = parseInt(duration);
-  const newProject = {
-    name: projectName,
-    startDate,
-    duration: projectDuration,
-    status: calculateStatus(startDate, projectDuration),
-  };
-
-  setEmployeeData((prev) => ({
-    ...prev,
-    projects: [...prev.projects, newProject],
-  }));
-
-  // reset form
-  setProjectName("");
-  setStartDate("");
-  setDuration("");
-};
-
-
-  // Sidebar / Profile state
+  // Sidebar/Profile
   const [userName, setUserName] = useState("User Name");
   const [userPhoto, setUserPhoto] = useState(null);
 
-  // Login & Role state
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem("isLoggedIn") === "true";
-  });
-  const [userRole, setUserRole] = useState(() => {
-    return localStorage.getItem("userRole") || "";
-  });
+  // Login & Role
+  const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem("isLoggedIn") === "true");
+  const [userRole, setUserRole] = useState(() => localStorage.getItem("userRole") || "");
+  const [employeeId, setEmployeeId] = useState(() => parseInt(localStorage.getItem("employeeId")) || null);
+
+  // Admin employees (for assigning projects)
+  const [adminEmployees] = useState([
+    { id: 2, name: "Akshay" },
+    { id: 3, name: "Sathvika" },
+    { id: 4, name: "Sravani" },
+  ]);
+
+  // Admin projects stored in localStorage
+  const [adminProjects, setAdminProjects] = useState([]);
+
+  // Load projects from localStorage on mount
+  useEffect(() => {
+    const storedProjects = JSON.parse(localStorage.getItem("projects")) || [];
+    setAdminProjects(storedProjects);
+
+    // Filter projects for current employee
+    if (employeeId) {
+      const assignedProjects = storedProjects.filter(p => p.assignedEmployees.includes(employeeId));
+      setEmployeeData(prev => ({ ...prev, projects: assignedProjects }));
+    }
+  }, [employeeId]);
 
   return (
     <Router>
@@ -106,49 +84,15 @@ const handleAddProject = () => {
           }
         >
           <Route index element={<Navigate to="home" replace />} />
-
           <Route path="home" element={<Home />} />
-
           <Route
             path="dashboard"
             element={
-              <>
-                {/* Add project form on top */}
-                <div style={{ padding: "20px" }}>
-                  <h2>Add Project (App.jsx)</h2>
-                  <input
-                    type="text"
-                    placeholder="Project Name"
-                    value={projectName}
-                    onChange={(e) => setProjectName(e.target.value)}
-                  />
-                  <input
-                    type="date"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                  />
-                  <input
-                    type="number"
-                    placeholder="Duration (days)"
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                  />
-                  <button onClick={handleAddProject}>Add Project</button>
-                </div>
-
-                {/* Dashboard */}
-                <Dashboard
-                  totalLeaves={employeeData.totalLeaves}
-                  leavesUsed={employeeData.leavesUsed}
-                  // totalDays={employeeData.totalDays}
-                  presentDays={employeeData.presentDays}
-                  absentDays={employeeData.absentDays}
-                  projects={employeeData.projects}
-                />
-              </>
+              <Dashboard
+                projects={employeeData.projects}
+              />
             }
           />
-
           <Route
             path="leaves"
             element={
@@ -167,10 +111,17 @@ const handleAddProject = () => {
           />
         </Route>
 
-        {/* Default route: redirect to login if not logged in */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* Admin Routes */}
+        <Route
+          path="/admin"
+          element={
+            isLoggedIn && userRole === "admin" ? <Admin /> : <Navigate to="/login" replace />
+          }
+        >
+          
+        </Route>
 
-        {/* Catch-all unknown routes */}
+        {/* Default redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>

@@ -12,36 +12,36 @@ function Login({ setIsLoggedIn, setUserRole }) {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // ✅ List of users
+  const users = [
+    { id: 1, role: "admin", email: "admin@dhatvibs.com", password: "password123" },
+    { id: 2, role: "employee", email: "akshay@dhatvibs.com", password: "password123" },
+    { id: 3, role: "employee", email: "sathvika@dhatvibs.com", password: "password123" },
+    { id: 4, role: "employee", email: "sravani@dhatvibs.com", password: "password123" },
+  ];
+
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const adminEmail = "admin@dhatvibs.com";
-    const employeeEmail = "employee@dhatvibs.com";
-    const correctPassword = "password123";
 
     if (!email.endsWith("@dhatvibs.com")) {
       setError("Only @dhatvibs.com email addresses are allowed.");
       return;
     }
 
-    if (role === "admin" && email === adminEmail && password === correctPassword) {
-  setIsLoggedIn(true);
-  setUserRole("admin");
-  localStorage.setItem("isLoggedIn", "true");
-  localStorage.setItem("userRole", "admin");
-  navigate("/admin");
-  return;
-}
+    const user = users.find(u => u.email === email && u.password === password && u.role === role);
+    if (user) {
+      setIsLoggedIn(true);
+      setUserRole(role);
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userRole", role);
+      if (role === "employee") localStorage.setItem("employeeId", user.id); // store employee id
+      localStorage.setItem("employeeEmail", user.email);
+      localStorage.setItem("empployeeRole", user.role);
 
-if (role === "employee" && email === employeeEmail && password === correctPassword) {
-  setIsLoggedIn(true);
-  setUserRole("employee");
-  localStorage.setItem("isLoggedIn", "true");
-  localStorage.setItem("userRole", "employee");
-  navigate("/employee/home"); 
-  return;
-}
-
+      // Navigate
+      navigate(role === "admin" ? "/admin" : "/employee/home");
+      return;
+    }
 
     setError("Invalid email, password, or role selection");
   };
@@ -50,9 +50,9 @@ if (role === "employee" && email === employeeEmail && password === correctPasswo
     <div className="login-main-container">
       <div className="header">
         <img src={logo} alt="logo" />
-        <div className="h">
+        <div className="title">
           <h1>DhaTvi Business Solutions Pvt.LTD</h1>
-          <p><i>Driving Technology Delivering Trust</i></p>
+          <p style={{paddingTop:"15px"}}><i>Driving Technology Delivering Trust</i></p>
         </div>
       </div>
       <hr />

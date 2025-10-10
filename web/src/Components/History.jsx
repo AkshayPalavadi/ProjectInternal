@@ -13,7 +13,6 @@ export default function History({ requests, onDelete }) {
             <th>Reason</th>
             <th>File</th>
             <th>Status</th>
-            <th>Action</th>
           </tr>
         </thead>
         <tbody>
@@ -49,17 +48,6 @@ export default function History({ requests, onDelete }) {
                   {req.status}
                 </span>
               </td>
-              <td>
-  <button
-    className="delete-btn"
-    onClick={() => onDelete(index)}
-    disabled={req.status === "Manager Approved" || req.status === "HR Approved" || req.status === "Granted"}
-    title={req.status === "Manager Approved" || req.status === "HR Approved" || req.status === "Granted" ? "Cannot delete approved request" : "Delete request"}
-  >
-    🗑️
-  </button>
-</td>
-
             </tr>
           ))}
         </tbody>

@@ -6,7 +6,7 @@
 
 /* Sidebar */
 .sidebar {
-  width: 220px;
+  width: 250px;
   background-color: #1f2937;
   color: #fff;
   display: flex;
@@ -64,8 +64,9 @@
 
 .sidebar-links li a {
   display: block;
-  padding: 12px 20px;
+  padding: 10px 15px;
   color: #fff;
+  border-radius: 10px;
   text-decoration: none;
   transition: background 0.3s;
 }
@@ -75,23 +76,44 @@
 }
 
 .sidebar-links li a:active {
-  background-color: green;
+  background-color: #007bff;
 }
 
 .homeActive {
-  background-color: green;
+  background-color: #007bff;
+  margin: 10px 20px;
 }
 
 .dashboardActive {
-  background-color: green;
+  background-color: #007bff;
+  margin: 10px 20px;
 }
 
 .profileActive {
-  background-color: green;
+  background-color: #007bff;
+  margin: 10px 20px;
+
 }
 
 .leaveActive {
-  background-color: green;
+  background-color: #007bff;
+  margin: 10px 20px;
+}
+
+.homeInactive {
+  margin: 10px 20px;
+}
+
+.dashboardInactive {
+  margin: 10px 20px;
+}
+
+.profileInactive {
+  margin: 10px 20px;
+}
+
+.leaveInactive {
+  margin: 10px 20px;
 }
 
 /* Logout button */

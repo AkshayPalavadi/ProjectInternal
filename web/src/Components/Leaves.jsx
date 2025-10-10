@@ -1,3 +1,4 @@
+// src/pages/Leaves.jsx
 import { useState, useEffect } from "react";
 import "./Leaves.css";
 import History from "./History.jsx";
@@ -14,6 +15,8 @@ export default function Leaves() {
   const [reason, setReason] = useState("");
   const [compoffDates, setCompoffDates] = useState([]);
   const [file, setFile] = useState(null);
+  const [disease, setDisease] = useState("");
+  const [customDisease, setCustomDisease] = useState("");
 
   // Status + requests
   const [status, setStatus] = useState("draft");
@@ -25,6 +28,8 @@ export default function Leaves() {
   // Popups + errors
   const [showSubmitPopup, setShowSubmitPopup] = useState(false);
   const [showGrantedPopup, setShowGrantedPopup] = useState(false);
+  const [showCustomConfirmPopup, setShowCustomConfirmPopup] = useState(false);
+  const [pendingRequest, setPendingRequest] = useState(null);
   const [errors, setErrors] = useState([]);
 
   const today = new Date().toLocaleDateString("en-CA");
@@ -37,7 +42,7 @@ export default function Leaves() {
     optional: 2,
   });
 
-  // Calculate days excluding Sundays
+  // Calculate days excluding Saturdays and Sundays
   useEffect(() => {
     if (fromDate && toDate) {
       const start = new Date(fromDate);
@@ -46,7 +51,8 @@ export default function Leaves() {
         let count = 0;
         let current = new Date(start);
         while (current <= end) {
-          if (current.getDay() !== 0) count++;
+          const day = current.getDay();
+          if (day !== 0 && day !== 6) count++;
           current.setDate(current.getDate() + 1);
         }
         setDaysApplied(count);
@@ -56,37 +62,8 @@ export default function Leaves() {
     }
   }, [fromDate, toDate]);
 
-  // Auto-switch/add LOP when balance insufficient
-  useEffect(() => {
-    if (daysApplied > 0) {
-      if (
-        leaveType !== "none" &&
-        leaveType !== "custom" &&
-        leaveType !== "lop"
-      ) {
-        if (leaveType in leaveBalances && leaveBalances[leaveType] < daysApplied) {
-          setLeaveType("lop");
-        }
-      }
+  const allLeavesZero = Object.values(leaveBalances).every((val) => val === 0);
 
-      if (leaveType === "custom" && customTypes.length > 0) {
-        const totalAvailable = customTypes.reduce((sum, type) => {
-          if (type in leaveBalances) return sum + leaveBalances[type];
-          return sum;
-        }, 0);
-
-        if (totalAvailable < daysApplied) {
-          if (!customTypes.includes("lop")) {
-            setCustomTypes((prev) => [...prev, "lop"]);
-          }
-        } else if (totalAvailable >= daysApplied && customTypes.includes("lop")) {
-          setCustomTypes((prev) => prev.filter((c) => c !== "lop"));
-        }
-      }
-    }
-  }, [daysApplied, leaveType, customTypes, leaveBalances]);
-
-  // Update last request
   const updateLastRequestStatus = (newStatus) => {
     setRequests((prev) =>
       prev.map((req, idx) =>
@@ -95,7 +72,6 @@ export default function Leaves() {
     );
   };
 
-  // Generate valid comp-off Sundays
   const getValidCompoffDates = () => {
     const todayDate = new Date();
     const year = todayDate.getFullYear();
@@ -111,7 +87,6 @@ export default function Leaves() {
   };
   const validCompoffDates = getValidCompoffDates();
 
-  // Handlers
   const handleCompoffCheckbox = (e) => {
     const value = e.target.value;
     if (e.target.checked) setCompoffDates([...compoffDates, value]);
@@ -120,36 +95,23 @@ export default function Leaves() {
 
   const handleCustomCheckbox = (e) => {
     const value = e.target.value;
-    if (e.target.checked) {
-      const totalAvailable = customTypes.reduce(
-        (sum, type) => sum + (leaveBalances[type] || 0),
-        0
-      );
-      if (totalAvailable >= daysApplied) return;
-      setCustomTypes([...customTypes, value]);
-    } else {
-      setCustomTypes(customTypes.filter((c) => c !== value));
-    }
+    if (e.target.checked) setCustomTypes([...customTypes, value]);
+    else setCustomTypes(customTypes.filter((c) => c !== value));
   };
 
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
     if (uploadedFile) {
-      const allowedTypes = [
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "image/jpeg",
-        "image/png",
-        "image/jpg",
-      ];
+      const allowedTypes = ["application/pdf"];
       if (!allowedTypes.includes(uploadedFile.type)) {
-        setErrors(["Only PDF, Word, and Image files are allowed."]);
+        setErrors(["Only PDF files are allowed."]);
         setFile(null);
         return;
       }
       if (uploadedFile.size > 2 * 1024 * 1024) {
-        setErrors([`File size must not exceed 2MB. Your file is ${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB.`]);
+        setErrors([
+          `File size must not exceed 2MB. Your file is ${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB.`,
+        ]);
         setFile(null);
         return;
       }
@@ -157,14 +119,43 @@ export default function Leaves() {
     }
   };
 
+  const finalizeSubmit = (request) => {
+    setRequests((prev) => [...prev, request]);
+    setCurrentIndex(requests.length);
+    setFromDate("");
+    setToDate("");
+    setDaysApplied(0);
+    setLeaveType("none");
+    setCustomTypes([]);
+    setReason("");
+    setDisease("");
+    setCustomDisease("");
+    setCompoffDates([]);
+    setFile(null);
+    setShowSubmitPopup(true);
+  };
+
+  const insufficientMsg =
+    (leaveType !== "none" &&
+      leaveType in leaveBalances &&
+      daysApplied > leaveBalances[leaveType]) ||
+    (leaveType === "compoff" && daysApplied > compoffDates.length)
+      ? "⚠️ Insufficient leave balance for selected type."
+      : "";
+
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (insufficientMsg) return;
+
     let validationErrors = [];
 
     if (leaveType === "none") validationErrors.push("Please select a leave type.");
     if (leaveType === "custom" && customTypes.length === 0)
       validationErrors.push("Select at least one custom leave type.");
-    if (!reason.trim()) validationErrors.push("Reason is required.");
+    if (leaveType === "sick" && !disease)
+      validationErrors.push("Please select disease type.");
+    if (!reason.trim() && leaveType !== "sick")
+      validationErrors.push("Reason is required.");
     if (leaveType === "compoff" && compoffDates.length === 0)
       validationErrors.push("Please select at least one Compoff day.");
     if (daysApplied > 2 && !file)
@@ -175,9 +166,22 @@ export default function Leaves() {
       return;
     }
 
-    setErrors([]);
-    setSubmitted(true);
-    setStatus("sent");
+    let finalReason = reason;
+    if (leaveType === "sick") {
+      finalReason = disease === "Other" ? customDisease : disease;
+    }
+
+    let leaveDetails = {};
+    if (leaveType === "custom") {
+      let remaining = daysApplied;
+      for (const type of customTypes) {
+        const available = leaveBalances[type] || 0;
+        const applied = Math.min(available, remaining);
+        leaveDetails[type] = applied;
+        remaining -= applied;
+      }
+      if (remaining > 0) leaveDetails["lop"] = remaining;
+    }
 
     const newRequest = {
       fromDate,
@@ -185,32 +189,53 @@ export default function Leaves() {
       daysApplied,
       leaveType,
       customTypes,
-      reason,
+      leaveDetails,
+      reason: finalReason,
       file: file || null,
       status: "Sent",
     };
 
-    setRequests((prev) => [...prev, newRequest]);
-    setCurrentIndex(requests.length);
+    if (leaveType === "custom") {
+      const totalAvailable = customTypes.reduce(
+        (sum, type) => sum + (leaveBalances[type] || 0),
+        0
+      );
+      if (totalAvailable < daysApplied) {
+        setPendingRequest(newRequest);
+        setShowCustomConfirmPopup(true);
+        return;
+      }
+    }
 
-    // Reset form fields
-    setFromDate("");
-    setToDate("");
-    setDaysApplied(0);
-    setLeaveType("none");
-    setCustomTypes([]);
-    setReason("");
-    setCompoffDates([]);
-    setFile(null);
+    setErrors([]);
+    setSubmitted(true);
+    setStatus("sent");
+    finalizeSubmit(newRequest);
+  };
 
-    setShowSubmitPopup(true);
+  const handleConfirmYes = () => {
+    if (pendingRequest) {
+      const updatedRequest = {
+        ...pendingRequest,
+        customTypes: [...pendingRequest.customTypes, "lop"],
+      };
+      setSubmitted(true);
+      setStatus("sent");
+      finalizeSubmit(updatedRequest);
+    }
+    setPendingRequest(null);
+    setShowCustomConfirmPopup(false);
+  };
+
+  const handleConfirmNo = () => {
+    setPendingRequest(null);
+    setShowCustomConfirmPopup(false);
   };
 
   const handleManagerApproval = () => {
     if (status === "sent") {
       setStatus("manager");
       updateLastRequestStatus("Manager Approved");
-
       setStatus("hr");
       updateLastRequestStatus("HR Approved");
       handleGrant();
@@ -225,11 +250,9 @@ export default function Leaves() {
     if (requests[currentIndex]) {
       const req = requests[currentIndex];
       const days = req.daysApplied;
-
       if (req.leaveType === "custom") {
         let remaining = days;
         const newBalances = { ...leaveBalances };
-
         for (const type of req.customTypes) {
           if (type !== "lop" && type in newBalances && remaining > 0) {
             const deduction = Math.min(newBalances[type], remaining);
@@ -255,9 +278,14 @@ export default function Leaves() {
     { id: "sick", label: "Sick" },
     { id: "earned", label: "Earned" },
     { id: "optional", label: "Optional (Female only)" },
-    { id: "lop", label: "Loss of Pay" },
+    ...(allLeavesZero ? [{ id: "lop", label: "Loss of Pay" }] : []),
+    { id: "maternity", label: "Maternity" },
+    { id: "paternity", label: "Paternity" },
+    ...(allLeavesZero ? [{ id: "other", label: "Other" }] : []),
     { id: "compoff", label: "Compoff" },
   ];
+
+  const mainLeaveTypes = ["casual", "sick", "earned", "optional"];
 
   const handleDeleteRequest = (index) => {
     setRequests((prev) => prev.filter((_, idx) => idx !== index));
@@ -265,7 +293,6 @@ export default function Leaves() {
 
   return (
     <div className="leaves-page">
-      {/* Tabs */}
       <div className="tabs">
         <button
           className={activeTab === "form" ? "tab active" : "tab"}
@@ -281,18 +308,9 @@ export default function Leaves() {
         </button>
       </div>
 
-      {/* Form tab */}
       {activeTab === "form" ? (
         <div className="form-box">
           <h2>Employee Leave</h2>
-
-          {errors.length > 0 && (
-            <div className="error-box">
-              {errors.map((err, i) => (
-                <p key={i}>{err}</p>
-              ))}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
@@ -309,63 +327,110 @@ export default function Leaves() {
 
             <div className="leave-breakdown-box">
               <ul>
-                <li>Casual Leaves Left: {leaveBalances.casual}/5</li>
-                <li>Sick Leaves Left: {leaveBalances.sick}/3</li>
-                <li>Earned Leaves Left: {leaveBalances.earned}/2</li>
-                <li>Optional Leaves Left: {leaveBalances.optional}/2</li>
+                <li><b>Leaves Left:</b></li>
+                <li>Casual : {leaveBalances.casual}/5</li>
+                <li>Sick: {leaveBalances.sick}/3</li>
+                <li>Earned: {leaveBalances.earned}/2</li>
+                <li>Optional: {leaveBalances.optional}/2</li>
               </ul>
             </div>
 
             <div className="form-group">
               <label><strong>Leave Type</strong></label>
-              <select value={leaveType} onChange={e => setLeaveType(e.target.value)} required>
+              <select
+                value={leaveType}
+                onChange={e => setLeaveType(e.target.value)}
+                required
+              >
                 <option value="none">-- Select Type --</option>
-                {leaveOptions.map(opt => (
-                  <option
-                    key={opt.id}
-                    value={opt.id}
-                    disabled={
-                      opt.id !== "custom" &&
-                      opt.id !== "lop" &&
-                      leaveBalances[opt.id] < daysApplied
-                    }
-                  >
-                    {opt.label}
-                    {/* {opt.id in leaveBalances
-                      ? ` (${leaveBalances[opt.id]} left)`
-                      : ""} */}
-                  </option>
-                ))}
+                {leaveOptions.map(opt => {
+                  const balance = leaveBalances[opt.id] ?? 0;
+                  const isDisabled =
+                    mainLeaveTypes.includes(opt.id) && balance === 0;
+                  return (
+                    <option key={opt.id} value={opt.id} disabled={isDisabled}>
+                      {opt.label}
+                    </option>
+                  );
+                })}
                 <option value="custom">Custom (Select Multiple)</option>
               </select>
+
+              {insufficientMsg && (
+                <p className="warning-text" style={{ color: "red", marginTop: "5px" }}>
+                  {insufficientMsg}
+                </p>
+              )}
             </div>
 
-            {leaveType === "custom" && (
+            {leaveType === "sick" && (
               <div className="form-group">
-                <label><strong>Select Multiple Leave Types</strong></label>
-                <div className="checkbox-group">
-                  {leaveOptions.map(opt => (
-                    <label key={opt.id}>
-                      <input
-                        type="checkbox"
-                        value={opt.id}
-                        checked={customTypes.includes(opt.id)}
-                        onChange={handleCustomCheckbox}
-                        disabled={
-                          opt.id !== "lop" &&
-                          !customTypes.includes(opt.id) &&
-                          customTypes.reduce((sum, type) => sum + (leaveBalances[type] || 0), 0) >= daysApplied
-                        }
-                      />
-                      {opt.label}
-                      {opt.id in leaveBalances
-                        ? ` (${leaveBalances[opt.id]} left)`
-                        : ""}
-                    </label>
-                  ))}
-                </div>
+                <label><strong>Reason</strong></label>
+                <select value={disease} onChange={(e) => setDisease(e.target.value)} required>
+                  <option value="">-- Select Reason --</option>
+                  <option value="Fever">Fever</option>
+                  <option value="Cold">Cold</option>
+                  <option value="Injury">Injury</option>
+                  <option value="Other">Other</option>
+                </select>
+                {disease === "Other" && (
+                  <input
+                    type="text"
+                    placeholder="Enter disease"
+                    value={customDisease}
+                    onChange={(e) => setCustomDisease(e.target.value)}
+                    required
+                  />
+                )}
               </div>
             )}
+
+            {leaveType === "custom" && (
+  <div className="form-group">
+    <label><strong>Select Multiple Leave Types</strong></label>
+    <div className="checkbox-group">
+      {leaveOptions.map(opt => {
+        const balance = leaveBalances[opt.id] ?? 0;
+        const isCheckboxDisabled = mainLeaveTypes.includes(opt.id) && balance === 0;
+        return (
+          <label key={opt.id}>
+            <input
+              type="checkbox"
+              value={opt.id}
+              checked={customTypes.includes(opt.id)}
+              onChange={handleCustomCheckbox}
+              disabled={isCheckboxDisabled}
+            />
+            {opt.label}{opt.id in leaveBalances ? ` (${balance} left)` : ""}
+          </label>
+        );
+      })}
+    </div>
+
+    {/* Show compoff dates if compoff is selected in customTypes */}
+    {customTypes.includes("compoff") && (
+      <div className="form-group">
+        <label><strong>Select Worked Days (Sundays)</strong></label>
+        {validCompoffDates.length > 0 ? (
+          validCompoffDates.map(date => (
+            <label key={date}>
+              <input
+                type="checkbox"
+                value={date}
+                checked={compoffDates.includes(date)}
+                onChange={handleCompoffCheckbox}
+              />
+              {new Date(date).toDateString()}
+            </label>
+          ))
+        ) : (
+          <p>No available Sundays this month.</p>
+        )}
+      </div>
+    )}
+  </div>
+)}
+
 
             {leaveType === "compoff" && (
               <div className="form-group">
@@ -381,20 +446,22 @@ export default function Leaves() {
               </div>
             )}
 
-            <div className="form-group">
-              <label><strong>Reason</strong></label>
-              <input type="text" placeholder="Reason for leave" value={reason} onChange={e => setReason(e.target.value)} required />
-            </div>
+            {leaveType !== "sick" && (
+              <div className="form-group">
+                <label><strong>Reason</strong></label>
+                <input type="text" placeholder="Reason for leave" value={reason} onChange={e => setReason(e.target.value)} required />
+              </div>
+            )}
 
             <div className="form-group">
               <label><strong>Upload Document</strong></label>
-              <input type="file" accept=".pdf,.doc,.docx,image/*" onChange={handleFileChange} required={daysApplied > 2} />
+              <input type="file" accept=".pdf" onChange={handleFileChange} required={daysApplied > 2} />
             </div>
 
             <button type="submit" className="submit-btn">Submit</button>
           </form>
 
-          {submitted && status === "sent" && (
+          {/* {submitted && status === "sent" && (
             <button
               onClick={handleManagerApproval}
               className="submit-btn"
@@ -402,40 +469,7 @@ export default function Leaves() {
             >
               Manager Approve
             </button>
-          )}
-
-          {submitted && (
-            <>
-              <div className="status-bar-bottom">
-                {["sent", "manager", "hr", "granted"].map((step, idx) => (
-                  <div
-                    key={idx}
-                    className={`status-step ${
-                      ["sent", "manager", "hr", "granted"].indexOf(step) <=
-                      ["sent", "manager", "hr", "granted"].indexOf(status)
-                        ? "active"
-                        : ""
-                    }`}
-                  >
-                    <div className="circle">{status === step ? "⏱" : ""}</div>
-                    <p>
-                      {step === "sent"
-                        ? "Sent"
-                        : step === "manager"
-                        ? "Manager"
-                        : step === "hr"
-                        ? "HR"
-                        : "Granted"}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              <p className={`approved-btn ${granted ? "granted" : ""}`}>
-                {granted ? "Leave Granted ✅" : "Leave Pending ⏳"}
-              </p>
-            </>
-          )}
+          )} */}
         </div>
       ) : (
         <div className="requests-box">
@@ -464,6 +498,22 @@ export default function Leaves() {
             <h3>🎉 Leave Granted!</h3>
             <p>Your leave has been approved.</p>
             <button onClick={() => setShowGrantedPopup(false)}>Close</button>
+          </div>
+        </div>
+      )}
+
+      {showCustomConfirmPopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h3>⚠️ Insufficient Leave Balance</h3>
+            <p>
+              The number of days available is less than you applied.
+              Do you want to continue with LOP?
+            </p>
+            <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+              <button onClick={handleConfirmYes} className="submit-btn">Yes</button>
+              <button onClick={handleConfirmNo} className="delete-btn">No</button>
+            </div>
           </div>
         </div>
       )}

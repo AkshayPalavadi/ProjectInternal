@@ -41,8 +41,27 @@ label {
   color: #2c3e50;
   font-size: 14px;
 }
-.imp {
+
+
+.required {
+  font-size: 16px;
   color: red;
+}
+
+select {
+  margin-top: 6px;
+  padding: 10px;
+  border: 1px solid #dcdfe3;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #fff;
+  transition: border-color 0.2s ease;
+}
+
+select:focus {
+  border-color: #3498db;
+  outline: none;
+  box-shadow: 0 0 4px rgba(52, 152, 219, 0.4);
 }
 
 input[type="text"],
@@ -136,6 +155,14 @@ input:focus {
   cursor: pointer;
 }
 
+.durationBox {
+  margin-top: 5px;
+  height: 35px;
+  width: 100px;
+  border-radius: 5px;
+  font-size: 15px;
+  border-width: 2px;
+}
 
 /* Buttons */
 

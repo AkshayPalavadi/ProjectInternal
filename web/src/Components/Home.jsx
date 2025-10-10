@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import img1 from "../assets/girlsGroup.jpeg";
 import img2 from "../assets/boysGroup.jpeg";
 import img3 from "../assets/img1.jpeg";
-import img4 from "../assets/girlsGroup1.jpeg";
+import img4 from "../assets/girlsGroup1.jpg";
 import logo from "../assets/logo.jpg"
 
 import "./Home.css";
