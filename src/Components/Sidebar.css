@@ -1,0 +1,261 @@
+/* Layout */
+.layout {
+  display: flex;
+  font-family: Arial, sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 250px;
+  background-color: #1f2937;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  position: fixed; /* fixed sidebar */
+  height: 100vh;   /* full viewport height */
+  overflow-y: auto;
+}
+
+.profile-section {
+  text-align: center;
+  padding: 20px 10px;
+  border-bottom: 1px solid #444;
+}
+
+.profile-section img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #00bfff;
+  cursor: pointer;
+}
+
+.photo-menu {
+  position: absolute;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  border-radius: 5px;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.photo-menu button {
+  font-size: 12px;
+  padding: 3px 5px;
+  background-color: #ff4d4d;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.sidebar-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.sidebar-links li a {
+  display: block;
+  padding: 10px 15px;
+  color: #fff;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.sidebar-links li a:hover {
+  background-color: #007bff;
+}
+
+.sidebar-links li a:active {
+  background-color: #007bff;
+}
+
+.homeActive {
+  background-color: #007bff;
+  margin: 10px 20px;
+}
+
+.dashboardActive {
+  background-color: #007bff;
+  margin: 10px 20px;
+}
+
+.profileActive {
+  background-color: #007bff;
+  margin: 10px 20px;
+
+}
+
+.leaveActive {
+  background-color: #007bff;
+  margin: 10px 20px;
+}
+
+.homeInactive {
+  margin: 10px 20px;
+}
+
+.dashboardInactive {
+  margin: 10px 20px;
+}
+
+.profileInactive {
+  margin: 10px 20px;
+}
+
+.leaveInactive {
+  margin: 10px 20px;
+}
+
+/* Logout button */
+.logout-button {
+  padding: 20px;
+  margin-top: auto;
+}
+
+.logout-button button {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  background-color: #ff4d4d;
+  color: #fff;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Main content */
+.content {
+  margin-left: 220px;  /* space for sidebar */
+  padding: 20px;
+  width: calc(100% - 220px);
+  min-height: 100vh;
+  overflow-y: auto;    /* scrollable content only */
+}
+
+/* ---------- Username Edit Styling ---------- */
+.username-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+}
+
+/* Name display with Edit button */
+.name-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.name-display button{
+  margin: 0%;
+}
+
+.name-display p {
+  padding-left: 40px;
+}
+
+.edit-name-btn {
+  font-size: 12px;
+  padding: 3px 6px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Edit name input + buttons */
+.edit-name-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.edit-name-box input {
+  width: 30%;
+  padding: 5px 8px;
+  border-radius: 4px;
+  justify-items: center;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  margin-bottom: -25px;
+}
+
+/* ---------- Photo + Name Container ---------- */
+.photo-name-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative; /* for photo-menu positioning */
+}
+
+/* Photo wrapper for menu positioning */
+.photo-wrapper {
+  position: relative;
+}
+
+/* Photo menu buttons alignment */
+.photo-menu button {
+  width: 100px; 
+  padding: 5px;
+  text-align: center;
+  margin: 0%;
+}
+
+/* Username edit buttons in one row */
+.name-buttons {
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+}
+
+.name-buttons button {
+  padding: 5px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+.name-buttons button:first-child {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.name-buttons button:last-child {
+  background-color: #ff4d4d;
+  color: #fff;
+}
+
+/* Input field width fixed */
+.edit-name-box input {
+  width: 100px;
+}
+
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    height: auto;
+  }
+
+  .content {
+    margin-left: 0;
+    width: 100%;
+  }
+}
