@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { validateAll } from './validation';
 import './indexApp.css';
 
-const ReviewSubmit = ({ personal, education, professional, setErrors, onBack, onSuccess }) => {
+const ReviewSubmit = ({ personal, education, professional,prevStep, setErrors, onBack, onSuccess }) => {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [submitErrors, setSubmitErrors] = useState({});
 
@@ -30,6 +30,7 @@ const ReviewSubmit = ({ personal, education, professional, setErrors, onBack, on
       </td>
     </tr>
   );
+  const prev=()=>prevStep();
 
   return (
     <div className="form-wrap">
@@ -195,7 +196,7 @@ const ReviewSubmit = ({ personal, education, professional, setErrors, onBack, on
       )}
 
       <div className="form-actions">
-        <button className="btn secondary" onClick={onBack}>Back</button>
+        <button className="btn secondary" onClick={prev}>Back</button>
         <button className="btn primary" onClick={handleSubmit}>Submit Application</button>
       </div>
     </div>

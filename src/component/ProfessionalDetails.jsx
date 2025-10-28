@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { simpleValidateProfessional } from './validation';
 
-const ProfessionalDetails = ({ data, setData, setActive,nextStep, errors, setErrors }) => {
+const ProfessionalDetails = ({ data, setData, setActive,nextStep,prevStep, errors, setErrors }) => {
   const [localData, setLocalData] = useState({
     employeeId: data.employeeId || '',
     dateOfJoining: data.dateOfJoining || '',
@@ -127,15 +127,19 @@ const ProfessionalDetails = ({ data, setData, setActive,nextStep, errors, setErr
     const updated = localData.experiences.filter((_, i) => i !== index);
     setLocalData((prev) => ({ ...prev, experiences: updated }));
   };
+  
 
   const next = () => {
     const errs = simpleValidateProfessional(localData);
+      console.log("Validation errors:", errs);
+
     setErrors(errs);
     if (Object.keys(errs).length === 0) {
       setData(localData);
       nextStep();
     }
   };
+const prev=()=>prevStep();
 
   return (
     <div className="form-wrap">
@@ -344,7 +348,7 @@ const ProfessionalDetails = ({ data, setData, setActive,nextStep, errors, setErr
 
       {/* Navigation */}
       <div className="form-actions">
-        <button className="btn secondary" onClick={() => setActive('education')}>Back</button>
+        <button className="btn secondary" onClick={prev}>Back</button>
         <button className="btn primary" onClick={next}>Next: Review & Submit</button>
       </div>
     </div>

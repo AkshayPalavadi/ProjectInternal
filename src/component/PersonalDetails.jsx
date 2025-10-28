@@ -13,10 +13,6 @@ const states = [
 
 const PersonalDetails = ({ data, setData, setActive, errors,nextStep, setErrors }) => {
   const [photoPreview, setPhotoPreview] = useState(null);
-  const [aadharPreview, setAadharPreview] = useState(null);
-  const [panPreview, setPanPreview] = useState(null);
-  const [marriagePreview, setMarriagePreview] = useState(null);
-
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
 

@@ -7,7 +7,6 @@ import Dashboard from "./Components/Dashboard.jsx";
 import ProjectManagement from "./Components/ProjectManagement.jsx";
 import Timesheet from "./Components/Timesheet.jsx";
 import Leaves from "./Components/Leaves.jsx";
-import Profile from "./Components/Profile.jsx";
 import Login from "./Components/Login.jsx";
 import Admin from "./Components/Admin.jsx"
 import PersonApp from "./PersonApp.jsx";

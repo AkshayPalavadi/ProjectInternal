@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { simpleValidateEducation } from './validation';
 import './indexApp.css';
 
-const EducationDetails = ({ data, setData, setActive,nextStep, errors, setErrors }) => {
+const EducationDetails = ({ data, setData, setActive,nextStep,prevStep, errors, setErrors }) => {
   const years = Array.from({ length: 2025 - 1960 + 1 }, (_, i) => 2025 - i);
 
   const handleChange = (e) => {
@@ -43,7 +43,7 @@ const EducationDetails = ({ data, setData, setActive,nextStep, errors, setErrors
     }
   };
 
-  const prev = () => setActive('personal');
+  const prev = () => prevStep();
 
   return (
     <div className="form-wrap">

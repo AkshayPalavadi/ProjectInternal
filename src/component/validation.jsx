@@ -148,45 +148,37 @@ if (data.hasMTech) {
 export const simpleValidateProfessional = (data) => {
   const errs = {};
 
-  // --- Basic employee details (always required) ---
-  if (isEmpty(data.employeeId)) errs.employeeId = 'Employee ID is required';
-  if (isEmpty(data.dateOfJoining)) errs.dateOfJoining = 'Date of joining is required';
-  if (isEmpty(data.role)) errs.role = 'Role is required';
-  if (isEmpty(data.department)) errs.department = 'Department is required';
-  if (isEmpty(data.salary)) errs.salary = 'Salary is required';
+  // --- Basic employee details ---
+  if (!data.employeeId || data.employeeId.trim() === '')
+    errs.employeeId = 'Employee ID is required';
+  if (!data.dateOfJoining)
+    errs.dateOfJoining = 'Date of joining is required';
+  if (!data.role || data.role.trim() === '')
+    errs.role = 'Role is required';
+  if (!data.department || data.department.trim() === '')
+    errs.department = 'Department is required';
+  if (!data.salary || data.salary.trim() === '')
+    errs.salary = 'Salary is required';
 
-  // --- If form still sends legacy jobType (backwards compatibility) ---
-  // If jobType exists and is 'fresher' or 'experience', handle minimal checks.
-  if (data.jobType === 'fresher') {
-    // If you still use resume/certificate for freshers
-    if (!data.resume) errs.resume = 'Resume is required.';
-    else if (!isValidPDF(data.resume)) errs.resume = 'Resume must be a PDF under 3 MB.';
-    if (!data.skills || data.skills.trim() === '') errs.skills = 'Skills are required.';
-    if (!data.certificate) errs.certificate = 'Certificate is required.';
-    else if (!isValidPDF(data.certificate)) errs.certificate = 'Certificate must be a PDF under 3 MB.';
-  }
-
-  // --- Experience section: either controlled by hasExperience (checkbox) or jobType === 'experience' ---
-  const requiresExperience = !!data.hasExperience || data.jobType === 'experience';
-
-  if (requiresExperience) {
+  // ✅ Only validate experience if user marked "hasExperience"
+  if (data.hasExperience) {
     if (!Array.isArray(data.experiences) || data.experiences.length === 0) {
       errs.experiences = 'Please add at least one experience entry';
-      // return early? we still want to keep base errors, so do not return yet.
     } else {
       data.experiences.forEach((exp, i) => {
-        const idx = `_${i}`; // suffix for keys like companyName_0
-        // Required text fields
-        if (!exp.companyName || exp.companyName.trim() === '')
-          errs[`companyName${idx}`] = 'Company name is required';
-        if (!exp.companyLocation || exp.companyLocation.trim() === '')
-          errs[`companyLocation${idx}`] = 'Company location is required';
-        if (!exp.jobTitle || exp.jobTitle.trim() === '')
-          errs[`jobTitle${idx}`] = 'Job title is required';
-        if (!exp.startDate) errs[`startDate${idx}`] = 'Start date is required';
-        if (!exp.endDate) errs[`endDate${idx}`] = 'End date is required';
+        const idx = `_${i}`;
 
-        // Date order
+        if (!exp.companyName?.trim())
+          errs[`companyName${idx}`] = 'Company name is required';
+        if (!exp.companyLocation?.trim())
+          errs[`companyLocation${idx}`] = 'Company location is required';
+        if (!exp.jobTitle?.trim())
+          errs[`jobTitle${idx}`] = 'Job title is required';
+        if (!exp.startDate)
+          errs[`startDate${idx}`] = 'Start date is required';
+        if (!exp.endDate)
+          errs[`endDate${idx}`] = 'End date is required';
+
         if (exp.startDate && exp.endDate) {
           const start = new Date(exp.startDate);
           const end = new Date(exp.endDate);
@@ -195,42 +187,55 @@ export const simpleValidateProfessional = (data) => {
           }
         }
 
-        if (!exp.roles || exp.roles.trim() === '')
+        if (!exp.roles?.trim())
           errs[`roles${idx}`] = 'Roles and responsibilities are required';
-        if (!exp.projects || exp.projects.trim() === '')
+        if (!exp.projects?.trim())
           errs[`projects${idx}`] = 'Projects are required';
-        if (!exp.salary || String(exp.salary).trim() === '')
-          errs[`salary${idx}`] = 'Salary is required';
-        if (!exp.skills || exp.skills.trim() === '')
+        if (!exp.skills?.trim())
           errs[`skills${idx}`] = 'Skills are required';
+        if (!exp.salary?.trim())
+          errs[`salary${idx}`] = 'Salary is required';
 
-        // File fields: must be PDF under 3MB
-        if (!exp.relivingLetter) errs[`relivingLetter${idx}`] = 'Reliving letter is required';
-        else if (!isValidPDF(exp.relievingLetter))
+        if (!exp.relivingLetter)
+          errs[`relivingLetter${idx}`] = 'Reliving letter is required';
+        else if (!isValidPDF(exp.relivingLetter))
           errs[`relivingLetter${idx}`] = 'Reliving letter must be a PDF under 3 MB';
 
-        if (!exp.salarySlips) errs[`salarySlips${idx}`] = 'Salary slips are required';
+        if (!exp.salarySlips)
+          errs[`salarySlips${idx}`] = 'Salary slips are required';
         else if (!isValidPDF(exp.salarySlips))
           errs[`salarySlips${idx}`] = 'Salary slips must be a PDF under 3 MB';
 
-        // HR & Manager contact details
-        if (!exp.hrName || exp.hrName.trim() === '') errs[`hrName${idx}`] = 'HR name is required';
-        if (!exp.hrEmail || exp.hrEmail.trim() === '') errs[`hrEmail${idx}`] = 'HR email is required';
-        else if (!isValidEmail(exp.hrEmail)) errs[`hrEmail${idx}`] = 'Enter a valid HR email';
-        if (!exp.hrPhone || exp.hrPhone.trim() === '') errs[`hrPhone${idx}`] = 'HR phone is required';
-        else if (!isPhone(exp.hrPhone)) errs[`hrPhone${idx}`] = 'Enter valid 10-digit HR phone';
+        if (!exp.hrName?.trim())
+          errs[`hrName${idx}`] = 'HR name is required';
+        if (!exp.hrEmail?.trim())
+          errs[`hrEmail${idx}`] = 'HR email is required';
+        else if (!isValidEmail(exp.hrEmail))
+          errs[`hrEmail${idx}`] = 'Enter a valid HR email';
 
-        if (!exp.managerName || exp.managerName.trim() === '') errs[`managerName${idx}`] = 'Manager name is required';
-        if (!exp.managerEmail || exp.managerEmail.trim() === '') errs[`managerEmail${idx}`] = 'Manager email is required';
-        else if (!isValidEmail(exp.managerEmail)) errs[`managerEmail${idx}`] = 'Enter a valid manager email';
-        if (!exp.managerPhone || exp.managerPhone.trim() === '') errs[`managerPhone${idx}`] = 'Manager phone is required';
-        else if (!isPhone(exp.managerPhone)) errs[`managerPhone${idx}`] = 'Enter valid 10-digit manager phone';
+        if (!exp.hrPhone?.trim())
+          errs[`hrPhone${idx}`] = 'HR phone is required';
+        else if (!isPhone(exp.hrPhone))
+          errs[`hrPhone${idx}`] = 'Enter valid 10-digit HR phone';
+
+        if (!exp.managerName?.trim())
+          errs[`managerName${idx}`] = 'Manager name is required';
+        if (!exp.managerEmail?.trim())
+          errs[`managerEmail${idx}`] = 'Manager email is required';
+        else if (!isValidEmail(exp.managerEmail))
+          errs[`managerEmail${idx}`] = 'Enter a valid manager email';
+
+        if (!exp.managerPhone?.trim())
+          errs[`managerPhone${idx}`] = 'Manager phone is required';
+        else if (!isPhone(exp.managerPhone))
+          errs[`managerPhone${idx}`] = 'Enter valid 10-digit manager phone';
       });
     }
   }
 
   return errs;
 };
+
 
 
 // ==============================

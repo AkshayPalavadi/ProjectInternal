@@ -64,7 +64,7 @@ function PersonApp() {
       {
         companyName: '', companyLocation: '', jobTitle: '', startDate: '', endDate: '',
         duration: '', roles: '', projects: '', skills: '', salary: '',
-        relievingLetter: null, salarySlips: null, hrName: '', hrEmail: '',
+        relivingLetter: null, salarySlips: null, hrName: '', hrEmail: '',
         hrPhone: '', managerName: '', managerEmail: '', managerPhone: '',
       },
     ],
@@ -130,7 +130,7 @@ function PersonApp() {
 
   // -------------------- RENDER --------------------
   return (
-    <div className="dashboard">
+    <div className="dashboard-employee">
       <main className="main-content">
         <header className="topbar">
           <h2>Employee Application Form</h2>
