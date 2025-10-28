@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 // import Sidebar from './component/Sidebar';
-import PersonalDetails from '../frontend/src/component/PersonalDetails.jsx';
-import EducationDetails from '../frontend/src/component/EducationaDetails.jsx';
-import ProfessionalDetails from '../frontend/src/component/ProfessionalDetails.jsx';
-import ReviewSubmit from '../frontend/src/component/ReviewSubmit.jsx';
-import Stepper from '../frontend/src/component/Stepper.js';
-import '../frontend/src/component/indexApp.css';
+import PersonalDetails from './src/component/PersonalDetails.jsx';
+import EducationDetails from './src/component/EducationaDetails.jsx';
+import ProfessionalDetails from './src/component/ProfessionalDetails.jsx';
+import ReviewSubmit from './src/component/ReviewSubmit.jsx';
+import Stepper from './src/component/Stepper.jsx';
+import './src/component/indexApp.css';
 
 // ✅ Import existing validation functions
 import {

@@ -5,9 +5,10 @@ import SidebarLayout from "./Components/SidebarLayout.jsx";
 import Home from "./Components/Home.jsx";
 import Dashboard from "./Components/Dashboard.jsx";
 import Leaves from "./Components/Leaves.jsx";
-import Profile from "./Components/Profile.jsx";
+// import Profile from "./Components/Profile.jsx";
 import Login from "./Components/Login.jsx";
 import Admin from "./Components/Admin.jsx"
+import PersonApp from "../PersonApp.jsx";
 
 
 function App() {
@@ -107,7 +108,7 @@ function App() {
           />
           <Route
             path="profile"
-            element={<Profile userName={userName} setUserName={setUserName} />}
+            element={<PersonApp/>}
           />
         </Route>
 
