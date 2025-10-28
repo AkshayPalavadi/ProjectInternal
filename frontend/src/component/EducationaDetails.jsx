@@ -56,7 +56,7 @@ const EducationDetails = ({ data, setData, setActive,nextStep,prevStep, errors, 
 
         <div className="field">
           <label>School Name <span className="required-star">*</span></label>
-          <input name="schoolName10" value={data.schoolName10 || ''} onChange={handleChange} />
+          <input type='text' name="schoolName10" value={data.schoolName10 || ''} onChange={handleChange} />
           {errors.schoolName10 && <small className="err">{errors.schoolName10}</small>}
         </div>
 

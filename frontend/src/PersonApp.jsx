@@ -17,7 +17,7 @@ import {
 function PersonApp() {
   // -------------------- STEP MANAGEMENT --------------------
   const steps = ['Personal Details', 'Education Details', 'Professional Details', 'Review & Submit'];
-  const [currentStep, setCurrentStep] = useState(2);
+  const [currentStep, setCurrentStep] = useState(0);
   const [errors, setErrors] = useState({});
 
   const getStepName = () => {

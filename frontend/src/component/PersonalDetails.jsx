@@ -13,8 +13,17 @@ const states = [
 
 const PersonalDetails = ({ data, setData, setActive, errors,nextStep, setErrors }) => {
   const [photoPreview, setPhotoPreview] = useState(null);
+  const isPhone = (s) => /^[6-9]\d{9}$/.test(String(s).trim());
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
+  if (name === "alternativePhone") {
+    // Only update if valid number or empty (so user can delete)
+    if (value === "" || /^[6-9]\d{0,9}$/.test(value)) {
+      setData({ ...data, [name]: value });
+    }
+  } else {
+    setData({ ...data, [name]: value });}
+  
 
     // Checkbox for same address
     if (type === 'checkbox' && name === 'sameAddress') {
@@ -139,7 +148,14 @@ const PersonalDetails = ({ data, setData, setActive, errors,nextStep, setErrors 
   type="tel"
   name="alternativePhone"
   value={data.alternativePhone}
-  onChange={handleChange}
+  onChange={(e) => {
+      const value = e.target.value;
+      // Allow only digits and limit to 10
+      if (/^\d{0,10}$/.test(value)) {
+        setData((prev) => ({ ...prev, alternativePhone: value }));
+        setErrors((prev) => ({ ...prev, alternativePhone : '' }));
+      }
+    }}
   placeholder="Enter alternate number"
 />
         </div>
