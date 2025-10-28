@@ -1,7 +1,7 @@
 // --- Utility functions ---
 const isEmpty = (v) => !v || String(v).trim() === "";
 const isEmail = (s) => /^[\w.%+-]+@(gmail|yahoo|outlook)\.com$/i.test(s.trim());
-const isPhone = (s) => /^[0-9]{10}$/.test(String(s).trim());
+const isPhone = (s) => /^[6-9]\d{9}$/.test(String(s).trim());
 const isPincode = (s) => /^[1-9][0-9]{5}$/.test(String(s).trim());
 const isAadhar = (s) => /^[0-9]{12}$/.test(String(s).trim());
 const isPAN = (s) => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(String(s).trim());

@@ -43,8 +43,17 @@ const PersonalDetails = ({
   setErrors,
 }) => {
   const [photoPreview, setPhotoPreview] = useState(null);
+  const isPhone = (s) => /^[6-9]\d{9}$/.test(String(s).trim());
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
+  if (name === "alternativePhone") {
+    // Only update if valid number or empty (so user can delete)
+    if (value === "" || /^[6-9]\d{0,9}$/.test(value)) {
+      setData({ ...data, [name]: value });
+    }
+  } else {
+    setData({ ...data, [name]: value });}
+  
 
     // Fields that should only accept letters and spaces
     const nameFields1 = [
@@ -230,6 +239,7 @@ const PersonalDetails = ({
 
         <div className="field">
           <label>Alternative Phone</label>
+<<<<<<< HEAD
           <input
             type="tel"
             name="alternativePhone"
@@ -237,6 +247,22 @@ const PersonalDetails = ({
             onChange={handleChange}
             placeholder="Enter alternate number"
           />
+=======
+                           <input
+  type="tel"
+  name="alternativePhone"
+  value={data.alternativePhone}
+  onChange={(e) => {
+      const value = e.target.value;
+      // Allow only digits and limit to 10
+      if (/^\d{0,10}$/.test(value)) {
+        setData((prev) => ({ ...prev, alternativePhone: value }));
+        setErrors((prev) => ({ ...prev, alternativePhone : '' }));
+      }
+    }}
+  placeholder="Enter alternate number"
+/>
+>>>>>>> dcd7f4779737f590012e9fa811be84a469b334c5
         </div>
 
         {/* ---- Gender and Blood Group ---- */}
