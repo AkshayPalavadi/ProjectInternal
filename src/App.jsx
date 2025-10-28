@@ -4,11 +4,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import SidebarLayout from "./Components/SidebarLayout.jsx";
 import Home from "./Components/Home.jsx";
 import Dashboard from "./Components/Dashboard.jsx";
+import ProjectManagement from "./Components/ProjectManagement.jsx";
+import Timesheet from "./Components/Timesheet.jsx";
 import Leaves from "./Components/Leaves.jsx";
-// import Profile from "./Components/Profile.jsx";
 import Login from "./Components/Login.jsx";
 import Admin from "./Components/Admin.jsx"
-import Register from "./Components/Register.jsx";
 import PersonApp from "./PersonApp.jsx";
 
 
@@ -69,8 +69,6 @@ function App() {
           element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />}
         />
 
-        <Route path="/register" element={<Register />} />
-
         {/* Employee Routes */}
         <Route
           path="/employee"
@@ -89,14 +87,11 @@ function App() {
         >
           <Route index element={<Navigate to="home" replace />} />
           <Route path="home" element={<Home />} />
-          <Route
-            path="dashboard"
-            element={
-              <Dashboard
-                projects={employeeData.projects}
-              />
-            }
-          />
+          <Route path="dashboard" element={<Dashboard projects={employeeData.projects} />} />
+<Route path="timesheet" element={<Timesheet />} />
+<Route path="projectmanagement" element={<ProjectManagement />} />
+
+
           <Route
             path="leaves"
             element={
@@ -111,8 +106,9 @@ function App() {
           />
           <Route
             path="profile"
-            element={<PersonApp/>}
+            element={<PersonApp />}
           />
+          
         </Route>
 
         {/* Admin Routes */}
