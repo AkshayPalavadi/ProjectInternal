@@ -8,6 +8,7 @@ import Leaves from "./Components/Leaves.jsx";
 import Profile from "./Components/Profile.jsx";
 import Login from "./Components/Login.jsx";
 import Admin from "./Components/Admin.jsx"
+import Register from "../../../sample/Pro/web/src/Components/Register.jsx";
 
 
 function App() {
@@ -66,6 +67,8 @@ function App() {
           path="/login"
           element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />}
         />
+
+        <Route path="/register" element={<Register />} />
 
         {/* Employee Routes */}
         <Route

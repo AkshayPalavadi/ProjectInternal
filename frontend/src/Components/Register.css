@@ -1,0 +1,193 @@
+.emp-register-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  min-height: 100vh;
+  background: #ffffff;
+  font-family: 'Poppins', sans-serif;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.emp-register-left {
+  max-width: 40%;
+  text-align: left;
+}
+
+.emp-register-left h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 30px;
+}
+
+.emp-highlight {
+  color: #3ba55d;
+}
+
+.emp-register-left p {
+  margin-top: 15px;
+  color: #444;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+.emp-register-form {
+  width: 380px;
+  background: #ffffff;
+  padding: 35px 30px;
+  border-radius: 16px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.emp-register-form h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #222;
+}
+
+.emp-register-form form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.emp-register-form input,
+.emp-register-form select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: 0.3s ease;
+  width: 100%;
+}
+
+.emp-register-form input:focus,
+.emp-register-form select:focus {
+  border-color: #3ba55d;
+  box-shadow: 0 0 4px rgba(59, 165, 93, 0.3);
+}
+
+.emp-phone-group {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.emp-countrycode {
+  max-width: 90px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.emp-phonenumber {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.emp-password-group {
+  position: relative;
+  width: 100%;
+}
+
+.emp-password-input {
+  width: 100%;
+  padding-right: 35px;
+}
+
+.emp-eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #777;
+  font-size: 18px;
+}
+
+.emp-eye-icon:hover {
+  color: #3ba55d;
+}
+
+.submit-reg {
+  background: #3ba55d;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+  width: 100%;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.submit-reg:hover {
+  background: #2e8a4f;
+}
+
+.emp-login-text {
+  text-align: center;
+  margin-top: 15px;
+  color: #555;
+  font-size: 14px;
+}
+
+.emp-login-link {
+  color: #3ba55d;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.emp-login-link:hover {
+  text-decoration: underline;
+}
+
+.emp-logo {
+  width: 150px;
+  height: 150px;
+}
+
+.emp-content {
+  font-weight: 300;
+  font-size: 18px;
+  line-height: 1.8;
+  margin-top: 10px;
+}
+
+.emp-error {
+  color: red;
+  font-size: 13px;
+  margin-top: -8px;
+  margin-bottom: 4px;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .emp-register-container {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .emp-register-left {
+    max-width: 90%;
+  }
+
+  .emp-register-form {
+    width: 90%;
+    margin-top: 20px;
+  }
+
+  .emp-content {
+    font-size: 16px;
+  }
+}
