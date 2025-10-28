@@ -12,7 +12,7 @@ import {
   simpleValidatePersonal,
   simpleValidateEducation,
   simpleValidateProfessional,
-} from './component/validation';
+} from './component/validation.jsx';
 
 function PersonApp() {
   // -------------------- STEP MANAGEMENT --------------------
