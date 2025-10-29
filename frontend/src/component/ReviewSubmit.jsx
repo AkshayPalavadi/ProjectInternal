@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { validateAll } from './validation';
 import './indexApp.css';
+import { useNavigate } from "react-router-dom";
 
 const ReviewSubmit = ({ personal, education, professional,prevStep, setErrors, onBack, onSuccess }) => {
   const [submitAttempted, setSubmitAttempted] = useState(false);
   const [submitErrors, setSubmitErrors] = useState({});
+    const navigate = useNavigate();
+
 
   const handleSubmit = () => {
     setSubmitAttempted(true);
@@ -13,7 +16,8 @@ const ReviewSubmit = ({ personal, education, professional,prevStep, setErrors, o
     setSubmitErrors(errs);
 
     if (Object.keys(errs).length === 0) {
-      onSuccess();
+            navigate("/employee/details");
+
     } else {
       const el = document.querySelector('.content-card');
       if (el) el.scrollIntoView({ behavior: 'smooth' });

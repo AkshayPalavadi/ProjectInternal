@@ -239,30 +239,19 @@ const PersonalDetails = ({
 
         <div className="field">
           <label>Alternative Phone</label>
-<<<<<<< HEAD
           <input
             type="tel"
             name="alternativePhone"
             value={data.alternativePhone}
-            onChange={handleChange}
-            placeholder="Enter alternate number"
+onChange={(e) => {
+              const value = e.target.value;
+              // Allow only digits and limit to 10
+              if (/^\d{0,10}$/.test(value)) {
+                setData((prev) => ({ ...prev, alternativePhone: value }));
+                setErrors((prev) => ({ ...prev, alternativePhone: "" }));
+              }
+            }}            placeholder="Enter alternate number"
           />
-=======
-                           <input
-  type="tel"
-  name="alternativePhone"
-  value={data.alternativePhone}
-  onChange={(e) => {
-      const value = e.target.value;
-      // Allow only digits and limit to 10
-      if (/^\d{0,10}$/.test(value)) {
-        setData((prev) => ({ ...prev, alternativePhone: value }));
-        setErrors((prev) => ({ ...prev, alternativePhone : '' }));
-      }
-    }}
-  placeholder="Enter alternate number"
-/>
->>>>>>> dcd7f4779737f590012e9fa811be84a469b334c5
         </div>
 
         {/* ---- Gender and Blood Group ---- */}

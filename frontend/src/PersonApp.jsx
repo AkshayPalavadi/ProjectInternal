@@ -6,6 +6,8 @@ import ProfessionalDetails from "./component/ProfessionalDetails.jsx";
 import ReviewSubmit from "./component/ReviewSubmit.jsx";
 import Stepper from "./component/Stepper.jsx";
 import "./component/indexApp.css";
+import { useNavigate } from "react-router-dom";
+
 
 // ✅ Import existing validation functions
 import {
@@ -41,6 +43,13 @@ function PersonApp() {
   };
 
   const active = getStepName();
+  const handleSuccess = () => {
+    // ✅ mark that the form was submitted
+    localStorage.setItem("applicationSubmitted", "true");
+
+    // ✅ navigate to employee review/details page
+    navigate("/employee/details");
+  };
 
   // -------------------- FORM STATES --------------------
   const [personal, setPersonal] = useState({
@@ -314,10 +323,7 @@ function PersonApp() {
               professional={professional}
               setErrors={setErrors}
               prevStep={prevStep}
-              onSuccess={() => {
-                alert("✅ Application submitted successfully!");
-                resetForm();
-              }}
+              onSuccess={handleSuccess}
             />
           )}
         </section>
