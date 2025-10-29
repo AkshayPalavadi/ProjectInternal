@@ -13,6 +13,7 @@
 }
 
 .login-container {
+  margin-top: -40px;
   background: #fff;
   padding: 30px 40px;
   border-radius: 12px;
@@ -21,25 +22,25 @@
   max-width: 90%;
 }
 
-.header {
+.headerlogin {
   display: flex;
   align-items: center;
   gap: 15px;
 }
 
-.header img {
+.headerlogin img {
   width: 100px;
   border-radius: 50%;
   margin: 10px;
 }
 
-.header h1 {
+.headerlogin h1 {
   font-size: 30px;
   margin: 0;
   color: #333;
 }
 
-.header p {
+.headerlogin p {
   text-align: center;
   font-size: 15px;
   color: #555;
@@ -96,24 +97,65 @@ hr {
 
 .password-input {
   position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 .password-input input {
-  width: 87%;
-  padding-right: 40px; /* space for eye icon */
+  flex: 1; /* ✅ fills available space and prevents shrinking */
+  height: 44px;
+  min-width: 0; /* ✅ prevents overflow issues inside flex */
+  padding: 10px 40px 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.password-input input:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0px 0px 4px rgba(74, 144, 226, 0.4);
 }
 
 .eye-icon {
   position: absolute;
-  right: 10px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
   color: #555;
+  font-size: 16px;
+  line-height: 1; /* ✅ prevents height shift */
+}
+
+/* ✅ Remember Me Checkbox Styling */
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.remember-me input[type="checkbox"] {
+  accent-color: #4a90e2; /* gives blue color on check (modern browsers) */
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.remember-me label {
+  cursor: pointer;
+  user-select: none;
 }
 
 button {
-  margin-top: 40px;
+  margin-top: 0px;
   padding: 12px;
   background: #279630;
   color: #fff;
@@ -149,4 +191,42 @@ button:active {
 .error {
   color: red;
   margin-bottom: 10px;
+}
+
+.reset-password-link {
+  text-align: right;
+  margin-top: -20px;
+  margin-bottom: 10px;
+}
+
+.reset-password-link a {
+  color: #4a90e2;
+  text-decoration: none;
+  font-size: 13.5px;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.reset-password-link a:hover {
+  color: #1e70c1;
+  text-decoration: underline;
+}
+
+.register-link-text {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 14px;
+  color: #444;
+}
+
+.register-link {
+  color: #007bff;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.register-link:hover {
+  text-decoration: underline;
+  color: #0056b3;
 }

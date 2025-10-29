@@ -8,7 +8,9 @@ import Leaves from "./Components/Leaves.jsx";
 // import Profile from "./Components/Profile.jsx";
 import Login from "./Components/Login.jsx";
 import Admin from "./Components/Admin.jsx"
-import PersonApp from "../PersonApp.jsx";
+import Register from "./Components/Register.jsx";
+import EmployeeDetails from "./component/EmployeeReview.jsx";
+import PersonApp from "./PersonApp.jsx";
 
 
 function App() {
@@ -68,6 +70,8 @@ function App() {
           element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />}
         />
 
+        <Route path="/register" element={<Register />} />
+
         {/* Employee Routes */}
         <Route
           path="/employee"
@@ -106,10 +110,19 @@ function App() {
               />
             }
           />
+                  <Route path="details" element={<EmployeeDetails />} />
+
+          
           <Route
-            path="profile"
-            element={<PersonApp/>}
-          />
+  path="profile"
+  element={
+    localStorage.getItem("applicationSubmitted") === "true" ? (
+      <EmployeeDetails />
+    ) : (
+      <PersonApp />
+    )
+  }
+/>
         </Route>
 
         {/* Admin Routes */}
@@ -121,6 +134,7 @@ function App() {
         >
           
         </Route>
+
 
         {/* Default redirect */}
         <Route path="*" element={<Navigate to="/login" replace />} />

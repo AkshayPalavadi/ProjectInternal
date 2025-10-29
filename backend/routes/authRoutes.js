@@ -5,23 +5,48 @@ const Employee = require("../models/Employee");
 
 const router = express.Router();
 
-
-// 📝 Register Employee
+/**
+ * 📝 Register Employee
+ */
 router.post("/register", async (req, res) => {
   try {
-    const { empId, empName, email, password, confirmPassword } = req.body;
+    const {
+      
+      firstName,
+      lastName,
+      email,
+      dateOfBirth,
+      phoneNumber,
+      password,
+      confirmPassword,
+    } = req.body;
 
-    // Validate input
-    if (!empId || !empName || !email || !password || !confirmPassword)
+    // ✅ Validate required fields
+    if (
+      //!empId ||
+      !firstName ||
+      !lastName ||
+      !email ||
+      !dateOfBirth ||
+      !phoneNumber ||
+      !password ||
+      !confirmPassword
+    ) {
       return res.status(400).json({ msg: "All fields are required" });
+    }
 
-    if (password !== confirmPassword)
+    // ✅ Password match check
+    if (password !== confirmPassword) {
       return res.status(400).json({ msg: "Passwords do not match" });
+    }
 
-    // ✅ Check dhatvibs.com domain
+    // ✅ Email domain validation (only dhatvibs.com allowed)
     const domain = email.split("@")[1];
-    if (domain !== "dhatvibs.com")
-      return res.status(400).json({ msg: "Only dhatvibs.com emails are allowed" });
+    if (domain !== "dhatvibs.com") {
+      return res
+        .status(400)
+        .json({ msg: "Only dhatvibs.com emails are allowed" });
+    }
 
     // ✅ Strong password validation
     const passwordRegex =
@@ -29,33 +54,42 @@ router.post("/register", async (req, res) => {
 
     if (!passwordRegex.test(password)) {
       return res.status(400).json({
-        msg: "Password must be at least 8 characters long, include uppercase, lowercase, number, and special character.",
+        msg: "Password must include uppercase, lowercase, number, and special character.",
       });
     }
 
+    // ✅ Check existing employee
     const existingEmp = await Employee.findOne({ email });
-    if (existingEmp) return res.status(400).json({ msg: "Email already exists" });
+    if (existingEmp) {
+      return res.status(400).json({ msg: "Email already exists" });
+    }
 
-    // Hash password
+    // ✅ Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // ✅ Create new employee
     const newEmp = new Employee({
-      empId,
-      empName,
+      //empId,
+      firstName,
+      lastName,
       email,
+      dateOfBirth,
+      phoneNumber,
       password: hashedPassword,
     });
 
     await newEmp.save();
     res.status(201).json({ msg: "Employee registered successfully" });
   } catch (err) {
+    console.error("Registration error:", err);
     res.status(500).json({ msg: err.message });
   }
 });
 
-
-// 🔑 Login Employee
+/**
+ * 🔑 Login Employee
+ */
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -68,7 +102,7 @@ router.post("/login", async (req, res) => {
 
     // Generate JWT token
     const token = jwt.sign(
-      { id: employee._id, empName: employee.empName },
+      { id: employee._id, firstName: employee.firstName, empId: employee.empId },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
@@ -79,29 +113,34 @@ router.post("/login", async (req, res) => {
   }
 });
 
-
-// 📋 GET All Employees (Protected route)
+/**
+ * 📋 Get all employees
+ */
 router.get("/employees", async (req, res) => {
   try {
-const employees = await Employee.find().select("empId empName email");
+    const employees = await Employee.find().select(
+      "empId firstName lastName email dateOfBirth phoneNumber"
+    );
     res.json(employees);
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
 });
 
-
-// 📋 Optional: GET Single Employee by ID
-// GET Single Employee by empId (custom ID)
+/**
+ * 📋 Get single employee by empId
+ */
 router.get("/employees/:empId", async (req, res) => {
   try {
-    const employee = await Employee.findOne({ empId: req.params.empId }).select("-password");
-    if (!employee) return res.status(404).json({ msg: "Employee not found" });
+    const employee = await Employee.findOne({
+      empId: req.params.empId,
+    }).select("-password");
+    if (!employee)
+      return res.status(404).json({ msg: "Employee not found" });
     res.json(employee);
   } catch (err) {
     res.status(500).json({ msg: err.message });
   }
 });
-
 
 module.exports = router;
