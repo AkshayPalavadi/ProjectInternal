@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link, Outlet } from "react-router-dom";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import Img from "../assets/logo.jpg";
 import "./Dashboard.css";
@@ -109,6 +110,10 @@ function Dashboard() {
 
   // ✅ Filter projects assigned to this employee
   const projects = allProjects.filter(p => p.assignedEmployees.includes(employeeId));
+//   const employeeId = parseInt(localStorage.getItem("employeeId"));
+// const validEmployeeId = isNaN(employeeId) ? 0 : employeeId;
+// const projects = allProjects.filter(p => p.assignedEmployees.includes(validEmployeeId));
+
 
   const COLORS = { "Completed days": "#00C49F", "In Progress days": "#FF8042", "Idle days": "#FF9999", "Future days": "#757575" };
   const { chartData: timelineData, detailMap } = getAllProjectDays(projects);
@@ -131,9 +136,9 @@ const [dashboardData] = useState({
     "Best Performer - Q2 2025"
   ],
   appreciations: [
-    "Appreciated by client for timely delivery",
-    "Praised by manager for mentoring juniors",
-    "Received positive feedback in peer review"
+    "Appreciated by client for timely delivery.",
+    "Praised by manager for mentoring juniors.",
+    "Received positive feedback in peer review."
   ]
 });
 
@@ -159,48 +164,61 @@ const [dashboardData] = useState({
         </div>
 
         {/* My Achievements */}
-<div className="my-achievements-card">
-  <h2>My Achievements</h2>
+        <div className="my-achievements-card">
+          <h2>My Achievements</h2>
 
-  {/* Tabs */}
-  <div className="achievement-tabs">
-    <button
-      className={activeTab === "awards" ? "active" : "inactive"}
-      onClick={() => setActiveTab("awards")}
-    >
-      Awards
-    </button>
-    <button
-      className={activeTab === "appreciations" ? "active" : "inactive"}
-      onClick={() => setActiveTab("appreciations")}
-    >
-      Appreciations
-    </button>
-  </div>
+          {/* Tabs */}
+          <div className="achievement-tabs">
+            <button
+              className={activeTab === "awards" ? "active" : "inactive"}
+              onClick={() => setActiveTab("awards")}
+            >
+              Awards
+            </button>
+            <button
+              className={activeTab === "appreciations" ? "active" : "inactive"}
+              onClick={() => setActiveTab("appreciations")}
+            >
+              Appreciations
+            </button>
+          </div>
 
-  {/* Tab Content */}
-  <div className="tab-content">
-    {activeTab === "awards" ? (
-      <ul>
-        {dashboardData.awards.length > 0 ? (
-          dashboardData.awards.map((award, idx) => <li key={idx}>{award}</li>)
-        ) : (
-          <p className="no-data">No awards yet 🎖️</p>
-        )}
-      </ul>
-    ) : (
-      <ul>
-        {dashboardData.appreciations.length > 0 ? (
-          dashboardData.appreciations.map((a, idx) => <li key={idx}>{a}</li>)
-        ) : (
-          <p className="no-data">No appreciations yet 💬</p>
-        )}
-      </ul>
-    )}
-  </div>
-</div>
-
+          {/* Tab Content */}
+          <div className="tab-content">
+            {activeTab === "awards" ? (
+              <ul>
+                {dashboardData.awards.length > 0 ? (
+                  dashboardData.awards.map((award, idx) => <li key={idx}>{award}</li>)
+                ) : (
+                  <p className="no-data">No awards yet 🎖️</p>
+                )}
+              </ul>
+            ) : (
+              <ul>
+                {dashboardData.appreciations.length > 0 ? (
+                  dashboardData.appreciations.map((a, idx) => <li key={idx}>{a}</li>)
+                ) : (
+                  <p className="no-data">No appreciations yet 💬</p>
+                )}
+              </ul>
+            )}
+          </div>
+        </div>
       </div>
+
+      <div className="navigation-cards-row">
+        <Link to="/employee/timesheet" className="nav-card">
+          <h2>Timesheet</h2>
+          <p>Track your daily work hours and activities.</p>
+        </Link>
+
+        <Link to="/employee/performancemanagement" className="nav-card">
+          <h2>Performance Management</h2>
+          <p>View and manage your assigned projects.</p>
+        </Link>
+      </div>
+
+      <Outlet />
 
       {/* Current Projects Pie */}
       <div className="charts-row">
@@ -311,3 +329,6 @@ const [dashboardData] = useState({
 }
 
 export default Dashboard;
+
+/* Dashboard.css */
+

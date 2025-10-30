@@ -1,7 +1,9 @@
-// src/pages/Leaves.jsx
 import { useState, useEffect } from "react";
 import "./Leaves.css";
 import History from "./History.jsx";
+
+
+
 
 export default function Leaves() {
   const [activeTab, setActiveTab] = useState("form");
@@ -99,41 +101,66 @@ export default function Leaves() {
     else setCustomTypes(customTypes.filter((c) => c !== value));
   };
 
-  const handleFileChange = (e) => {
-    const uploadedFile = e.target.files[0];
-    if (uploadedFile) {
-      const allowedTypes = ["application/pdf"];
-      if (!allowedTypes.includes(uploadedFile.type)) {
-        setErrors(["Only PDF files are allowed."]);
-        setFile(null);
-        return;
-      }
-      if (uploadedFile.size > 2 * 1024 * 1024) {
-        setErrors([
-          `File size must not exceed 2MB. Your file is ${(uploadedFile.size / 1024 / 1024).toFixed(2)} MB.`,
-        ]);
-        setFile(null);
-        return;
-      }
-      setFile(uploadedFile);
-    }
-  };
+const handleFileChange = (e) => {
+  const uploadedFile = e.target.files[0];
+  if (!uploadedFile) return;
 
-  const finalizeSubmit = (request) => {
-    setRequests((prev) => [...prev, request]);
-    setCurrentIndex(requests.length);
-    setFromDate("");
-    setToDate("");
-    setDaysApplied(0);
-    setLeaveType("none");
-    setCustomTypes([]);
-    setReason("");
-    setDisease("");
-    setCustomDisease("");
-    setCompoffDates([]);
+  const allowedTypes = ["application/pdf"];
+  if (!allowedTypes.includes(uploadedFile.type)) {
+    setErrors(["Only PDF files are allowed."]);
     setFile(null);
-    setShowSubmitPopup(true);
+    return;
+  }
+
+  if (uploadedFile.size > 2 * 1024 * 1024) {
+    setErrors([`File size must not exceed 2MB.`]);
+    setFile(null);
+    return;
+  }
+
+  // Convert PDF to Base64
+  const reader = new FileReader();
+  reader.onload = () => {
+    const base64String = reader.result; // this is a string like "data:application/pdf;base64,..."
+    setFile(base64String);
   };
+  reader.readAsDataURL(uploadedFile);
+};
+const [customLeaveSummary, setCustomLeaveSummary] = useState({});
+
+const finalizeSubmit = (request) => {
+  // Update state
+  setRequests((prev) => [...prev, request]);
+  setCurrentIndex(requests.length);
+
+  // Reset form
+  setFromDate("");
+  setToDate("");
+  setDaysApplied(0);
+  setLeaveType("none");
+  setCustomTypes([]);
+  setReason("");
+  setDisease("");
+  setCustomDisease("");
+  setCompoffDates([]);
+  setFile(null);
+
+  setShowSubmitPopup(true);
+};
+
+useEffect(() => {
+  const storedRequests = JSON.parse(localStorage.getItem("leaveRequests") || "[]");
+
+  const loggedInEmail = localStorage.getItem("employeeEmail"); // or employeeId
+  const isAdmin = localStorage.getItem("employeeRole") === "admin"; // optional if you track roles
+
+  // ✅ Filter only current user's requests (unless admin)
+  const filteredRequests = isAdmin
+    ? storedRequests
+    : storedRequests.filter(req => req.employeeEmail === loggedInEmail);
+
+  setRequests(filteredRequests);
+}, []);
 
   const insufficientMsg =
     (leaveType !== "none" &&
@@ -158,8 +185,9 @@ export default function Leaves() {
       validationErrors.push("Reason is required.");
     if (leaveType === "compoff" && compoffDates.length === 0)
       validationErrors.push("Please select at least one Compoff day.");
-    if (daysApplied > 2 && !file)
-      validationErrors.push("File upload is mandatory for this leave.");
+    if (leaveType === "sick" && daysApplied > 2 && !file)
+  validationErrors.push("File upload is mandatory for sick leave over 2 days.");
+
 
     if (validationErrors.length > 0) {
       setErrors(validationErrors);
@@ -172,16 +200,28 @@ export default function Leaves() {
     }
 
     let leaveDetails = {};
-    if (leaveType === "custom") {
-      let remaining = daysApplied;
-      for (const type of customTypes) {
-        const available = leaveBalances[type] || 0;
-        const applied = Math.min(available, remaining);
-        leaveDetails[type] = applied;
-        remaining -= applied;
-      }
-      if (remaining > 0) leaveDetails["lop"] = remaining;
+   if (leaveType === "custom") {
+  // Define fixed priority order
+  const priorityOrder = ["casual", "sick", "earned", "optional", "compoff", "maternity", "paternity", "other", "lop"];
+
+  // Sort selected custom types based on priority
+  const sortedTypes = [...customTypes].sort(
+    (a, b) => priorityOrder.indexOf(a) - priorityOrder.indexOf(b)
+  );
+
+  let remaining = daysApplied;
+  for (const type of sortedTypes) {
+    const available = leaveBalances[type] || 0;
+    const applied = Math.min(available, remaining);
+    if (applied > 0) {
+      leaveDetails[type] = applied;
+      remaining -= applied;
     }
+  }
+
+  // Anything leftover goes to LOP (Loss of Pay)
+  if (remaining > 0) leaveDetails["lop"] = remaining;
+}
 
     const newRequest = {
       fromDate,
@@ -193,6 +233,12 @@ export default function Leaves() {
       reason: finalReason,
       file: file || null,
       status: "Sent",
+      employeeId: parseInt(localStorage.getItem("employeeId")),
+      employeeName: localStorage.getItem("employeeName"),
+      employeeDesignation: localStorage.getItem("employeeDesignation"),
+      employeeDepartment: localStorage.getItem("employeeDepartment"),
+      employeeEmail: localStorage.getItem("employeeEmail"),
+      requestDate: new Date().toISOString(),
     };
 
     if (leaveType === "custom") {
@@ -210,6 +256,15 @@ export default function Leaves() {
     setErrors([]);
     setSubmitted(true);
     setStatus("sent");
+    // ✅ Save to localStorage so admin can see it
+const storedRequests = JSON.parse(localStorage.getItem("leaveRequests") || "[]");
+localStorage.setItem("leaveRequests", JSON.stringify([...storedRequests, newRequest]));
+if (leaveType === "custom") {
+  setCustomLeaveSummary(newRequest.leaveDetails);
+} else {
+  setCustomLeaveSummary({});
+}
+
     finalizeSubmit(newRequest);
   };
 
@@ -315,12 +370,42 @@ export default function Leaves() {
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label><strong>From Date</strong></label>
-              <input type="date" value={fromDate} min={today} onChange={e => setFromDate(e.target.value)} required />
+             <input
+                type="date"
+                value={fromDate}
+                min={today}
+                onChange={(e) => {
+                  const selected = new Date(e.target.value);
+                  const day = selected.getDay();
+                  // Disable Saturday (6) and Sunday (0)
+                  if (day === 0 || day === 6) {
+                    e.target.value = "";
+                    return;
+                  }
+                  setFromDate(e.target.value);
+                }}
+                required
+              />
             </div>
 
             <div className="form-group">
               <label><strong>To Date</strong></label>
-              <input type="date" value={toDate} min={fromDate} onChange={e => setToDate(e.target.value)} required />
+                <input
+                  type="date"
+                  id="toDate"
+                  value={toDate}
+                  min={fromDate || new Date().toISOString().split("T")[0]}
+                  onChange={(e) => {
+                    const selected = new Date(e.target.value);
+                    const day = selected.getDay();
+                    if (day === 0 || day === 6) {
+                      setToDate("");
+                    } else {
+                      setToDate(e.target.value);
+                    }
+                  }}
+                  required
+                />
             </div>
 
             <p>Total Days Applied: <span className="green-text">{daysApplied}</span></p>
@@ -455,7 +540,13 @@ export default function Leaves() {
 
             <div className="form-group">
               <label><strong>Upload Document</strong></label>
-              <input type="file" accept=".pdf" onChange={handleFileChange} required={daysApplied > 2} />
+              <input
+  type="file"
+  accept=".pdf"
+  onChange={handleFileChange}
+  required={leaveType === "sick" && daysApplied > 2}
+/>
+
             </div>
 
             <button type="submit" className="submit-btn">Submit</button>
@@ -487,7 +578,27 @@ export default function Leaves() {
           <div className="popup-box">
             <h3>✅ Leave Submitted!</h3>
             <p>Your leave request has been submitted successfully.</p>
-            <button onClick={() => setShowSubmitPopup(false)}>OK</button>
+            {Object.keys(customLeaveSummary).length > 0 && (
+  <div className="custom-summary">
+    <h4>Custom Leave Breakdown:</h4>
+    <ul>
+      {Object.entries(customLeaveSummary).map(([type, days]) => (
+        <li key={type}>
+          {type.charAt(0).toUpperCase() + type.slice(1)}: {days} day{days > 1 ? "s" : ""}
+        </li>
+      ))}
+    </ul>
+  </div>
+)}
+           <button
+  onClick={() => {
+    setShowSubmitPopup(false);
+    setActiveTab("requests"); // redirect to History tab
+  }}
+>
+  OK
+</button>
+
           </div>
         </div>
       )}
@@ -520,3 +631,4 @@ export default function Leaves() {
     </div>
   );
 }
+

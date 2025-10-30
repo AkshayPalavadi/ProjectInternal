@@ -47,49 +47,56 @@ function Login({ setIsLoggedIn, setUserRole }) {
     }
   }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    if (!email.endsWith("@dhatvibs.com")) {
-      setError("Only @dhatvibs.com email addresses are allowed.");
-      return;
-    }
+  if (!email.endsWith("@dhatvibs.com")) {
+    setError("Only @dhatvibs.com email addresses are allowed.");
+    return;
+  }
 
-    const users = JSON.parse(localStorage.getItem("users")) || defaultUsers;
-    const user = users.find(
-      (u) => u.email === email && u.password === password && u.role === role
-    );
+  try {
+    const response = await fetch("https://backend-internal-five.vercel.app/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-    if (user) {
-      localStorage.removeItem("hasLoggedOut");
+    const result = await response.json();
+    console.log("📦 API Login Response:", result);
 
+    if (response.ok) {
+      // ✅ Login successful
+      // alert("Login successful!");
       setIsLoggedIn(true);
       setUserRole(role);
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userRole", role);
-      localStorage.setItem("employeeEmail", user.email);
-      localStorage.setItem("employeeName", user.name);
-      localStorage.setItem("employeeRole", user.role);
-      localStorage.setItem("employeeId", user.id);
 
+      // store auth token or user info if returned by API
+      if (result.token) localStorage.setItem("token", result.token);
+
+      // Remember Me
       if (rememberMe) {
         localStorage.setItem("rememberedUser", JSON.stringify({ email, password }));
       } else {
         localStorage.removeItem("rememberedUser");
       }
 
+      localStorage.setItem("isLoggedIn", "true");
+      localStorage.setItem("userRole", role);
+      localStorage.removeItem("hasLoggedOut");
+
       navigate(role === "admin" ? "/admin" : "/employee/home");
-      return;
-    }
-
-    if (rememberMe) {
-      localStorage.setItem("rememberedUser", JSON.stringify({ email, password }));
     } else {
-      localStorage.removeItem("rememberedUser");
+      // ❌ API rejected
+      setError(result.msg || "Invalid email or password");
     }
+  } catch (err) {
+    console.error("🚨 API Error:", err);
+    setError("Server not reachable. Please try again later.");
+  }
+};
 
-    setError("Invalid email, password, or role selection");
-  };
 
   return (
     <div className="login-main-container">

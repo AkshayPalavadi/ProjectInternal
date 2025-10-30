@@ -67,37 +67,52 @@ const Register = () => {
     validate(name, value);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    // Run full validation before submit
-    Object.keys(formData).forEach((key) => validate(key, formData[key]));
-    const hasErrors = Object.values(errors).some((msg) => msg);
-    if (hasErrors) {
-      alert("Please fix the highlighted errors before submitting.");
-      return;
-    }
+  // Run full validation before submit
+  Object.keys(formData).forEach((key) => validate(key, formData[key]));
+  const hasErrors = Object.values(errors).some((msg) => msg);
+  if (hasErrors) {
+    alert("Please fix the highlighted errors before submitting.");
+    return;
+  }
 
-    // Save user data to localStorage
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const newUser = {
-      id: Date.now(),
-      role: "employee",
-      name: `${formData.firstname} ${formData.lastname}`,
-      email: formData.email,
-      password: formData.password,
-      designation: "New Joiner",
-      experience: "0 years",
-      department: "",
-      project: "",
-    };
+  // ✅ Send data to backend API
+try {
+const payload = {
+  firstName: formData.firstname,
+  lastName: formData.lastname,
+  dateOfBirth: formData.dob,
+  email: formData.email,
+  phoneNumber: formData.phone,
+  password: formData.password,
+  confirmPassword: formData.confirmPassword,
+};
+console.log("📤 Sending payload:", payload);
 
-    users.push(newUser);
-    localStorage.setItem("users", JSON.stringify(users));
+  const response = await fetch("https://backend-internal-five.vercel.app/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 
-    alert("Registration successful! Redirecting to Login...");
+  const result = await response.json();
+  console.log("📦 API Response:", result);
+
+  if (response.ok) {
+    // alert("Registration successful! Redirecting to Login...");
     navigate("/login");
-  };
+  } else {
+    alert(`Server Error: ${result.msg || "Unable to register user."}`);
+  }
+} catch (error) {
+  console.error("🚨 API error:", error);
+  alert("Server not reachable. Data saved locally.");
+}
+
+};
+
 
   return (
     <div className="emp-register-container">

@@ -10,7 +10,9 @@ import Login from "./Components/Login.jsx";
 import Admin from "./Components/Admin.jsx"
 import Register from "./Components/Register.jsx";
 import EmployeeDetails from "./component/EmployeeReview.jsx";
+import PerformanceManagement from "./Components/PerformanceManagement.jsx";
 import PersonApp from "./PersonApp.jsx";
+import TimeSheet from "./Components/TimeSheet.jsx";
 
 
 function App() {
@@ -95,6 +97,20 @@ function App() {
             element={
               <Dashboard
                 projects={employeeData.projects}
+              />
+            }
+          />
+          <Route path="timesheet" element={<TimeSheet />} />
+          <Route path="performancemanagement" element={<PerformanceManagement />} />
+          <Route
+            path="leaves"
+            element={
+              <Leaves
+                totalLeaves={totalLeaves}
+                leavesUsed={leavesUsed}
+                setLeavesUsed={setLeavesUsed}
+                absentDays={absentDays}
+                setAbsentDays={setAbsentDays}
               />
             }
           />
