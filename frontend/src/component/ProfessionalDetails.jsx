@@ -1,76 +1,97 @@
-import React, { useState, useEffect } from 'react';
-import { simpleValidateProfessional } from './validation';
+import React, { useState, useEffect } from "react";
+import { simpleValidateProfessional } from "./validation";
 
-const ProfessionalDetails = ({ data, setData, setActive,nextStep,prevStep, errors, setErrors }) => {
+const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
   const [localData, setLocalData] = useState({
-    employeeId: data.employeeId || '',
-    dateOfJoining: data.dateOfJoining || '',
-    role: data.role || '',
-    department: data.department || '',
-    salary: data.salary || '',
+    employeeId: data.employeeId || "",
+    dateOfJoining: data.dateOfJoining || "",
+    role: data.role || "",
+    department: data.department || "",
+    salary: data.salary || "",
     hasExperience: data.hasExperience || false,
     experiences: data.experiences || [],
   });
 
+  const [localErrors, setLocalErrors] = useState({});
+
   const departments = [
-    'Engineering',
-    'Human Resources',
-    'Finance',
-    'Marketing',
-    'Operations',
-    'Sales',
-    'IT Support',
-    'Administration',
+    "Engineering",
+    "Human Resources",
+    "Finance",
+    "Marketing",
+    "Operations",
+    "Sales",
+    "IT Support",
+    "Administration",
   ];
 
+  // ✅ Keep parent data synced when localData changes
   useEffect(() => {
-    if (localData.hasExperience && localData.experiences.length === 0) {
-      setLocalData((prev) => ({
-        ...prev,
-        experiences: [
-          {
-            companyName: "",
-            companyLocation: "",
-            jobTitle: "",
-            startDate: "",
-            endDate: "",
-            duration: "",
-            roles: "",
-            projects: "",
-            skills: "",
-            salary: "",
-            relivingLetter: null,
-            salarySlips: null,
-            hrName: "",
-            hrEmail: "",
-            hrPhone: "",
-            managerName: "",
-            managerEmail: "",
-            managerPhone: "",
-          },
-        ],
-      }));
-    }
-  }, [localData.hasExperience]);
+    setData(localData);
+  }, [localData, setData]);
 
+  // =========================
+  // 🔹 Handle basic field change
+  // =========================
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    const val = type === 'checkbox' ? checked : type === 'file' ? files[0] : value;
-    setLocalData((prev) => ({ ...prev, [name]: val }));
-    setErrors((prev) => ({ ...prev, [name]: '' }));
+    const val = type === "checkbox" ? checked : type === "file" ? files[0] : value;
+
+    let updated = { ...localData, [name]: val };
+
+    // Handle hasExperience toggle
+    if (name === "hasExperience") {
+      if (val) {
+        // Add one empty experience if none exist
+        if (updated.experiences.length === 0) {
+          updated.experiences = [
+            {
+              companyName: "",
+              companyLocation: "",
+              jobTitle: "",
+              startDate: "",
+              endDate: "",
+              duration: "",
+              roles: "",
+              projects: "",
+              skills: "",
+              salary: "",
+              relivingLetter: null,
+              salarySlips: null,
+              hrName: "",
+              hrEmail: "",
+              hrPhone: "",
+              managerName: "",
+              managerEmail: "",
+              managerPhone: "",
+            },
+          ];
+        }
+      } else {
+        updated.experiences = [];
+      }
+    }
+
+    setLocalData(updated);
+
+    // Clear error for this field
+    setLocalErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
+  // =========================
+  // 🔹 Handle Experience Change
+  // =========================
   const handleExperienceChange = (index, e) => {
     const { name, value, type, files } = e.target;
-    const val = type === 'file' ? files[0] : value;
+    const val = type === "file" ? files[0] : value;
 
     const newExperiences = [...localData.experiences];
     newExperiences[index][name] = val;
 
-    // Auto-calculate duration
+    // Auto calculate duration
     const start = new Date(newExperiences[index].startDate);
     const end = new Date(newExperiences[index].endDate);
-    if (start && end && !isNaN(start) && !isNaN(end) && end > start) {
+    if (!isNaN(start) && !isNaN(end) && end > start) {
       const diffYears = end.getFullYear() - start.getFullYear();
       const diffMonths = end.getMonth() - start.getMonth();
       let years = diffYears;
@@ -91,9 +112,14 @@ const ProfessionalDetails = ({ data, setData, setActive,nextStep,prevStep, error
     }
 
     setLocalData((prev) => ({ ...prev, experiences: newExperiences }));
-    setErrors((prev) => ({ ...prev, [name]: '' }));
+
+    // ✅ Clear only this specific experience field error
+    setLocalErrors((prev) => ({ ...prev, [`${name}_${index}`]: "" }));
   };
 
+  // =========================
+  // 🔹 Add / Remove experience
+  // =========================
   const addExperience = () => {
     setLocalData((prev) => ({
       ...prev,
@@ -110,7 +136,7 @@ const ProfessionalDetails = ({ data, setData, setActive,nextStep,prevStep, error
           projects: "",
           skills: "",
           salary: "",
-          relievingLetter: null,
+          relivingLetter: null,
           salarySlips: null,
           hrName: "",
           hrEmail: "",
@@ -127,63 +153,72 @@ const ProfessionalDetails = ({ data, setData, setActive,nextStep,prevStep, error
     const updated = localData.experiences.filter((_, i) => i !== index);
     setLocalData((prev) => ({ ...prev, experiences: updated }));
   };
-  
 
+  // =========================
+  // ✅ Next Button (final fix)
+  // =========================
   const next = () => {
-    const errs = simpleValidateProfessional(localData);
-      console.log("Validation errors:", errs);
+    console.log("DEBUG localData before validation:", localData);
 
-    setErrors(errs);
+    const errs = simpleValidateProfessional(localData);
+    console.log("DEBUG validation output:", errs);
+
+    setLocalErrors({ ...errs }); // ensures re-render
+
+    // ✅ Move to next immediately if no errors
     if (Object.keys(errs).length === 0) {
-      setData(localData);
       nextStep();
     }
   };
-const prev=()=>prevStep();
 
+  const prev = () => prevStep();
+
+  // =========================
+  // 🔹 UI
+  // =========================
   return (
     <div className="form-wrap">
       <h3>Professional Details</h3>
 
-      {/* Base Employee Info */}
       <div className="form-grid">
         <div className="field">
-          <label>Employee ID <span className="required-star">*</span></label>
+          <label>Employee ID *</label>
           <input name="employeeId" value={localData.employeeId} onChange={handleChange} />
-          {errors.employeeId && <small className="err">{errors.employeeId}</small>}
+          {localErrors.employeeId && <small className="err">{localErrors.employeeId}</small>}
         </div>
 
         <div className="field">
-          <label>Date of Joining <span className="required-star">*</span></label>
+          <label>Date of Joining *</label>
           <input type="date" name="dateOfJoining" value={localData.dateOfJoining} onChange={handleChange} />
-          {errors.dateOfJoining && <small className="err">{errors.dateOfJoining}</small>}
+          {localErrors.dateOfJoining && <small className="err">{localErrors.dateOfJoining}</small>}
         </div>
 
         <div className="field">
-          <label>Role <span className="required-star">*</span></label>
+          <label>Role *</label>
           <input name="role" value={localData.role} onChange={handleChange} />
-          {errors.role && <small className="err">{errors.role}</small>}
+          {localErrors.role && <small className="err">{localErrors.role}</small>}
         </div>
 
         <div className="field">
-          <label>Department <span className="required-star">*</span></label>
+          <label>Department *</label>
           <select name="department" value={localData.department} onChange={handleChange}>
             <option value="">Select Department</option>
             {departments.map((d) => (
-              <option key={d} value={d}>{d}</option>
+              <option key={d} value={d}>
+                {d}
+              </option>
             ))}
           </select>
-          {errors.department && <small className="err">{errors.department}</small>}
+          {localErrors.department && <small className="err">{localErrors.department}</small>}
         </div>
 
         <div className="field">
-          <label>Salary <span className="required-star">*</span></label>
+          <label>Salary *</label>
           <input name="salary" value={localData.salary} onChange={handleChange} />
-          {errors.salary && <small className="err">{errors.salary}</small>}
+          {localErrors.salary && <small className="err">{localErrors.salary}</small>}
         </div>
       </div>
 
-      {/* Checkbox for Experience */}
       <div className="field checkbox-field">
         <label>
           <input
@@ -196,137 +231,75 @@ const prev=()=>prevStep();
         </label>
       </div>
 
-      {/* Experience Details Section */}
       {localData.hasExperience && (
         <div>
           {localData.experiences.map((exp, index) => (
             <div key={index} className="experience-block">
               <h4>Experience {index + 1}</h4>
               <div className="form-grid">
-                <div className="field">
-                  <label>Company Name *</label>
-                  <input name="companyName" value={exp.companyName} onChange={(e) => handleExperienceChange(index, e)} />
-  {errors[`companyName_${index}`] && <small className="err">{errors[`companyName_${index}`]}</small>}
-
-                </div>
-
-
-                <div className="field">
-                  <label>Company Location *</label>
-                  <input name="companyLocation" value={exp.companyLocation} onChange={(e) => handleExperienceChange(index, e)} />
-                    {errors[`companyLocation_${index}`] && <small className="err">{errors[`companyLocation_${index}`]}</small>}
-
-                </div>
-
-                <div className="field">
-                  <label>Job Title *</label>
-                  <input name="jobTitle" value={exp.jobTitle} onChange={(e) => handleExperienceChange(index, e)} />
-                    {errors[`jobTitle_${index}`] && <small className="err">{errors[`jobTitle_${index}`]}</small>}
-
-                </div>
-
-                <div className="field">
-                  <label>Start Date *</label>
-                  <input type="date" name="startDate" value={exp.startDate} onChange={(e) => handleExperienceChange(index, e)} />
-                    {errors[`startDate_${index}`] && <small className="err">{errors[`startDate_${index}`]}</small>}
-
-                </div>
-
-                <div className="field">
-                  <label>End Date *</label>
-                  <input type="date" name="endDate" value={exp.endDate} onChange={(e) => handleExperienceChange(index, e)} />
-      {errors[`endDate_${index}`] && <small className="err">{errors[`endDate_${index}`]}</small>}
-
-                </div>
-
-                <div className="field">
-                  <label>Duration</label>
-                  <input name="duration" value={exp.duration} readOnly placeholder="Auto-calculated" />
-                </div>
-
-                <div className="field full">
-                  <label>Roles & Responsibilities *</label>
-                  <textarea name="roles" value={exp.roles} onChange={(e) => handleExperienceChange(index, e)} />
-                  {errors[`roles_${index}`] && <small className="err">{errors[`roles_${index}`]}</small>}
-
-                </div>
-
-                <div className="field full">
-                  <label>Projects *</label>
-                  <textarea name="projects" value={exp.projects} onChange={(e) => handleExperienceChange(index, e)} />
-          {errors[`projects_${index}`] && <small className="err">{errors[`projects_${index}`]}</small>}
-
-                </div>
+                {[
+                  ["companyName", "Company Name"],
+                  ["companyLocation", "Company Location"],
+                  ["jobTitle", "Job Title"],
+                  ["startDate", "Start Date", "date"],
+                  ["endDate", "End Date", "date"],
+                  ["roles", "Roles & Responsibilities", "textarea"],
+                  ["projects", "Projects", "textarea"],
+                  ["skills", "Skills"],
+                  ["salary", "Salary"],
+                  ["hrName", "HR Name"],
+                  ["hrEmail", "HR Email"],
+                  ["hrPhone", "HR Phone"],
+                  ["managerName", "Manager Name"],
+                  ["managerEmail", "Manager Email"],
+                  ["managerPhone", "Manager Phone"],
+                ].map(([field, label, type = "text"]) => (
+                  <div key={field} className="field">
+                    <label>{label} *</label>
+                    {type === "textarea" ? (
+                      <textarea
+                        name={field}
+                        value={exp[field]}
+                        onChange={(e) => handleExperienceChange(index, e)}
+                      />
+                    ) : (
+                      <input
+                        type={type}
+                        name={field}
+                        value={exp[field]}
+                        onChange={(e) => handleExperienceChange(index, e)}
+                      />
+                    )}
+                    {localErrors[`${field}_${index}`] && (
+                      <small className="err">{localErrors[`${field}_${index}`]}</small>
+                    )}
+                  </div>
+                ))}
 
                 <div className="field">
-                  <label>Skills *</label>
-                  <input name="skills" value={exp.skills} onChange={(e) => handleExperienceChange(index, e)} />
-                    {errors[`skills_${index}`] && <small className="err">{errors[`skills_${index}`]}</small>}
-
-                </div>
-
-                <div className="field">
-                  <label>Salary *</label>
-                  <input name="salary" value={exp.salary} onChange={(e) => handleExperienceChange(index, e)} />
-                    {errors[`salary_${index}`] && <small className="err">{errors[`salary_${index}`]}</small>}
-
-                </div>
-
-                <div className="field">
-                  <label>Reliving Letter (PDF) *</label>
-                  <input type="file" accept=".pdf" name="relivingLetter" onChange={(e) => handleExperienceChange(index, e)} />
-                    {errors[`relivingLetter_${index}`] && <small className="err">{errors[`relivingLetter_${index}`]}</small>}
-
+                  <label>Relieving Letter (PDF) *</label>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    name="relivingLetter"
+                    onChange={(e) => handleExperienceChange(index, e)}
+                  />
+                  {localErrors[`relivingLetter_${index}`] && (
+                    <small className="err">{localErrors[`relivingLetter_${index}`]}</small>
+                  )}
                 </div>
 
                 <div className="field">
                   <label>Salary Slips (PDF) *</label>
-                  <input type="file" accept=".pdf" name="salarySlips" onChange={(e) => handleExperienceChange(index, e)} />
-                    {errors[`salarySlips_${index}`] && <small className="err">{errors[`salarySlips_${index}`]}</small>}
-
-
-                </div>
-
-                <div className="field">
-                  <label>HR Name *</label>
-                  <input name="hrName" value={exp.hrName} onChange={(e) => handleExperienceChange(index, e)} />
-                    {errors[`hrName_${index}`] && <small className="err">{errors[`hrName_${index}`]}</small>}
-
-                </div>
-
-                <div className="field">
-                  <label>HR Email *</label>
-                  <input name="hrEmail" value={exp.hrEmail} onChange={(e) => handleExperienceChange(index, e)} />
-                    {errors[`hrEmail_${index}`] && <small className="err">{errors[`hrEmail_${index}`]}</small>}
-
-                </div>
-
-                <div className="field">
-                  <label>HR Phone *</label>
-                  <input name="hrPhone" value={exp.hrPhone} onChange={(e) => handleExperienceChange(index, e)} />
-                    {errors[`hrPhone_${index}`] && <small className="err">{errors[`hrPhone_${index}`]}</small>}
-
-                </div>
-
-                <div className="field">
-                  <label>Manager Name *</label>
-                  <input name="managerName" value={exp.managerName} onChange={(e) => handleExperienceChange(index, e)} />
-                  {errors[`managerName_${index}`] && <small className="err">{errors[`managerName_${index}`]}</small>}
-
-                </div>
-
-                <div className="field">
-                  <label>Manager Email *</label>
-                  <input name="managerEmail" value={exp.managerEmail} onChange={(e) => handleExperienceChange(index, e)} />
-                  {errors[`managerEmail_${index}`] && <small className="err">{errors[`managerEmail_${index}`]}</small>}
-
-                </div>
-
-                <div className="field">
-                  <label>Manager Phone *</label>
-                  <input name="managerPhone" value={exp.managerPhone} onChange={(e) => handleExperienceChange(index, e)} />
-                          {errors[`managerPhone_${index}`] && <small className="err">{errors[`managerPhone_${index}`]}</small>}
-
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    name="salarySlips"
+                    onChange={(e) => handleExperienceChange(index, e)}
+                  />
+                  {localErrors[`salarySlips_${index}`] && (
+                    <small className="err">{localErrors[`salarySlips_${index}`]}</small>
+                  )}
                 </div>
               </div>
 
@@ -346,10 +319,13 @@ const prev=()=>prevStep();
         </div>
       )}
 
-      {/* Navigation */}
       <div className="form-actions">
-        <button className="btn secondary" onClick={prev}>Back</button>
-        <button className="btn primary" onClick={next}>Next: Review & Submit</button>
+        <button className="btn secondary" onClick={prev}>
+          Back
+        </button>
+        <button className="btn primary" onClick={next}>
+          Next: Review & Submit
+        </button>
       </div>
     </div>
   );

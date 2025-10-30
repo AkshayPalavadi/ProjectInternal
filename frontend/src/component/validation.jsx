@@ -196,7 +196,7 @@ export const simpleValidateProfessional = (data) => {
   // --- Basic employee details ---
   if (!data.employeeId || data.employeeId.trim() === "")
     errs.employeeId = "Employee ID is required";
-  if (!data.dateOfJoining) errs.dateOfJoining = "Date of joining is required";
+  if (!data.dateOfJoining || data.dateOfJoining.trim() === "") errs.dateOfJoining = "Date of joining is required";
   if (!data.role || data.role.trim() === "") errs.role = "Role is required";
   if (!data.department || data.department.trim() === "")
     errs.department = "Department is required";
@@ -211,7 +211,7 @@ export const simpleValidateProfessional = (data) => {
       data.experiences.forEach((exp, i) => {
         const idx = `_${i}`;
 
-        if (!exp.companyName?.trim())
+        if (!exp.companyName || exp.companyName.trim()==="")
           errs[`companyName${idx}`] = "Company name is required";
         if (!exp.companyLocation?.trim())
           errs[`companyLocation${idx}`] = "Company location is required";

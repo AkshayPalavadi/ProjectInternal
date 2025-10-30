@@ -151,21 +151,21 @@ export default function EmployeeDetails() {
       </div>
 
       {/* ===== TABS ===== */}
-      <div className="tabs">
+      <div className="tabs-employee">
         <span
-          className={`tab ${activeTab === "personal" ? "active" : ""}`}
+          className={`tab-employee ${activeTab === "personal" ? "active" : ""}`}
           onClick={() => setActiveTab("personal")}
         >
           Personal
         </span>
         <span
-          className={`tab ${activeTab === "education" ? "active" : ""}`}
+          className={`tab-employee ${activeTab === "education" ? "active" : ""}`}
           onClick={() => setActiveTab("education")}
         >
           Education
         </span>
         <span
-          className={`tab ${activeTab === "professional" ? "active" : ""}`}
+          className={`tab-employee ${activeTab === "professional" ? "active" : ""}`}
           onClick={() => setActiveTab("professional")}
         >
           Professional
@@ -174,7 +174,7 @@ export default function EmployeeDetails() {
 
       {/* ===== PERSONAL TAB ===== */}
       {activeTab === "personal" && (
-        <div className="personal-info">
+        <div className="education-info">
           <div className="info-header">
             <h3>Personal Information</h3>
             <span className="edit-icon" onClick={() => handleEditToggle("personal")}>✎</span>
@@ -240,7 +240,7 @@ export default function EmployeeDetails() {
 
       {/* ===== PROFESSIONAL TAB ===== */}
       {activeTab === "professional" && (
-        <div className="professional-info">
+        <div className="education-info">
           <div className="info-header">
             <h3>Professional Information</h3>
             <span className="edit-icon" onClick={() => handleEditToggle("professional")}>✎</span>

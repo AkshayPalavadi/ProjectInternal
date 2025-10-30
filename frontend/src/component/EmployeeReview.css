@@ -74,7 +74,7 @@
 }
 
 /* ---------- Tabs ---------- */
-.tabs {
+.tabs-employee {
   display: flex;
   gap: 250px;
   /* border-bottom: 2px solid #e0e0e0; */
@@ -84,7 +84,7 @@
   /* padding-bottom: 6px; */
 }
 
-.tab {
+.tab-employee {
     text-align: center;
     width: 30%;
   position: relative;
@@ -96,16 +96,16 @@
 
 }
 
-.tab:hover {
+.tab-employee:hover {
   color: #007bff;
 }
 
-.tab.active {
+.tab-employee.active {
   color: #007bff;
   font-weight: 600;
 }
 
-.tab.active::after {
+.tab-employee.active::after {
   content: "";
   position: absolute;
   bottom: -2px;

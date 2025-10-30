@@ -6,6 +6,7 @@ import ProfessionalDetails from "./component/ProfessionalDetails.jsx";
 import ReviewSubmit from "./component/ReviewSubmit.jsx";
 import Stepper from "./component/Stepper.jsx";
 import "./component/indexApp.css";
+import SidebarLayout from "./Components/SidebarLayout.jsx";
 import { useNavigate } from "react-router-dom";
 
 
@@ -24,7 +25,7 @@ function PersonApp() {
     "Professional Details",
     "Review & Submit",
   ];
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(2);
   const [errors, setErrors] = useState({});
 
   const getStepName = () => {
@@ -66,7 +67,6 @@ function PersonApp() {
     dob: "",
     maritalStatus: "",
     isMarried: false,
-    nationality: "",
     emergencyNumber: "",
     nominee1: "",
     nominee2: "",
@@ -115,14 +115,6 @@ function PersonApp() {
     department: "",
     salary: "",
     hasExperience: false,
-    jobType: "fresher",
-    resume: null,
-    skills: "",
-    projects: "",
-    linkedin: "",
-    github: "",
-    certificate: "",
-    achievements: "",
     experiences: [
       {
         companyName: "",
@@ -161,11 +153,10 @@ function PersonApp() {
   };
 
   // -------------------- STEP CONTROLLERS --------------------
-  const nextStep = () => {
-    if (validateCurrentStep()) {
-      setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
-    }
-  };
+const nextStep = () => {
+  setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
+};
+
 
   const prevStep = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 0));
@@ -233,14 +224,6 @@ function PersonApp() {
       department: "",
       salary: "",
       hasExperience: false,
-      jobType: "fresher",
-      resume: null,
-      skills: "",
-      projects: "",
-      linkedin: "",
-      github: "",
-      certificate: "",
-      achievements: "",
       experiences: [
         {
           companyName: "",
@@ -253,7 +236,7 @@ function PersonApp() {
           projects: "",
           skills: "",
           salary: "",
-          relievingLetter: null,
+          relivingLetter: null,
           salarySlips: null,
           hrName: "",
           hrEmail: "",
@@ -272,7 +255,7 @@ function PersonApp() {
   return (
     <div className="dashboard-employee">
       <main className="main-content">
-        <header className="topbar">
+        <header className="topbar-employee">
           <h2>Employee Application Form</h2>
         </header>
 
