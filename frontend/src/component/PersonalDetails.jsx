@@ -408,6 +408,8 @@ onChange={(e) => {
             value={data.village || ""}
             onChange={handleChange}
           />
+                    {errors.village && <small className="err">{errors.village}</small>}
+
         </div>
 
         <div className="field">

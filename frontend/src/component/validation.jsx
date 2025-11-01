@@ -5,6 +5,8 @@ const isPhone = (s) => /^[6-9]\d{9}$/.test(String(s).trim());
 const isPincode = (s) => /^[1-9][0-9]{5}$/.test(String(s).trim());
 const isAadhar = (s) => /^[0-9]{12}$/.test(String(s).trim());
 const isPAN = (s) => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(String(s).trim());
+  const namePattern = /^[A-Za-z\s]+$/; // ✅ Only letters and spaces
+
 const isValidEmail = (s) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || "").trim());
 
@@ -20,12 +22,23 @@ const isValidPDF = (file) =>
 export const simpleValidatePersonal = (data) => {
   const errs = {};
 
-  const namePattern = /^[A-Za-z\s]+$/; // ✅ Only letters and spaces
 
   // First Name
   if (isEmpty(data.firstName)) errs.firstName = "First name is required";
   else if (!namePattern.test(data.firstName))
-    errs.firstName = "First name should contain only letters";
+    errs.firstName = "Last name should contain only letters";
+    if (isEmpty(data.lastName)) errs.lastName = "Last name is required";
+  else if (!namePattern.test(data.lastName))
+    errs.lastName = "Last name should contain only letters";
+  if (isEmpty(data.fatherName)) errs.fatherName = "FatherName  is required";
+  else if (!namePattern.test(data.fatherName))
+    errs.fatherName = "FatherName should contain only letters";
+  if (isEmpty(data.motherName)) errs.motherName = "MotherName is required";
+  else if (!namePattern.test(data.motherName))
+    errs.village = "MotherName should contain only letters";
+   if (isEmpty(data.village)) errs.village = "Village is required";
+  else if (!namePattern.test(data.village))
+    errs.village = "Village should contain only letters";
 
   // Email
   if (isEmpty(data.email)) errs.email = "Email is required";

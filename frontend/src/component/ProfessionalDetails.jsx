@@ -182,25 +182,25 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
 
       <div className="form-grid">
         <div className="field">
-          <label>Employee ID *</label>
+          <label>Employee ID <span className="required-star">*</span></label>
           <input name="employeeId" value={localData.employeeId} onChange={handleChange} />
           {localErrors.employeeId && <small className="err">{localErrors.employeeId}</small>}
         </div>
 
         <div className="field">
-          <label>Date of Joining *</label>
+          <label>Date of Joining <span className="required-star">*</span></label>
           <input type="date" name="dateOfJoining" value={localData.dateOfJoining} onChange={handleChange} />
           {localErrors.dateOfJoining && <small className="err">{localErrors.dateOfJoining}</small>}
         </div>
 
         <div className="field">
-          <label>Role *</label>
+          <label>Role <span className="required-star">*</span></label>
           <input name="role" value={localData.role} onChange={handleChange} />
           {localErrors.role && <small className="err">{localErrors.role}</small>}
         </div>
 
         <div className="field">
-          <label>Department *</label>
+          <label>Department <span className="required-star">*</span></label>
           <select name="department" value={localData.department} onChange={handleChange}>
             <option value="">Select Department</option>
             {departments.map((d) => (
@@ -213,21 +213,21 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
         </div>
 
         <div className="field">
-          <label>Salary *</label>
+          <label>Salary <span className="required-star">*</span></label>
           <input name="salary" value={localData.salary} onChange={handleChange} />
           {localErrors.salary && <small className="err">{localErrors.salary}</small>}
         </div>
       </div>
 
       <div className="field checkbox-field">
-        <label>
+        <label style={{marginTop:"10px"}}>
           <input
             type="checkbox"
             name="hasExperience"
             checked={localData.hasExperience}
             onChange={handleChange}
           />
-          &nbsp; Work Experience?
+          &nbsp;  Experienced?
         </label>
       </div>
 
@@ -255,7 +255,7 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
                   ["managerPhone", "Manager Phone"],
                 ].map(([field, label, type = "text"]) => (
                   <div key={field} className="field">
-                    <label>{label} *</label>
+                    <label>{label} <span className="required-star">*</span></label>
                     {type === "textarea" ? (
                       <textarea
                         name={field}
@@ -277,7 +277,7 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
                 ))}
 
                 <div className="field">
-                  <label>Relieving Letter (PDF) *</label>
+                  <label>Reliving Letter (PDF) <span className="required-star">*</span></label>
                   <input
                     type="file"
                     accept=".pdf"
@@ -290,7 +290,7 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
                 </div>
 
                 <div className="field">
-                  <label>Salary Slips (PDF) *</label>
+                  <label>Salary Slips (PDF) <span className="required-star">*</span></label>
                   <input
                     type="file"
                     accept=".pdf"

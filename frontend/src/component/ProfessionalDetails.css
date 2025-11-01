@@ -85,3 +85,42 @@ button.remove-btn {
 button:hover {
   opacity: 0.9;
 }
+/* ===============================
+   Checkbox Field Styling
+   =============================== */
+.field.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0;
+  font-size: 16px;
+  font-weight: 500;
+  color: #243946;
+}
+
+/* Make sure checkbox aligns perfectly with text */
+.field.checkbox-field input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #007bff; /* modern browsers – blue tint */
+  cursor: pointer;
+  transform: translateY(1px);
+}
+
+/* Label hover feedback */
+.field.checkbox-field label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Optional: Add small transition on hover */
+.field.checkbox-field input[type="checkbox"]:hover {
+  filter: brightness(1.1);
+}
+
+/* Consistent spacing in forms */
+.form-wrap .checkbox-field + .experience-block {
+  margin-top: 10px;
+}
+
