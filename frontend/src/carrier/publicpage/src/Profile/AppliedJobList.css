@@ -1,0 +1,30 @@
+.applied-job-container {
+  background-color: #f9f9f9;
+  padding: 20px;
+}
+
+.applied-job-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+.applied-job-table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid #007bff;
+  background-color: #fff;
+}
+
+.applied-job-table th,
+.applied-job-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: center;
+  font-size: 14px;
+}
+
+.applied-job-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}

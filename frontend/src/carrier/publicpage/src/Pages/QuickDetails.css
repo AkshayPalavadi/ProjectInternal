@@ -1,0 +1,256 @@
+.quick-details-container {
+  
+  /* margin: 40px auto; */
+  font-family: "Poppins", sans-serif;
+}
+
+.quick-details-container-header {
+  display: flex;
+  /* margin-bottom: 30px; */
+  
+  
+}
+
+.logo {
+  width: 150px;
+  height: 150px;
+  /* display: block; */
+  /* margin: 0 auto 10px; */
+  margin-left: 0px;
+  /* background: #000; */
+}
+
+.dhatvi-text{
+    font-weight: bold;
+    font-size: 30px;
+}
+
+.green-line{
+    width: auto;
+}
+/* .quick-details-container .logo-text {
+  /* text-align: center; */
+  /* background: #000; */
+  /* margin-left: 10px; */
+
+
+.quick-details-title {
+    font-weight: bolder;
+    font-size: 32px;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+  /* margin: 0 auto; */
+  margin-bottom: 20px;
+}
+
+/* h2{
+  font-size: 28px;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+} */
+
+.details-form{
+    width: 40%;
+    margin: 0 auto;
+    row-gap: 10px;
+}
+
+
+.details-form label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+  margin-top: 20px;
+  color: #333;
+  
+}
+
+.details-form input,
+.details-form select {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1.5px solid #277a24;
+  border-radius: 25px;
+  font-size: 14px;
+  outline: none;
+  
+}
+.name-row {
+  display: flex;
+  gap: 15px;
+}
+
+  .email-row {
+    width: 545px;
+
+}
+.phone-row {
+  display: flex;
+  gap: 15px;
+
+}
+.highest-qualification-course-row{
+  margin-top: 10px;
+  width: 545px;
+  gap: 15px;
+}
+
+.year-of-passing {
+  width: 545px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.college-name {
+  display: flex;
+  gap: 15px;
+  width: 545px;
+  margin-bottom: 10px;
+    
+}
+.cgpa-row {
+  width: 545px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+.employee-type {
+  display: flex;
+  gap: 50px;
+  margin-top: -5px;
+}
+
+.employee-type label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1.5px solid #277c1f;
+  border-radius: 25px;
+  padding: 8px 20px;
+  cursor: pointer;
+}
+
+.employee-type input {
+  accent-color: #000000;
+}
+
+.submit-btn {
+  margin-top: 30px;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 25px;
+  background-color: hsl(125, 31%, 41%);
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+  width: auto;
+
+  /* Align to the right */
+  display: block;
+  margin-left: auto;
+}
+
+.submit-btn:hover {
+  background-color: #104e1e;
+  color: #ccc;
+  
+}
+.email-error {
+  color: rgb(241, 57, 57);
+  font-size: 14px;
+  margin-top: 5px;
+  background: #ffe6e6;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border-left: 4px solid rgb(238, 53, 53);
+  animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.current-company-input{
+  width: 545px;
+}
+
+.experience-years {
+  width: 545px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.experience-section {
+  margin-top: 15px;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.experience-section label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+}
+
+.experience-section input,
+.experience-section select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.resume-upload {
+  margin-top: 20px;
+
+}
+
+.resume-upload label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+}
+
+.resume-upload input[type="file"] {
+  width: 545px;
+  padding: 8px 12px;
+  border: 1.5px solid #227922;
+  border-radius: 25px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.skills-section {
+  margin-top: 20px;
+}
+
+.skills-section label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+}
+
+.skills-section input {
+  width: 545px;
+  padding: 10px 15px;
+  border: 1.5px solid #219957;
+  border-radius: 25px;
+  font-size: 14px;
+  outline: none;
+}
