@@ -11,7 +11,7 @@ import Admin from "./Components/Admin.jsx"
 import Register from "./Components/Register.jsx";
 import EmployeeDetails from "./component/EmployeeReview.jsx";
 import PerformanceManagement from "./Components/PerformanceManagement.jsx";
-import PersonApp from "./PersonApp.jsx";
+import PersonApp from "./component/PersonApp.jsx";
 import TimeSheet from "./Components/TimeSheet.jsx";
 
 

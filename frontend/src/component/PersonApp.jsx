@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 // import Sidebar from './component/Sidebar';
-import PersonalDetails from "./component/PersonalDetails.jsx";
-import EducationDetails from "./component/EducationaDetails.jsx";
-import ProfessionalDetails from "./component/ProfessionalDetails.jsx";
-import ReviewSubmit from "./component/ReviewSubmit.jsx";
-import Stepper from "./component/Stepper.jsx";
-import "./component/indexApp.css";
-import SidebarLayout from "./Components/SidebarLayout.jsx";
+import PersonalDetails from "./PersonalDetails.jsx";
+import EducationDetails from "./EducationaDetails.jsx";
+import ProfessionalDetails from "./ProfessionalDetails.jsx";
+import ReviewSubmit from "./ReviewSubmit.jsx";
+import Stepper from "./Stepper.jsx";
+import "./indexApp.css";
+import SidebarLayout from "../Components/SidebarLayout.jsx";
 import { useNavigate } from "react-router-dom";
 
 
@@ -15,7 +15,7 @@ import {
   simpleValidatePersonal,
   simpleValidateEducation,
   simpleValidateProfessional,
-} from "./component/validation.jsx";
+} from "./validation.jsx";
 
 function PersonApp() {
   // -------------------- STEP MANAGEMENT --------------------
