@@ -110,9 +110,9 @@ const handleSubmit = async (e) => {
         </div>
       </div>
       <hr />
-      <div className="login-container">
-        <form className="login-form" onSubmit={handleSubmit}>
-          <h1 className="heading">Login</h1>
+      <div className="login-container-employee">
+        <form className="login-form-employee" onSubmit={handleSubmit}>
+          <h1 className="heading-employee">Login</h1>
 
           <label>Select Role:</label>
           <select value={role} onChange={(e) => setRole(e.target.value)}>

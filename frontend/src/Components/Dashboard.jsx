@@ -143,7 +143,7 @@ const [dashboardData] = useState({
 });
 
   return (
-    <div className="dashboard">
+    <div className="dashboard-inner">
       <h1>My Dashboard</h1>
 
       {/* Top Cards Row */}

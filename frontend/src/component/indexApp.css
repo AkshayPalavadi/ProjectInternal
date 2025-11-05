@@ -9,7 +9,7 @@
   --white: #ffffff;
 }
 
-*{box-sizing:border-box}
+/* *{box-sizing:border-box} */
 body,html,#root{height:100%;margin:0;font-family:Inter, system-ui, Arial, sans-serif;background:#fff;color:#222}
 
 .dashboard-employee{display:flex;overflow:hidden}
