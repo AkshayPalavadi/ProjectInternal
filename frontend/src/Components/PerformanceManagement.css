@@ -1,5 +1,5 @@
 
-.perf-container {
+.performance-management-perf-container {
   max-width: 1000px;
   margin: 0 auto;
   padding: 30px;
@@ -7,13 +7,13 @@
   background: #fff;
 }
 
-.page-title {
+.performance-management-page-title {
   text-align: center;
   margin-bottom: 25px;
-  font-size: 1.6rem;
+  font-size: 1.performance-management-6rem;
 }
 
-.employee-card {
+.performance-management-employee-card {
   margin: auto;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -24,24 +24,24 @@
   background-color: #fafafa;
 }
 
-.employee-card h3 {
+.performance-management-employee-card h3 {
   margin-bottom: 10px;
 }
 
-.emp-info {
+.performance-management-emp-info {
   display: grid;
   padding-top: 5px;
   grid-template-columns: 1fr 1fr; /* 2 items per row */
   gap: 10px 30px; /* row gap 10px, column gap 30px */
-  font-size: 0.95rem;
+  font-size: 0.performance-management-95rem;
 }
 
-.emp-info div {
+.performance-management-emp-info div {
   display: flex;
   gap: 5px; /* space between label and value */
 }
 
-.role-section {
+.performance-management-role-section {
   display: flex;
   justify-content: center;
   align-items: center;
@@ -49,74 +49,74 @@
   margin-bottom: 25px;
 }
 
-.role-card, .role-card-clock {
+.performance-management-role-card, .performance-management-role-card-clock {
   text-align: center;
   color: #333;
   display: flex;
   flex-direction: column;
 }
 
-.role-card-clock p {
+/* .performance-management-role-card-clock p {
   margin-top: 6px;
   font-size: small;
-}
+} */
 
-.role-icon-hr {
-  font-size: 1.6rem;
+.performance-management-role-icon {
+  font-size: x-large;
   padding-left: 5px;
   margin-bottom: 5px;
   color: #555;
 }
 
-.role-icon-clock {
-  font-size: 1.6rem;
+/* .performance-management-role-icon-clock {
+  font-size: 1.performance-management-6rem;
   padding-left: 20px;
   margin-bottom: 5px;
   color: #555;
 }
 
-.role-icon-manager {
-  font-size: 1.6rem;
+.performance-management-role-icon-manager {
+  font-size: 1.performance-management-6rem;
   padding-left: 15px;
   margin-bottom: 5px;
   color: #555;
-}
+} */
 
-.role-card span {
-  font-size: 0.85rem;
+.performance-management-role-card span {
+  font-size: 0.performance-management-85rem;
   color: #777;
 }
 
-.fy-dropdown {
+.performance-management-fy-dropdown {
   padding: 4px 8px;
-  font-size: 0.95rem;
+  font-size: 0.performance-management-95rem;
   border-radius: 5px;
   border: 1px solid #ccc;
   margin-top: 5px;
 }
 
 /* Tabs styling */
-.tab-btn {
+.performance-management-tab-btn {
   cursor: pointer;
   padding: 8px 16px;
   font-weight: 500;
   color: #555;
   border-bottom: 3px solid transparent;
-  transition: all 0.3s ease;
+  transition: all 0.performance-management-3s ease;
 }
 
-.tab-btn:hover {
+.performance-management-tab-btn:hover {
   color: #007bff;
 }
 
-.active-tab {
+.performance-management-active-tab {
   color: #007bff;
   border-bottom: 3px solid #007bff;
 }
 
 /* Fade-in animation */
-.fade-in {
-  animation: fadeIn 0.4s ease-in-out;
+.performance-management-fade-in {
+  animation: fadeIn 0.performance-management-4s ease-in-out;
 }
 
 @keyframes fadeIn {
@@ -130,17 +130,17 @@
   }
 }
 
-.tab-content {
+.performance-management-tab-content {
   margin-top: 15px;
 }
 
-.goals-section {
+.performance-management-goals-section {
   border: 1px solid #ddd;
   border-radius: 10px;
   padding: 20px;
 }
 
-.goals-header {
+.performance-management-goals-header {
   display: flex;
   justify-content: space-around;
   align-items: center;
@@ -149,35 +149,35 @@
   margin-bottom: 10px;
 }
 
-.goals-header h3 {
+.performance-management-goals-header h3 {
   margin: 0;
   font-weight: 500;
 }
 
-.goals-table {
+.performance-management-goals-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
 }
 
-.goals-table th,
-.goals-table td {
+.performance-management-goals-table th,
+.performance-management-goals-table td {
   text-align: left;
   padding: 10px;
   border-bottom: 1px solid #eaeaea;
-  font-size: 0.95rem;
+  font-size: 0.performance-management-95rem;
   word-break: break-word; 
   white-space: normal; 
 }
 
-.goals-table {
+.performance-management-goals-table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed; /* Important to fix column widths */
 }
 
-.goals-table th,
-.goals-table td {
+.performance-management-goals-table th,
+.performance-management-goals-table td {
   border: 1px solid #ddd;
   padding: 8px;
   text-align: left;
@@ -185,25 +185,25 @@
   word-wrap: break-word; /* allow long words to break */
 }
 
-.goals-table th.task-col,
-.goals-table td.task-col {
+.performance-management-goals-table th.performance-management-task-col,
+.performance-management-goals-table td.performance-management-task-col {
   width: 30%; /* adjust width for Task column */
   max-width: 300px; /* optional: limit max width */
 }
 
-.goals-table td {
+.performance-management-goals-table td {
   white-space: normal; /* allow wrapping */
 }
 
-.overall-row td {
+.performance-management-overall-row td {
   font-weight: bold;
 }
 
-.task-row td {
+.performance-management-task-row td {
   cursor: pointer;
 }
 
-.progress-bar {
+.performance-management-progress-bar {
   width: 100%;
   background-color: #eee;
   border-radius: 6px;
@@ -212,39 +212,39 @@
   margin-top: 5px;
 }
 
-.progress-fill {
+.performance-management-progress-fill {
   height: 10px;
-  transition: width 0.4s ease;
+  transition: width 0.performance-management-4s ease;
   border-radius: 6px;
 }
 
-.progress-fill.red {
+.performance-management-progress-fill.performance-management-red {
   background-color: #e53935;
 }
 
-.progress-fill.orange {
+.performance-management-progress-fill.performance-management-orange {
   background-color: #fb8c00;
 }
 
-.progress-fill.yellow {
+.performance-management-progress-fill.performance-management-yellow {
   background-color: #fdd835;
 }
 
-.progress-fill.green {
+.performance-management-progress-fill.performance-management-green {
   background-color: #43a047;
 }
 
-.status-text {
-  font-size: 0.85rem;
+.performance-management-status-text {
+  font-size: 0.performance-management-85rem;
 }
 
-.add-task-wrapper {
+.performance-management-add-task-wrapper {
   text-align: right;
   margin-right: 30px;
   margin-top: 10px;
 }
 
-.add-task-btn {
+.performance-management-add-task-btn {
   margin-top: 10px;
   padding: 8px 16px;
   border: none;
@@ -254,30 +254,30 @@
   cursor: pointer;
 }
 
-.modal-overlay {
+.performance-management-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0,0,0,0.performance-management-5);
   display: flex;
   justify-content: center;
   align-items: center;
   z-index: 1000;
 }
 
-.modal-content {
+.performance-management-modal-content {
   background-color: #fff;
   padding: 20px;
   border-radius: 8px;
   min-width: 650px;
   max-width: 900px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.performance-management-3);
   position: relative;
 }
 
-.close-btn {
+.performance-management-close-btn {
   background-color: #f86d6d;
   color: white;
   padding: 6px 12px;
@@ -287,11 +287,11 @@
   margin-top: 10px;
 }
 
-.close-btn:hover {
+.performance-management-close-btn:hover {
   background-color: #fd4242;
 }
 
-.final-review {
+.performance-management-final-review {
   display: flex;
   justify-content: space-between;
   margin-top: 30px;
@@ -301,43 +301,43 @@
   padding: 20px;
 }
 
-.final-left {
+.performance-management-final-left {
   flex: 1;
   margin-right: 20px;
 }
 
-.final-right {
+.performance-management-final-right {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.emp-name {
+.performance-management-emp-name {
   font-weight: 600;
   margin: 8px 0;
 }
 
-.rating {
+.performance-management-rating {
   display: flex;
   align-items: center;
   gap: 4px;
   margin-bottom: 10px;
 }
 
-.star, .half-star {
+.performance-management-star, .performance-management-half-star {
   color: gold;
 }
 
-.half-star {
-  opacity: 0.6;
+.performance-management-half-star {
+  opacity: 0.performance-management-6;
 }
 
-.agree-label {
+.performance-management-agree-label {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-top: 10px;
-  font-size: 0.9rem;
+  font-size: 0.performance-management-9rem;
 }
 
 textarea {
@@ -349,27 +349,27 @@ textarea {
   margin: 10px 0;
 }
 
-.star.filled {
+.performance-management-star.performance-management-filled {
   color: gold;
 }
 
-.goals-table td svg {
+.performance-management-goals-table td svg {
   vertical-align: middle;
 }
 
-.overall-row {
+.performance-management-overall-row {
   background-color: #f2f2f2;
   font-weight: 600;
 }
 
 
-.final-review.fade-in {
+.performance-management-final-review.performance-management-fade-in {
   margin-top: 25px;
-  animation: fadeIn 0.4s ease-in-out;
+  animation: fadeIn 0.performance-management-4s ease-in-out;
 }
 
 /* --- Final Review Dropdown --- */
-.final-review-container {
+.performance-management-final-review-container {
   margin-top: 25px;
   border: 1px solid #ddd;
   border-radius: 10px;
@@ -377,21 +377,21 @@ textarea {
   overflow: hidden;
 }
 
-.final-review-toggle {
+.performance-management-final-review-toggle {
   background-color: #f8f9fc;
   padding: 12px 18px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background 0.3s ease;
+  transition: background 0.performance-management-3s ease;
 }
 
-.final-review-toggle:hover {
+.performance-management-final-review-toggle:hover {
   background-color: #e8f0fe;
 }
 
-.final-review {
+.performance-management-final-review {
   display: flex;
   justify-content: space-between;
   padding: 20px;
@@ -399,28 +399,28 @@ textarea {
   background-color: #fffdfd;
 }
 
-.final-left,
-.final-right {
+.performance-management-final-left,
+.performance-management-final-right {
   flex: 1;
   margin-right: 15px;
 }
 
-.final-right textarea {
+.performance-management-final-right textarea {
   width: 100%;
   border-radius: 6px;
   padding: 8px;
   border: 1px solid #ccc;
 }
 
-.final-right h4 {
+.performance-management-final-right h4 {
   margin-bottom: 6px;
 }
 
-.btn-box {
+.performance-management-btn-box {
   margin: auto;
 }
 
-.finalize-btn {
+.performance-management-finalize-btn {
   background-color: #007bff;
   color: white;
   padding: 10px 14px;
@@ -428,15 +428,15 @@ textarea {
   border-radius: 6px;
   cursor: pointer;
   align-self: flex-end;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.performance-management-3s ease;
 }
 
-.finalize-btn:disabled {
+.performance-management-finalize-btn:disabled {
   background-color: #ccc; /* Gray color when disabled */
   cursor: not-allowed;
   color: #666;
 }
 
-.finalize-btn:hover {
+.performance-management-finalize-btn:hover {
   background-color: #0056b3;
 }

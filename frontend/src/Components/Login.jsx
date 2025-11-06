@@ -10,93 +10,54 @@ function Login({ setIsLoggedIn, setUserRole }) {
   const [role, setRole] = useState("employee");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
   const navigate = useNavigate();
 
-  const defaultUsers = [
-    { id: 1, role: "admin", name: "admin", email: "admin@dhatvibs.com", password: "password123", designation: "Admin", experience: "5 years" },
-    { id: 2, role: "employee", name: "Akshay", email: "akshay@dhatvibs.com", password: "password123", designation: "Frontend", experience: "3 years", department: "Development", project: "Website" },
-    { id: 3, role: "employee", name: "Sathvika", email: "sathvika@dhatvibs.com", password: "password123", designation: "UI/UX", experience: "3 years", department: "Design", project: "Native" },
-    { id: 4, role: "employee", name: "Sravani", email: "sravani@dhatvibs.com", password: "password123", designation: "Backend", experience: "2 years", department: "Backend", project: "Web" },
-  ];
-
+  // ✅ Keep user logged in if token exists
   useEffect(() => {
-    const storedUsers = JSON.parse(localStorage.getItem("users"));
-    if (!storedUsers) {
-      localStorage.setItem("users", JSON.stringify(defaultUsers));
-    }
-
-    const rememberedUser = JSON.parse(localStorage.getItem("rememberedUser"));
-    if (rememberedUser) {
-      setEmail(rememberedUser.email);
-      setPassword(rememberedUser.password);
-      setRememberMe(true);
-    }
-
-    const hasLoggedOut = localStorage.getItem("hasLoggedOut") === "true";
-    if (rememberedUser && !hasLoggedOut) {
-      const users = JSON.parse(localStorage.getItem("users")) || defaultUsers;
-      const remembered = users.find(
-        (u) => u.email === rememberedUser.email && u.password === rememberedUser.password
-      );
-      if (remembered) {
-        setIsLoggedIn(true);
-        setUserRole(remembered.role);
-        navigate(remembered.role === "admin" ? "/admin" : "/employee/home");
-      }
+    const token = localStorage.getItem("token");
+    const storedRole = localStorage.getItem("userRole");
+    if (token && storedRole) {
+      setIsLoggedIn(true);
+      setUserRole(storedRole);
+      navigate(storedRole === "admin" ? "/admin" : "/employee/home", { replace: true });
     }
   }, []);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
 
-  if (!email.endsWith("@dhatvibs.com")) {
-    setError("Only @dhatvibs.com email addresses are allowed.");
-    return;
-  }
-
-  try {
-    const response = await fetch("https://backend-internal-five.vercel.app/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const result = await response.json();
-    console.log("📦 API Login Response:", result);
-
-    if (response.ok) {
-      // ✅ Login successful
-      // alert("Login successful!");
-      setIsLoggedIn(true);
-      setUserRole(role);
-
-      // store auth token or user info if returned by API
-      if (result.token) localStorage.setItem("token", result.token);
-
-      // Remember Me
-      if (rememberMe) {
-        localStorage.setItem("rememberedUser", JSON.stringify({ email, password }));
-      } else {
-        localStorage.removeItem("rememberedUser");
-      }
-
-      localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userRole", role);
-      localStorage.removeItem("hasLoggedOut");
-
-      navigate(role === "admin" ? "/admin" : "/employee/home");
-    } else {
-      // ❌ API rejected
-      setError(result.msg || "Invalid email or password");
+    if (!email.endsWith("@dhatvibs.com")) {
+      setError("Only @dhatvibs.com email addresses are allowed.");
+      return;
     }
-  } catch (err) {
-    console.error("🚨 API Error:", err);
-    setError("Server not reachable. Please try again later.");
-  }
-};
 
+    try {
+      const response = await fetch("https://internal-website-rho.vercel.app/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+      console.log("📦 API Login Response:", result);
+
+      if (response.ok) {
+        // ✅ Store auth info
+        setIsLoggedIn(true);
+        setUserRole(role);
+        if (result.token) localStorage.setItem("token", result.token);
+        localStorage.setItem("userRole", role);
+
+        navigate(role === "admin" ? "/admin" : "/employee/home");
+      } else {
+        setError(result.msg || "Invalid email or password");
+      }
+    } catch (err) {
+      console.error("🚨 API Error:", err);
+      setError("Server not reachable. Please try again later.");
+    }
+  };
 
   return (
     <div className="login-main-container">
@@ -127,6 +88,7 @@ const handleSubmit = async (e) => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            autoComplete="off"
           />
 
           <label>Password :</label>
@@ -137,6 +99,7 @@ const handleSubmit = async (e) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              autoComplete="off"
             />
             <span
               className="eye-icon"
@@ -144,16 +107,6 @@ const handleSubmit = async (e) => {
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
-          </div>
-
-          <div className="remember-me">
-            <input
-              type="checkbox"
-              id="rememberMe"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-            />
-            <label htmlFor="rememberMe">Remember Me</label>
           </div>
 
           <div className="reset-password-link">
@@ -164,7 +117,6 @@ const handleSubmit = async (e) => {
 
           <button type="submit">Login</button>
 
-          {/* ✅ Register Section */}
           <p className="register-link-text">
             Don’t have an account?{" "}
             <span

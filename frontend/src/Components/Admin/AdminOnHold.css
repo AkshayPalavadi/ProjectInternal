@@ -1,0 +1,131 @@
+/* Container */
+.onhold-container {
+  font-family: "Inter", sans-serif;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+/* Header */
+.onhold-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.onhold-header h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #2563eb;
+}
+
+/* Back button */
+.onhold-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  background: #f8f9fa;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #333;
+  transition: 0.2s ease;
+}
+
+.onhold-back-btn:hover {
+  background: #eaeaea;
+}
+
+/* Filter icon */
+.filter-icon {
+  margin-left: auto;
+  font-size: 1.2rem;
+  color: #555;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+.filter-icon:hover {
+  color: #2563eb;
+}
+
+/* Table */
+.onhold-table-wrapper {
+  overflow-x: auto;
+}
+
+.onhold-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.onhold-table th,
+.onhold-table td {
+  border: 1px solid #e5e7eb;
+  padding: 8px 10px;
+  text-align: left;
+}
+
+.onhold-table th {
+  background: #2563eb; /* Blue background */
+  color: #fff;          /* White text */
+  font-weight: 600;
+}
+
+.onhold-table input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: #f9fafb;
+  padding: 6px;
+  font-size: 0.85rem;
+  border-radius: 4px;
+}
+
+.onhold-table input:focus {
+  background: #fff;
+  border: 1px solid #2563eb;
+}
+
+.onhold-table tr:hover {
+  background: #f9fafb;
+}
+
+.no-data {
+  text-align: center;
+  color: #888;
+  padding: 14px;
+}
+
+/* Footer */
+.onhold-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  font-size: 0.9rem;
+  color: #333;
+}
+
+.onhold-footer p {
+  font-weight: 700; /* Bold */
+  color: #000; /* Black */
+}
+
+.onhold-export-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.onhold-export-btn:hover {
+  background: #1d4ed8;
+}
