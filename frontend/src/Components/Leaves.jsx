@@ -1,3 +1,4 @@
+// src/pages/Leaves.jsx
 import { useState, useEffect } from "react";
 import "./Leaves.css";
 import History from "./History.jsx";
@@ -113,19 +114,15 @@ const handleFileChange = (e) => {
   }
 
   if (uploadedFile.size > 2 * 1024 * 1024) {
-    setErrors([`File size must not exceed 2MB.`]);
+    setErrors(["File size must not exceed 2MB."]);
     setFile(null);
     return;
   }
 
-  // Convert PDF to Base64
-  const reader = new FileReader();
-  reader.onload = () => {
-    const base64String = reader.result; // this is a string like "data:application/pdf;base64,..."
-    setFile(base64String);
-  };
-  reader.readAsDataURL(uploadedFile);
+  // ✅ Just keep file (not base64) — we’ll send it via FormData
+  setFile(uploadedFile);
 };
+
 const [customLeaveSummary, setCustomLeaveSummary] = useState({});
 
 const finalizeSubmit = (request) => {
@@ -170,103 +167,159 @@ useEffect(() => {
       ? "⚠️ Insufficient leave balance for selected type."
       : "";
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (insufficientMsg) return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (insufficientMsg) return;
 
-    let validationErrors = [];
+  let validationErrors = [];
 
-    if (leaveType === "none") validationErrors.push("Please select a leave type.");
-    if (leaveType === "custom" && customTypes.length === 0)
-      validationErrors.push("Select at least one custom leave type.");
-    if (leaveType === "sick" && !disease)
-      validationErrors.push("Please select disease type.");
-    if (!reason.trim() && leaveType !== "sick")
-      validationErrors.push("Reason is required.");
-    if (leaveType === "compoff" && compoffDates.length === 0)
-      validationErrors.push("Please select at least one Compoff day.");
-    if (leaveType === "sick" && daysApplied > 2 && !file)
-  validationErrors.push("File upload is mandatory for sick leave over 2 days.");
+  if (leaveType === "none") validationErrors.push("Please select a leave type.");
+  if (leaveType === "custom" && customTypes.length === 0)
+    validationErrors.push("Select at least one custom leave type.");
+  if (leaveType === "sick" && !disease)
+    validationErrors.push("Please select disease type.");
+  if (!reason.trim() && leaveType !== "sick")
+    validationErrors.push("Reason is required.");
+  if (leaveType === "compoff" && compoffDates.length === 0)
+    validationErrors.push("Please select at least one Compoff day.");
+  if (leaveType === "sick" && daysApplied > 2 && !file)
+    validationErrors.push("File upload is mandatory for sick leave over 2 days.");
 
-
-    if (validationErrors.length > 0) {
-      setErrors(validationErrors);
-      return;
-    }
-
-    let finalReason = reason;
-    if (leaveType === "sick") {
-      finalReason = disease === "Other" ? customDisease : disease;
-    }
-
-    let leaveDetails = {};
-   if (leaveType === "custom") {
-  // Define fixed priority order
-  const priorityOrder = ["casual", "sick", "earned", "optional", "compoff", "maternity", "paternity", "other", "lop"];
-
-  // Sort selected custom types based on priority
-  const sortedTypes = [...customTypes].sort(
-    (a, b) => priorityOrder.indexOf(a) - priorityOrder.indexOf(b)
-  );
-
-  let remaining = daysApplied;
-  for (const type of sortedTypes) {
-    const available = leaveBalances[type] || 0;
-    const applied = Math.min(available, remaining);
-    if (applied > 0) {
-      leaveDetails[type] = applied;
-      remaining -= applied;
-    }
+  if (validationErrors.length > 0) {
+    setErrors(validationErrors);
+    return;
   }
 
-  // Anything leftover goes to LOP (Loss of Pay)
-  if (remaining > 0) leaveDetails["lop"] = remaining;
+// ✅ Define finalReason BEFORE using it anywhere
+let finalReason = reason;
+if (leaveType === "sick") {
+  finalReason = disease === "Other" ? customDisease : disease;
 }
 
-    const newRequest = {
-      fromDate,
-      toDate,
-      daysApplied,
-      leaveType,
-      customTypes,
-      leaveDetails,
-      reason: finalReason,
-      file: file || null,
-      status: "Sent",
-      employeeId: parseInt(localStorage.getItem("employeeId")),
-      employeeName: localStorage.getItem("employeeName"),
-      employeeDesignation: localStorage.getItem("employeeDesignation"),
-      employeeDepartment: localStorage.getItem("employeeDepartment"),
-      employeeEmail: localStorage.getItem("employeeEmail"),
-      requestDate: new Date().toISOString(),
-    };
+// ⚠️ Check insufficient balance — show LOP popup before submit
+if (
+  (leaveType !== "none" &&
+    leaveType in leaveBalances &&
+    daysApplied > leaveBalances[leaveType]) ||
+  (leaveType === "custom" &&
+    customTypes.some(
+      (type) => type in leaveBalances && daysApplied > leaveBalances[type]
+    ))
+) {
+  setPendingRequest({
+    fromDate,
+    toDate,
+    daysApplied,
+    leaveType,
+    customTypes,
+    reason: finalReason, // ✅ now defined before use
+    status: "Sent",
+  });
+  setShowCustomConfirmPopup(true);
+  return; // stop here, wait for user confirmation
+}
 
-    if (leaveType === "custom") {
-      const totalAvailable = customTypes.reduce(
-        (sum, type) => sum + (leaveBalances[type] || 0),
-        0
-      );
-      if (totalAvailable < daysApplied) {
-        setPendingRequest(newRequest);
-        setShowCustomConfirmPopup(true);
-        return;
+  let leaveDetails = {};
+  if (leaveType === "custom") {
+    const priorityOrder = ["casual", "sick", "earned", "optional", "compoff", "maternity", "paternity", "other", "lop"];
+    const sortedTypes = [...customTypes].sort((a, b) => priorityOrder.indexOf(a) - priorityOrder.indexOf(b));
+
+    let remaining = daysApplied;
+    for (const type of sortedTypes) {
+      const available = leaveBalances[type] || 0;
+      const applied = Math.min(available, remaining);
+      if (applied > 0) {
+        leaveDetails[type] = applied;
+        remaining -= applied;
       }
     }
+    if (remaining > 0) leaveDetails["lop"] = remaining;
+  }
 
-    setErrors([]);
-    setSubmitted(true);
-    setStatus("sent");
-    // ✅ Save to localStorage so admin can see it
-const storedRequests = JSON.parse(localStorage.getItem("leaveRequests") || "[]");
-localStorage.setItem("leaveRequests", JSON.stringify([...storedRequests, newRequest]));
-if (leaveType === "custom") {
-  setCustomLeaveSummary(newRequest.leaveDetails);
-} else {
-  setCustomLeaveSummary({});
-}
+  // ✅ Create FormData for backend upload (supports files)
+  const formData = new FormData();
+  formData.append("fromDate", fromDate);
+  formData.append("toDate", toDate);
+  formData.append("daysApplied", daysApplied);
+  formData.append("leaveType", leaveType);
+  formData.append("reason", finalReason);
+  formData.append("status", "Sent");
+  formData.append("employeeId", localStorage.getItem("employeeId") || "TEMP001");
+  formData.append("employeeName", localStorage.getItem("employeeName") || "Default Employee");
+  formData.append("requestDate", new Date().toISOString());
 
-    finalizeSubmit(newRequest);
-  };
+  // Add file only if selected
+  if (file) formData.append("file", file);
+
+  // Add JSON fields as strings
+  formData.append("customTypes", JSON.stringify(customTypes));
+  formData.append("leaveDetails", JSON.stringify(leaveDetails));
+
+  try {
+    const response = await fetch("https://internal-website-rho.vercel.app/api/leaves/create", {
+        method: "POST",
+        body: formData, // ✅ no need for Content-Type (browser sets it automatically)
+
+    });
+
+    if (response.ok) {
+      finalizeSubmit({
+        fromDate,
+        toDate,
+        daysApplied,
+        leaveType,
+        customTypes,
+        leaveDetails,
+        reason: finalReason,
+        status: "Sent",
+      });
+    } else {
+      const errorText = await response.text();
+      console.error("Server error:", errorText);
+      alert("❌ Failed to submit leave. Server rejected the request.");
+    }
+  } catch (error) {
+    console.error("Error submitting leave:", error);
+    alert("⚠️ Error submitting leave. Check network or server.");
+  }
+};
+
+const handleBackendSubmit = async (request) => {
+  try {
+    const formData = new FormData();
+    formData.append("fromDate", request.fromDate);
+    formData.append("toDate", request.toDate);
+    formData.append("daysApplied", request.daysApplied);
+    formData.append("leaveType", request.leaveType);
+    formData.append("reason", request.reason);
+    formData.append("status", request.status);
+    formData.append("employeeId", localStorage.getItem("employeeId") || "TEMP001");
+    formData.append("employeeName", localStorage.getItem("employeeName") || "Default Employee");
+    formData.append("requestDate", new Date().toISOString());
+    formData.append("customTypes", JSON.stringify(request.customTypes || []));
+    formData.append("leaveDetails", JSON.stringify(request.leaveDetails || {}));
+    if (file) formData.append("file", file);
+
+    const response = await fetch("https://internal-website-rho.vercel.app/api/leaves/create",{
+      method: "POST",
+      body: formData,
+      // headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify(formData),
+
+    });
+
+    if (response.ok) {
+      finalizeSubmit(request);
+    } else {
+      const errorText = await response.text();
+      console.error("Server error:", errorText);
+      alert("❌ Failed to submit leave with LOP. Server error.");
+    }
+  } catch (error) {
+    console.error("Error submitting leave with LOP:", error);
+    alert("⚠️ Network or server error.");
+  }
+};
 
   const handleConfirmYes = () => {
     if (pendingRequest) {
@@ -276,7 +329,7 @@ if (leaveType === "custom") {
       };
       setSubmitted(true);
       setStatus("sent");
-      finalizeSubmit(updatedRequest);
+      handleBackendSubmit(updatedRequest);
     }
     setPendingRequest(null);
     setShowCustomConfirmPopup(false);
@@ -631,4 +684,3 @@ if (leaveType === "custom") {
     </div>
   );
 }
-

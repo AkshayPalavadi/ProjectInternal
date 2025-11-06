@@ -1,0 +1,100 @@
+/* ================= Admin Job Form Styling ================= */
+.adminjobform-job-form-container {
+  /* max-width: 900px; */
+  margin: 40px auto;
+  background: #ffffff;
+  padding: 40px 50px;
+  border-radius: 16px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+  font-family: "Inter", "Segoe UI", sans-serif;
+  color: #1f2937;
+}
+
+.adminjobform-form-title {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 30px;
+  color: #111827;
+}
+
+/* ================= Form Layout ================= */
+.adminjobform-job-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.adminjobform-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px 30px;
+}
+
+.adminjobform-form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.adminjobform-form-group.adminjobform-full-width {
+  grid-column: span 2;
+}
+
+label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #4b5563;
+  font-size: 0.95rem;
+}
+
+/* ================= Input Fields ================= */
+input,
+select,
+textarea {
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  background-color: #f9fafb;
+  transition: all 0.3s ease;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: #2563eb;
+  background-color: #fff;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+  outline: none;
+}
+
+/* ================= Button Styling ================= */
+.adminjobform-submit-btn {
+  margin-top: 30px;
+  padding: 14px 0;
+  background: #2563eb;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.adminjobform-submit-btn:hover {
+  background: #1e40af;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+}
+
+/* ================= Responsive Design ================= */
+@media (max-width: 768px) {
+  .adminjobform-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .adminjobform-job-form-container {
+    padding: 25px 20px;
+  }
+}

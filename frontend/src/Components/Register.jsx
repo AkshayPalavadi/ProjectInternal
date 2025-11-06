@@ -91,7 +91,7 @@ const payload = {
 };
 console.log("📤 Sending payload:", payload);
 
-  const response = await fetch("https://backend-internal-five.vercel.app/api/auth/register", {
+  const response = await fetch("https://internal-website-rho.vercel.app/api/auth/register", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

@@ -138,7 +138,7 @@ export default function TimeSheet() {
 
     const key = fmtKey(selectedDate);
     const h = parseFloat(hours || 0);
-    if (isNaN(h) || h < 0 || h > 24) return alert("Enter valid hours (0 - 24).");
+    if (isNaN(h) || h < 0 || h > 9) return alert("Enter valid hours (0 - 9).");
 
     setEntries({
       ...entries,
@@ -352,7 +352,7 @@ export default function TimeSheet() {
           <input
             type="number"
             min="0"
-            max="24"
+            max="9"
             step="0.1"
             value={hours}
             onChange={(e) => setHours(e.target.value)}

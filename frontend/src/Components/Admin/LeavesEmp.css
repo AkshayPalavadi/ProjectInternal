@@ -1,0 +1,284 @@
+/* ===== PAGE CONTAINER ===== */
+.leavesAdmin-emp {
+  padding: 30px;
+  font-family: "Poppins", sans-serif;
+  background: #f4f6f9;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ===== HEADER ===== */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.table-header h3 {
+  font-size: 24px;
+  color: #1e3a8a;
+  font-weight: 700;
+}
+
+/* ===== GRAPH CARD ===== */
+.graph-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+}
+
+.graph-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e3a8a;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+/* Add subtle hover for visual polish */
+.graph-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  transition: box-shadow 0.3s ease;
+}
+
+.filter-icon {
+  cursor: pointer;
+  font-size: 22px;
+  color: #2563eb;
+  transition: color 0.2s ease;
+}
+
+.filter-icon:hover {
+  color: #1d4ed8;
+}
+
+/* ===== FILTER PANEL ===== */
+.filter-panel-fixed {
+  position: fixed;
+  top: 120px;
+  right: 30px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  padding: 20px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  min-width: 260px;
+  max-height: 480px;
+  overflow-y: auto;
+  border-radius: 12px;
+  z-index: 1000;
+}
+
+.filter-panel-fixed label {
+  font-weight: 500;
+  color: #1f2937;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.filter-panel-fixed input,
+.filter-panel-fixed select {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  outline: none;
+  font-size: 14px;
+  transition: border 0.2s ease, background 0.2s ease;
+}
+
+.filter-panel-fixed input:focus,
+.filter-panel-fixed select:focus {
+  border-color: #3b82f6;
+  background: #fff;
+}
+
+/* ===== Date Input Fix ===== */
+.filter-panel-fixed input[type="date"] {
+  -webkit-appearance: menulist-button; /* Chrome/Safari */
+  -moz-appearance: textfield;          /* Firefox */
+  appearance: menulist-button;         /* Standard */
+  cursor: pointer;
+  background: #f9fafb;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+}
+
+.filter-panel-fixed input[type="date"]:focus {
+  border-color: #3b82f6;
+  background: #fff;
+}
+
+/* ===== TABLE CONTAINER ===== */
+.table-container {
+  width: 100%;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
+  border: 1px solid #e5e7eb;
+}
+
+/* ===== TABLE STYLING ===== */
+.leavesAdmin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  text-align: center;
+}
+
+/* Table Header */
+.leavesAdmin-table th {
+  background: #007bff;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  font-weight: 600;
+  padding: 14px 12px;
+  border: 1px solid #1e40af;
+  text-align: center;
+  white-space: nowrap;
+}
+.leavesAdmin-table th select {
+  background-color: #007bff;
+  border-color: #007bff;
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* Table Cells */
+.leavesAdmin-table td {
+  border: 1px solid #e5e7eb;
+  padding: 12px 10px;
+  vertical-align: middle;
+  text-align: center;
+  color: #374151;
+  font-weight: 500;
+  background: #fff;
+}
+
+.header-date-picker {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 4px;
+  z-index: 5;
+  padding: 4px 6px;
+  font-size: 12px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+/* Alternate row coloring */
+.leavesAdmin-table tr:nth-child(even) td {
+  background-color: #f9fafb;
+}
+
+/* Hover effect */
+.leavesAdmin-table tr:hover td {
+  background-color: #e0f2fe;
+  transition: background 0.2s ease;
+}
+
+/* Reason Box */
+.leavesAdmin-table td.reason-box {
+  border-radius: 6px;
+  padding: 10px;
+  word-break: break-word;
+  border: 1px solid #d1d5db;
+}
+
+/* Status Badges */
+.status {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-block;
+  border: 1px solid transparent;
+}
+.status.pending { background: #fef3c7; color: #b45309; border-color: #fcd34d; }
+.status.approved { background: #d1fae5; color: #065f46; border-color: #10b981; }
+.status.rejected { background: #fee2e2; color: #991b1b; border-color: #ef4444; }
+.status.sent { background: #bfdbfe; color: #1e3a8a; border-color: #3b82f6; }
+
+/* View File Button */
+.view-file-btn {
+  background: #fff;
+  border-radius: 20px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 5px 12px;
+  margin-top: 0px;
+  transition: background 0.2s ease;
+}
+.view-file-btn:hover { background: #1d4ed8; text-decoration: none; }
+
+/* Rejection Textarea */
+.rejection-input {
+  width: 120px;
+  min-height: 50px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 14px;
+  outline: none;
+  background: #f9fafb;
+  resize: vertical;
+  transition: border 0.2s ease, background 0.2s ease;
+}
+.rejection-input:focus {
+  border-color: #3b82f6;
+  background: #fff;
+}
+
+/* Header Inline Dropdown */
+.header-inline select {
+  margin-left: 5px;
+  padding: 5px 8px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  cursor: pointer;
+}
+
+/* Responsive */
+@media screen and (max-width: 768px) {
+  .leavesAdmin-table {
+    width: 1000px;
+    font-size: 12px;
+  }
+
+  .rejection-input {
+    width: 160px;
+  }
+
+  .leavesAdmin-table td.reason-box,
+  .leavesAdmin-table th:nth-child(8) {
+    min-width: 180px;
+    max-width: 220px;
+  }
+
+  .header-inline select {
+    font-size: 11px;
+    padding: 3px 5px;
+  }
+}

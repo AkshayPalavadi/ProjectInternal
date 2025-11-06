@@ -1,0 +1,199 @@
+.attendance-emp {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  position: relative;
+  background-color: #f5f7fa;
+}
+
+/* 🔍 Search Bar */
+.input-search-bar {
+  height: 34px;
+  width: 280px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
+}
+.input-search-bar:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.3);
+}
+
+/* 📊 Graph Layout */
+.attendance-graphs {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 25px;
+  margin-bottom: 30px;
+}
+
+.graph-box {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+}
+
+.graph-box h4 {
+  margin-bottom: 15px;
+  text-align: center;
+  color: #333;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* ⚙️ Header */
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.filter-icon {
+  cursor: pointer;
+  font-size: 20px;
+  color: #007bff;
+  transition: color 0.2s;
+}
+.filter-icon:hover {
+  color: #0056b3;
+}
+
+/* 🎛️ Filter Panel */
+.filter-panel-fixed {
+  position: fixed;
+  top: 100px;
+  right: 30px;
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 15px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 230px;
+  max-height: 400px;
+  overflow-y: auto;
+  border-radius: 8px;
+  z-index: 1000;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.filter-item label {
+  margin-bottom: 4px;
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.filter-item input {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  outline: none;
+}
+.filter-item input:focus {
+  border-color: #007bff;
+}
+
+/* 📋 Table Container */
+.table-container {
+  max-height: 420px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* 🧾 Table */
+.attendance-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.attendance-table th,
+.attendance-table td {
+  border: 1px solid #ddd;
+  padding: 10px 8px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.attendance-table th {
+  background-color: #007bff;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  font-weight: 500;
+}
+
+/* 🎚️ Dropdown inside header */
+.attendance-table th select {
+  width: 100%;
+  font-size: 15px;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid #007bff;
+  background: #007bff;
+  color: white;
+  text-align: center;
+  outline: none;
+}
+.attendance-table th select:focus {
+  border-color: #007bff;
+  background: #007bff;
+}
+
+/* Row hover & zebra effect */
+.attendance-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+.attendance-table tr:hover {
+  background-color: #eef6ff;
+}
+
+  .filter-item input {
+    font-size: 12px;
+    width: 150px;
+  }
+
+  .filter-panel-fixed {
+    right: 10px;
+    top: 80px;
+    min-width: 180px;
+  }
+
+
+/* 🧱 Responsive */
+@media screen and (max-width: 768px) {
+  .attendance-graphs {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-panel-fixed {
+    right: 10px;
+    top: 80px;
+    min-width: 180px;
+  }
+
+  .attendance-table {
+    font-size: 12px;
+  }
+
+  .filter-item input {
+    font-size: 12px;
+  }
+
+  .input-search-bar {
+    width: 100%;
+  }
+}

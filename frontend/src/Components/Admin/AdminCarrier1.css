@@ -1,0 +1,215 @@
+/* ====== Container ====== */
+.admincarrier1-career-container {
+  margin: 40px auto;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 34px;
+  font-family: "Montserrat", "Poppins", sans-serif;
+  color: #1f2937;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e5e7eb;
+}
+
+/* ====== Role Buttons ====== */
+.admincarrier1-career-role-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 26px;
+}
+
+.admincarrier1-career-role-buttons button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #f9fafb;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.95rem;
+  color: #1f2937;
+  transition: background 0.2s ease;
+}
+
+.admincarrier1-career-role-buttons button:hover {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}
+
+/* ====== Header ====== */
+.admincarrier1-career-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 14px;
+}
+
+.admincarrier1-career-header h1 {
+  font-size: 2.3rem;
+  font-weight: 800;
+  margin: 0;
+  color: #000000; /* solid black */
+  font-family: "Montserrat", sans-serif;
+  letter-spacing: 0.5px;
+  text-transform: capitalize;
+}
+
+.admincarrier1-career-header p {
+  font-size: 0.95rem;
+  color: #6b7280;
+  font-family: "Poppins", sans-serif;
+}
+
+.admincarrier1-edit-btn {
+  background: #ffffff;
+  border: 1px solid #9ca3af;
+  border-radius: 8px;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #111827;
+  font-family: "Montserrat", sans-serif;
+}
+
+.admincarrier1-edit-btn:hover {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}
+
+/* ====== Info Section ====== */
+.admincarrier1-career-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: #f9fafb;
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 28px;
+  font-size: 0.95rem;
+  border: 1px solid #e5e7eb;
+}
+
+.admincarrier1-career-info span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #111827;
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+}
+
+/* ====== Sections ====== */
+.admincarrier1-career-section {
+  background: #ffffff;
+  padding: 24px 26px;
+  border-radius: 12px;
+  margin-bottom: 26px;
+  border: 1px solid #e5e7eb;
+}
+
+.admincarrier1-career-section h2 {
+  font-size: 1.4rem;
+  font-family: "Montserrat", sans-serif;
+  color: #000000;
+  margin-bottom: 12px;
+  font-weight: 700;
+  border-left: 4px solid #0f766e;
+  padding-left: 10px;
+}
+
+.admincarrier1-career-section p,
+.admincarrier1-career-section li {
+  font-size: 1rem;
+  color: #374151;
+  line-height: 1.7;
+  font-family: "Poppins", sans-serif;
+}
+
+.admincarrier1-career-section ul {
+  padding-left: 20px;
+  margin: 0;
+}
+
+.admincarrier1-career-section li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admincarrier1-career-section li svg {
+  color: #0f766e;
+  font-size: 1rem;
+}
+
+/* ====== Tags ====== */
+.admincarrier1-career-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.admincarrier1-career-tags span {
+  background: #f3f4f6;
+  color: #111827;
+  padding: 6px 14px;
+  border-radius: 22px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 1px solid #d1d5db;
+  font-family: "Montserrat", sans-serif;
+}
+
+.admincarrier1-career-tags span:hover {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}
+
+/* ====== Back Button ====== */
+.admincarrier1-career-back {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 30px;
+}
+
+.admincarrier1-back-btn {
+  background: transparent;
+  color: #111827;
+  border: 2px solid #111827;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+}
+
+.admincarrier1-back-btn:hover {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+}
+
+/* ====== Responsive ====== */
+@media (max-width: 768px) {
+  .admincarrier1-career-role-buttons {
+    flex-direction: column;
+  }
+  .admincarrier1-career-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .admincarrier1-career-info {
+    flex-direction: column;
+  }
+  .admincarrier1-career-back {
+    justify-content: center;
+    margin-top: 25px;
+  }
+}
