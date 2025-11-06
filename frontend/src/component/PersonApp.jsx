@@ -1,12 +1,12 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import PersonalDetails from "./PersonalDetails.jsx";
 import EducationDetails from "./EducationaDetails.jsx";
 import ProfessionalDetails from "./ProfessionalDetails.jsx";
 import ReviewSubmit from "./ReviewSubmit.jsx";
 import Stepper from "./Stepper.jsx";
 import "./indexApp.css";
-import { useNavigate } from "react-router-dom";
-
 import {
   simpleValidatePersonal,
   simpleValidateEducation,
@@ -16,6 +16,7 @@ import {
 function PersonApp() {
   const navigate = useNavigate();
 
+  // -------------------- STEP MANAGEMENT --------------------
   const steps = [
     "Personal Details",
     "Education Details",
@@ -41,6 +42,11 @@ function PersonApp() {
   };
 
   const active = getStepName();
+
+  const handleSuccess = () => {
+    localStorage.setItem("applicationSubmitted", "true");
+    navigate("/employee/details");
+  };
 
   // -------------------- FORM STATES --------------------
   const [personal, setPersonal] = useState({
@@ -129,97 +135,126 @@ function PersonApp() {
     ],
   });
 
-  // -------------------- API HANDLERS --------------------
-  const API_BASE = "https://internal-website-rho.vercel.app/api";
+  // -------------------- VALIDATION --------------------
+  const validateCurrentStep = () => {
+    let newErrors = {};
+    if (currentStep === 0) newErrors = simpleValidatePersonal(personal);
+    else if (currentStep === 1) newErrors = simpleValidateEducation(education);
+    else if (currentStep === 2)
+      newErrors = simpleValidateProfessional(professional);
 
-  const hasFile = (data) => {
-    return Object.values(data).some((value) => value instanceof File);
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
-  const saveToDatabase = async (endpoint, data) => {
+  // -------------------- API CALLS --------------------
+  const savePersonal = async () => {
+  try {
+    const formData = new FormData();
+    for (const key in personal) {
+      if (personal[key] instanceof File)
+        formData.append(key, personal[key]);
+      else formData.append(key, personal[key] ?? "");
+    }
+
+    console.log("📤 Sending data to: /api/personal/save");
+    console.log(formData);
+
+    const res = await axios.post("https://internal-website-rho.vercel.app/api/personal/save", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    // ✅ check if backend responded properly
+    console.log("✅ Personal data saved:", res);
+
+    // Some APIs don’t return `success: true`, so we just assume if no error => OK
+    return true;
+  } catch (err) {
+    console.error("❌ Personal save failed:", err);
+    return false;
+  }
+};
+
+
+  const saveEducation = async () => {
     try {
-      let options = { method: "POST" };
-      let bodyContent;
-
-      if (hasFile(data)) {
-        // If files are present, send multipart/form-data
-        const formData = new FormData();
-        for (const key in data) {
-          if (Array.isArray(data[key])) {
-            formData.append(key, JSON.stringify(data[key]));
-          } else if (data[key] instanceof File) {
-            formData.append(key, data[key]);
-          } else {
-            formData.append(key, data[key] ?? "");
-          }
-        }
-        bodyContent = formData;
-        options.body = bodyContent;
-      } else {
-        // Otherwise, send JSON
-        options.headers = { "Content-Type": "application/json" };
-        bodyContent = JSON.stringify(data);
-        options.body = bodyContent;
+      const formData = new FormData();
+      for (const key in education) {
+        if (education[key] instanceof File)
+          formData.append(key, education[key]);
+        else formData.append(key, education[key] ?? "");
       }
 
-      console.log(`📤 Sending to ${endpoint}:`, data);
-
-      const response = await fetch(`${API_BASE}/${endpoint}/save`, options);
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`❌ Backend error: ${errorText}`);
-        throw new Error(`Failed to save ${endpoint} details`);
-      }
-
-      const result = await response.json();
-      console.log(`✅ ${endpoint} saved:`, result);
+      console.log("📤 Sending data to: /api/education/save");
+      const res = await axios.post("/api/education/save", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      console.log("✅ Education data saved:", res.data);
       return true;
-    } catch (error) {
-      console.error("Error saving data:", error);
-      alert(`Error saving ${endpoint} details. Please try again.`);
+    } catch (err) {
+      console.error("❌ Education save failed:", err);
       return false;
     }
   };
 
-  // -------------------- VALIDATION --------------------
-  const validateAndSaveStep = async () => {
-    let newErrors = {};
-    let isValid = false;
+  const saveProfessional = async () => {
+    try {
+      const formData = new FormData();
 
-    if (currentStep === 0) {
-      newErrors = simpleValidatePersonal(personal);
-      isValid = Object.keys(newErrors).length === 0;
-      setErrors(newErrors);
-      if (isValid) await saveToDatabase("personal", personal);
-    } else if (currentStep === 1) {
-      newErrors = simpleValidateEducation(education);
-      isValid = Object.keys(newErrors).length === 0;
-      setErrors(newErrors);
-      if (isValid) await saveToDatabase("education", education);
-    } else if (currentStep === 2) {
-      newErrors = simpleValidateProfessional(professional);
-      isValid = Object.keys(newErrors).length === 0;
-      setErrors(newErrors);
-      if (isValid) await saveToDatabase("professional", professional);
+      for (const key in professional) {
+        if (key === "experiences") {
+          formData.append("experiences", JSON.stringify(professional.experiences));
+        } else if (professional[key] instanceof File) {
+          formData.append(key, professional[key]);
+        } else {
+          formData.append(key, professional[key] ?? "");
+        }
+      }
+
+      console.log("📤 Sending data to: /api/professional/save");
+      const res = await axios.post("/api/professional/save", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      console.log("✅ Professional data saved:", res.data);
+      return true;
+    } catch (err) {
+      console.error("❌ Professional save failed:", err);
+      return false;
     }
-
-    return isValid;
   };
 
-  // -------------------- STEP CONTROLLERS --------------------
+  // -------------------- STEP CONTROL --------------------
   const nextStep = async () => {
-    const isValid = await validateAndSaveStep();
-    if (isValid) setCurrentStep((prev) => Math.min(prev + 1, steps.length - 1));
-  };
+  console.log("🟡 Current Step:", currentStep);
+
+  const isValid = validateCurrentStep();
+  console.log("🔹 Validation Passed?", isValid);
+
+  if (!isValid) return;
+
+  let success = false;
+
+  if (currentStep === 0) success = await savePersonal();
+  if (currentStep === 1) success = await saveEducation();
+  if (currentStep === 2) success = await saveProfessional();
+
+  // ✅ Always log the result
+  console.log("🟢 Save success?", success);
+
+  if (success) {
+    console.log("➡️ Moving to next step...");
+    setCurrentStep((prev) => {
+      console.log("🔄 Next Step Index:", prev + 1);
+      return Math.min(prev + 1, steps.length - 1);
+    });
+  } else {
+    console.log("❌ Save failed, staying on this step.");
+  }
+};
+
 
   const prevStep = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 0));
-  };
-
-  const handleSuccess = () => {
-    localStorage.setItem("applicationSubmitted", "true");
-    navigate("/employee/details");
   };
 
   // -------------------- RENDER --------------------

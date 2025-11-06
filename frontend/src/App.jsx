@@ -119,7 +119,7 @@ function App() {
             element={
               <Leaves
                 totalLeaves={totalLeaves}
-                leavesUsed={leavesUsed}
+                leavesUsed={leavesUsed} 
                 setLeavesUsed={setLeavesUsed}
                 absentDays={absentDays}
                 setAbsentDays={setAbsentDays}
