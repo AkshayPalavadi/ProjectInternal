@@ -1,3 +1,4 @@
+/* 🌿 Main Container */
 .login-main-container {
   display: flex;
   flex-direction: column;
@@ -12,7 +13,12 @@
   font-family: Arial, sans-serif;
 }
 
+<<<<<<< HEAD
 .login-container-employee {
+=======
+/* 🧱 Login Box */
+.login-container {
+>>>>>>> 1e677f3241f2139f65096b4a1ca70e3dfef14ccb
   margin-top: -40px;
   background: #fff;
   padding: 30px 40px;
@@ -22,6 +28,7 @@
   max-width: 90%;
 }
 
+/* 🧩 Header */
 .headerlogin {
   display: flex;
   align-items: center;
@@ -54,7 +61,12 @@ hr {
   border-top: 1px solid #ddd;
 }
 
+<<<<<<< HEAD
 .heading-employee {
+=======
+/* 💡 Login Form */
+.heading {
+>>>>>>> 1e677f3241f2139f65096b4a1ca70e3dfef14ccb
   text-align: center;
   font-size: 30px;
   margin-bottom: 20px;
@@ -81,7 +93,6 @@ hr {
   border-radius: 6px;
   font-size: 14px;
   transition: all 0.2s ease;
-  /* width: 100%; */
 }
 
 .login-form-employee input:focus,
@@ -91,10 +102,7 @@ hr {
   box-shadow: 0px 0px 4px rgba(74, 144, 226, 0.4);
 }
 
-.role-select {
-  cursor: pointer;
-}
-
+/* 🔐 Password Input */
 .password-input {
   position: relative;
   display: flex;
@@ -103,9 +111,9 @@ hr {
 }
 
 .password-input input {
-  flex: 1; /* ✅ fills available space and prevents shrinking */
+  flex: 1;
   height: 44px;
-  min-width: 0; /* ✅ prevents overflow issues inside flex */
+  min-width: 0;
   padding: 10px 40px 10px 12px;
   border: 1px solid #ccc;
   border-radius: 6px;
@@ -128,74 +136,13 @@ hr {
   cursor: pointer;
   color: #555;
   font-size: 16px;
-  line-height: 1; /* ✅ prevents height shift */
+  line-height: 1;
 }
 
-/* ✅ Remember Me Checkbox Styling */
-.remember-me {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 5px;
-  margin-bottom: 10px;
-  font-size: 14px;
-  color: #333;
-}
-
-.remember-me input[type="checkbox"] {
-  accent-color: #4a90e2; /* gives blue color on check (modern browsers) */
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-}
-
-.remember-me label {
-  cursor: pointer;
-  user-select: none;
-}
-
-button {
-  margin-top: 0px;
-  padding: 12px;
-  background: #279630;
-  color: #fff;
-  font-size: 16px;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-button:hover {
-  background: #218838;
-}
-
-button:active {
-  transform: scale(0.98);
-}
-
-.contact-text {
-  text-align: center;
-  font-size: 14px;
-  margin-top: 15px;
-}
-
-.contact-text span {
-  font-weight: bold;
-  color: #4a90e2;
-  cursor: pointer;
-  text-decoration: underline;
-}
-
-.error {
-  color: red;
-  margin-bottom: 10px;
-}
-
+/* 🧩 Reset Password Link */
 .reset-password-link {
   text-align: right;
-  margin-top: -20px;
+  margin-top: -10px;
   margin-bottom: 10px;
 }
 
@@ -212,6 +159,36 @@ button:active {
   text-decoration: underline;
 }
 
+/* 🚀 Login Button */
+button {
+  margin-top: 0px;
+  padding: 12px;
+  background: #279630;
+  color: #fff;
+  font-size: 16px;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease, transform 0.1s ease;
+}
+
+button:hover {
+  background: #218838;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* ⚠️ Error Text */
+.error {
+  color: red;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* 🧭 Register Section */
 .register-link-text {
   margin-top: 15px;
   text-align: center;

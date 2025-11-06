@@ -4,87 +4,118 @@ import { BiEdit } from "react-icons/bi";
 import { RiDeleteBinLine } from "react-icons/ri";
 
 export default function Reviews({ taskTitle }) {
-  const isAdmin = false; // true = Manager/Admin, false = Employee
-
-  const defaultReviews = [
-    {
-      title: taskTitle || "Task",
-      date: new Date().toISOString().split("T")[0],
-      rating: 0,
-      comments: [],
-    },
-  ];
-
-  const [reviews, setReviews] = useState(() => {
-    const stored = localStorage.getItem("interactive_reviews");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      const found = parsed.find((r) => r.title === taskTitle);
-      return found ? [found] : defaultReviews;
-    }
-    return defaultReviews;
-  });
-
+  const isAdmin = false; // manager flow pending
+  const employeeId = "EMP-101"; // static for now
+  const [reviews, setReviews] = useState([]);
   const [newComments, setNewComments] = useState({});
   const [editComments, setEditComments] = useState({});
   const [editComment, setEditComment] = useState(null);
 
+  // ✅ Fetch tasks
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("interactive_reviews") || "[]");
-    const otherReviews = stored.filter((r) => r.title !== taskTitle);
-    localStorage.setItem(
-      "interactive_reviews",
-      JSON.stringify([...otherReviews, ...reviews])
-    );
-  }, [reviews, taskTitle]);
+    const fetchTasks = async () => {
+      try {
+        const res = await fetch("https://internal-website-rho.vercel.app/api/tasks");
+        const data = await res.json();
+        const filtered = data.filter(
+          (t) =>
+            t.employeeId === employeeId &&
+            t.text === taskTitle
+        );
+        if (filtered.length > 0) setReviews(filtered);
+        else
+          setReviews([
+            {
+              id: "TASK-STATIC",
+              employeeId,
+              text: taskTitle,
+              rating: 0,
+              comments: [],
+            },
+          ]);
+      } catch (err) {
+        console.error("Error fetching tasks:", err);
+      }
+    };
+    fetchTasks();
+  }, [taskTitle]);
 
-  const setRating = (index, value) => {
+  // ✅ Save/Update Task to API
+  const saveTaskToAPI = async (updatedTask) => {
+    try {
+      const res = await fetch("https://internal-website-rho.vercel.app/api/tasks/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedTask),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+    } catch (err) {
+      console.error("Save error:", err);
+    }
+  };
+
+  // ✅ Set Rating
+  const setRating = async (index, value) => {
     if (!isAdmin) return;
     const updated = [...reviews];
     updated[index].rating = value;
     setReviews(updated);
+    await saveTaskToAPI(updated[index]);
   };
 
-  const addComment = (rIndex) => {
+  // ✅ Add Comment
+  const addComment = async (rIndex) => {
     const newComment = newComments[rIndex];
     if (!newComment?.trim()) return;
 
     const updated = [...reviews];
-    updated[rIndex].comments.push({
-      text: newComment,
-      author: isAdmin ? "Manager" : "Employee",
-      timestamp: new Date().toISOString(),
-      edited: false,
-    });
-
+    const task = updated[rIndex];
+    const comment = {
+      authorId: employeeId,
+      authorName: "Sushma",
+      role: isAdmin ? "Manager" : "Employee",
+      message: newComment,
+      createdAt: new Date().toISOString(),
+    };
+    task.comments.push(comment);
     setReviews(updated);
     setNewComments({ ...newComments, [rIndex]: "" });
+
+    await saveTaskToAPI(task);
   };
 
+  // ✅ Edit Comment
   const handleEdit = (rIndex, cIndex) => {
     setEditComment({ rIndex, cIndex });
     setEditComments({
       ...editComments,
-      [`${rIndex}-${cIndex}`]: reviews[rIndex].comments[cIndex].text,
+      [`${rIndex}-${cIndex}`]: reviews[rIndex].comments[cIndex].message,
     });
   };
 
-  const saveEdit = (rIndex, cIndex) => {
+  const saveEdit = async (rIndex, cIndex) => {
     const updated = [...reviews];
-    updated[rIndex].comments[cIndex].text =
-      editComments[`${rIndex}-${cIndex}`];
-    updated[rIndex].comments[cIndex].edited = true;
+    const task = updated[rIndex];
+    task.comments[cIndex].message = editComments[`${rIndex}-${cIndex}`];
+    task.comments[cIndex].edited = true;
+    task.comments[cIndex].updatedAt = new Date().toISOString();
     setReviews(updated);
     setEditComment(null);
     setEditComments({ ...editComments, [`${rIndex}-${cIndex}`]: "" });
+
+    await saveTaskToAPI(task);
   };
 
-  const deleteComment = (rIndex, cIndex) => {
+  // ✅ Delete Comment
+  const deleteComment = async (rIndex, cIndex) => {
     const updated = [...reviews];
-    updated[rIndex].comments.splice(cIndex, 1);
+    const task = updated[rIndex];
+    task.comments.splice(cIndex, 1);
     setReviews(updated);
+    await saveTaskToAPI(task);
   };
 
+  // ✅ 24-hour edit limit
   const isDisabled = (timestamp) => {
     const commentDate = new Date(timestamp);
     const diff = Date.now() - commentDate.getTime();
@@ -92,12 +123,12 @@ export default function Reviews({ taskTitle }) {
   };
 
   return (
-    <div className="task-review-section">
+    <div className="reviews-task-review-section">
       {reviews.map((review, rIndex) => (
-        <div key={rIndex}>
-          <h4>{review.title}</h4>
+        <div key={review.id || rIndex}>
+          <h4>{review.text}</h4>
 
-          <div className="rating-section">
+          <div className="reviews-rating-section">
             {[1, 2, 3, 4, 5].map((n) => (
               <span
                 key={n}
@@ -116,22 +147,21 @@ export default function Reviews({ taskTitle }) {
             </span>
           </div>
 
-          {/* Comments Section */}
-          <div className="comments-section">
+          <div className="reviews-comments-section">
             {review.comments.map((c, cIndex) => {
-              const disabled = isDisabled(c.timestamp);
+              const disabled = isDisabled(c.createdAt);
               const isEditing =
                 editComment?.rIndex === rIndex && editComment?.cIndex === cIndex;
 
               return (
                 <div
-                  key={cIndex}
+                  key={c._id || cIndex}
                   className={`comment-chat-bubble ${
-                    c.author === "Manager" ? "left" : "right"
+                    c.role === "Manager" ? "left" : "right"
                   }`}
                 >
                   {isEditing ? (
-                    <div className="edit-section">
+                    <div className="reviews-edit-section">
                       <input
                         type="text"
                         value={editComments[`${rIndex}-${cIndex}`] || ""}
@@ -142,36 +172,25 @@ export default function Reviews({ taskTitle }) {
                           })
                         }
                       />
-                      <button
-                        onClick={() => saveEdit(rIndex, cIndex)}
-                        disabled={disabled}
-                      >
+                      <button onClick={() => saveEdit(rIndex, cIndex)} disabled={disabled}>
                         💾
                       </button>
                     </div>
                   ) : (
                     <>
-                      <div className="chat-text">{c.text}</div>
-
-                      {/* ✅ Time and buttons on same line */}
-                      <div className="comment-chat-footer">
-                        <span className="comment-chat-time">
-                          {new Date(c.timestamp).toLocaleString()}
+                      <div className="reviews-chat-text">{c.message}</div>
+                      <div className="reviews-comment-chat-footer">
+                        <span className="reviews-comment-chat-time">
+                          {new Date(c.createdAt).toLocaleString()}
                           {c.edited && " (edited)"}
                         </span>
 
-                        {c.author === (isAdmin ? "Manager" : "Employee") && (
-                          <div className="comment-chat-buttons">
-                            <button
-                              onClick={() => handleEdit(rIndex, cIndex)}
-                              disabled={disabled}
-                            >
+                        {c.authorId === employeeId && (
+                          <div className="reviews-comment-chat-buttons">
+                            <button onClick={() => handleEdit(rIndex, cIndex)} disabled={disabled}>
                               <BiEdit />
                             </button>
-                            <button
-                              onClick={() => deleteComment(rIndex, cIndex)}
-                              disabled={disabled}
-                            >
+                            <button onClick={() => deleteComment(rIndex, cIndex)} disabled={disabled}>
                               <RiDeleteBinLine />
                             </button>
                           </div>
@@ -183,7 +202,7 @@ export default function Reviews({ taskTitle }) {
               );
             })}
 
-            <div className="chat-input-container">
+            <div className="reviews-chat-input-container">
               <input
                 type="text"
                 placeholder="Type your message..."
@@ -201,11 +220,3 @@ export default function Reviews({ taskTitle }) {
     </div>
   );
 }
-
-
-
-
-
-
-
-

@@ -96,16 +96,13 @@ const Register = () => {
         confirmPassword: formData.confirmPassword,
       };
 
-      console.log("📤 Sending payload:", payload);
+  const response = await fetch("https://internal-website-rho.vercel.app/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 
-      const response = await fetch(
-        "https://backend-internal-five.vercel.app/api/auth/register",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      
 
       const result = await response.json();
       console.log("📦 API Response:", result);

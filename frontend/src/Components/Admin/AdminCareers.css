@@ -1,0 +1,243 @@
+.admincareers-carriers-page {
+  padding: 20px;
+  color: #111827;
+  background-color: #f9fafb;
+  min-height: 100vh;
+}
+
+/* ================= Summary Cards ================= */
+.admincareers-carriers-summary {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.admincareers-summary-card {
+  flex: 1;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.admincareers-summary-card h4 {
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.admincareers-summary-card p {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.admincareers-summary-card span {
+  color: #10b981;
+  font-weight: 500;
+}
+
+/* ================= Job Statistics ================= */
+.admincareers-job-statistics {
+  background: #fff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  border: 1px solid #e5e7eb;
+}
+
+.admincareers-job-statistics h3 {
+  margin-bottom: 10px;
+}
+
+/* ================= Current Openings ================= */
+.admincareers-current-openings {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.admincareers-openings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admincareers-post-job-btn {
+  background-color: #5f81fc;
+  color: rgb(250, 249, 249);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+/* Disable green hover, keep blue hover for consistency */
+.admincareers-post-job-btn:hover {
+  background-color: #4c6eed;
+}
+
+.admincareers-jobs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admincareers-job-card {
+  background: #f9fafb;
+  border-radius: 10px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+}
+
+.admincareers-job-card h4 {
+  margin-bottom: 8px;
+  font-size: 1.1rem;
+  color: #111827;
+}
+
+.admincareers-job-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 12px;
+}
+
+.admincareers-job-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.admincareers-btn-details, .admincareers-btn-apply {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+.admincareers-btn-details {
+  background: #5f81fc;
+  color: #fffdfd;
+}
+
+/* Disable green hover, keep blue hover */
+.admincareers-btn-details:hover {
+  background-color: #4c6eed;
+}
+
+.admincareers-btn-apply {
+  background: #10b981;
+  color: white;
+}
+
+/* Keep green hover only on apply button */
+.admincareers-btn-apply:hover {
+  background-color: #059669;
+}
+
+/* ================= Modal ================= */
+.admincareers-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admincareers-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admincareers-modal h3 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.admincareers-modal input {
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.admincareers-modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.admincareers-btn-save {
+  background: #5f81fc;
+  color: #fff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.admincareers-btn-save:hover {
+  background-color: #4c6eed;
+}
+
+.admincareers-btn-cancel {
+  background: #e5e7eb;
+  color: #111827;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.admincareers-btn-cancel:hover {
+  background-color: #d6d6d6;
+}
+
+/* ================= Tabs ================= */
+.admincareers-stat-tabs {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.admincareers-stat-tabs button {
+  padding: 5px 12px;
+  border: 1px solid #5f81fc;
+  border-radius: 6px;
+  background-color: #5f81fc;
+  color: #fdfdfd;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  margin-bottom: 10px;
+}
+
+.admincareers-stat-tabs button.admincareers-active {
+  background-color: #5f81fc;
+  color: #fff;
+  border-color: #000;
+}
+
+.admincareers-stat-tabs button:hover:not(.admincareers-active) {
+  background-color: #4c6eed;
+}

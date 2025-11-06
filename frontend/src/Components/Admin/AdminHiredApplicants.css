@@ -1,0 +1,242 @@
+/* =======================================
+   adminhiredapplicants.jsx
+   ======================================= */
+
+.adminhiredapplicants-hired-container,
+.adminhiredapplicants-onhold-container {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: 2rem 3rem;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #1e293b;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.adminhiredapplicants-hired-header,
+.adminhiredapplicants-onhold-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.75rem;
+}
+
+.adminhiredapplicants-hired-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.adminhiredapplicants-icon-btn {
+  background: #f1f5f9;
+  border: none;
+  color: #475569;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.25rem;
+}
+
+.adminhiredapplicants-icon-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* Table */
+.adminhiredapplicants-hired-table,
+.adminhiredapplicants-onhold-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.adminhiredapplicants-hired-table th,
+.adminhiredapplicants-hired-table td,
+.adminhiredapplicants-onhold-table th,
+.adminhiredapplicants-onhold-table td {
+  padding: 0.9rem 1.25rem;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.adminhiredapplicants-hired-table th,
+.adminhiredapplicants-onhold-table th {
+  font-weight: 600;
+  color: white;
+  background-color: #2563eb;
+}
+
+.adminhiredapplicants-hired-table tbody tr,
+.adminhiredapplicants-onhold-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s ease;
+}
+
+.adminhiredapplicants-hired-table tbody tr:hover,
+.adminhiredapplicants-onhold-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.adminhiredapplicants-no-data {
+  text-align: center;
+  color: #64748b;
+  padding: 12px;
+}
+
+/* Footer */
+.adminhiredapplicants-hired-footer,
+.adminhiredapplicants-onhold-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto; /* pushes footer to bottom */
+  padding-top: 15px;
+  border-top: 1px solid #e2e8f0;
+  gap: 10px;
+}
+
+.adminhiredapplicants-hired-footer p,
+.adminhiredapplicants-onhold-footer p {
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0;
+}
+
+/* Export button */
+.adminhiredapplicants-export-btn,
+.adminhiredapplicants-onhold-export-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 0.95rem;
+  gap: 6px;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 6px rgba(37, 99, 235, 0.25);
+}
+
+.adminhiredapplicants-export-btn:hover,
+.adminhiredapplicants-onhold-export-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* Filter icon */
+.adminhiredapplicants-filter-icon {
+  font-size: 20px;
+  color: #2563eb;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.adminhiredapplicants-filter-icon.adminhiredapplicants-active {
+  color: #1d4ed8;
+}
+
+/* Filter dropdown */
+.adminhiredapplicants-filter-dropdown-wrapper {
+  position: relative;
+}
+
+.adminhiredapplicants-filter-box {
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 14px;
+  width: 260px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  z-index: 10;
+}
+
+.adminhiredapplicants-filter-box h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.adminhiredapplicants-filter-field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 8px;
+}
+
+.adminhiredapplicants-filter-field label {
+  font-size: 0.8rem;
+  color: #475569;
+  margin-bottom: 3px;
+}
+
+.adminhiredapplicants-filter-field input {
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  padding: 5px 8px;
+  font-size: 0.85rem;
+}
+
+.adminhiredapplicants-filter-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.adminhiredapplicants-filter-actions button {
+  border: none;
+  padding: 6px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.adminhiredapplicants-filter-actions button:first-child {
+  background: #e2e8f0;
+}
+
+.adminhiredapplicants-filter-actions button:last-child {
+  background: #2563eb;
+  color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .adminhiredapplicants-hired-container,
+  .adminhiredapplicants-onhold-container {
+    padding: 1.25rem;
+  }
+
+  .adminhiredapplicants-hired-title {
+    font-size: 1.5rem;
+  }
+
+  .adminhiredapplicants-hired-table th,
+  .adminhiredapplicants-hired-table td,
+  .adminhiredapplicants-onhold-table th,
+  .adminhiredapplicants-onhold-table td {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  .adminhiredapplicants-export-btn,
+  .adminhiredapplicants-onhold-export-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .adminhiredapplicants-hired-footer,
+  .adminhiredapplicants-onhold-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+}

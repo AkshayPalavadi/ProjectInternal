@@ -1,0 +1,485 @@
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { FaFilter } from "react-icons/fa";
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import "./AttendanceEmp.css";
+import Filter from "../../assets/filter.svg";
+
+export default function AttendanceEmp() {
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const filterRef = useRef(null);
+
+  const [filters, setFilters] = useState({
+    id: "",
+    employeeName: "",
+    role: "",
+    department: "",
+    project: "",
+    date: "",
+    status: "",
+    checkIn: "",
+    checkOut: "",
+    workHours: "",
+  });
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const today = new Date();
+  const currentMonth = today.getMonth() + 1;
+  const currentYear = today.getFullYear();
+  const formattedToday = today.toISOString().split("T")[0];
+
+  // 🔹 b Employee info (like DB table)
+  const employees = [
+    { id: 101, name: "Akshay", role: "Developer", department: "IT", project: "Website" },
+    { id: 102, name: "Sathvika", role: "Designer", department: "UI/UX", project: "Native" },
+    { id: 103, name: "Sravani", role: "Tester", department: "QA", project: "Website" },
+    { id: 104, name: "Eshwari", role: "Developer", department: "IT", project: "Native" },
+    { id: 105, name: "Somu", role: "Manager", department: "Operations", project: "Website" },
+  ];
+
+  // 🔹 Attendance info (like DB table, for current month)
+  const attendance = [
+    { id: 101, date: "2025-11-03", checkIn: "09:00 AM", checkOut: "04:00 PM" },
+    { id: 101, date: "2025-11-04", checkIn: "10:15 AM", checkOut: "06:30 PM" },
+    { id: 102, date: "2025-11-03", checkIn: "10:00 AM", checkOut: "05:30 PM" },
+    { id: 102, date: "2025-11-04", checkIn: "09:50 AM", checkOut: "06:00 PM" },
+    { id: 103, date: "2025-11-03", checkIn: "-", checkOut: "-" },
+    { id: 103, date: "2025-11-04", checkIn: "09:10 AM", checkOut: "05:15 PM" },
+    { id: 104, date: "2025-11-03", checkIn: "09:00 AM", checkOut: "05:00 PM" },
+    { id: 104, date: "2025-11-04", checkIn: "09:00 AM", checkOut: "05:00 PM" },
+    { id: 105, date: "2025-11-03", checkIn: "09:00 AM", checkOut: "05:00 PM" },
+    { id: 105, date: "2025-11-04", checkIn: "09:00 AM", checkOut: "05:00 PM" },
+    
+    { id: 101, date: "2025-10-29", checkIn: "09:00 AM", checkOut: "05:00 PM" },
+    { id: 101, date: "2025-10-28", checkIn: "10:15 AM", checkOut: "06:00 PM" },
+    { id: 102, date: "2025-10-29", checkIn: "10:00 AM", checkOut: "06:00 PM" },
+    { id: 102, date: "2025-10-28", checkIn: "09:05 AM", checkOut: "05:00 PM" },
+    { id: 103, date: "2025-10-29", checkIn: "-", checkOut: "-" },
+    { id: 103, date: "2025-10-28", checkIn: "09:10 AM", checkOut: "05:15 PM" },
+    { id: 104, date: "2025-10-29", checkIn: "09:00 AM", checkOut: "05:00 PM" },
+    { id: 104, date: "2025-10-28", checkIn: "09:00 AM", checkOut: "05:00 PM" },
+    { id: 105, date: "2025-10-29", checkIn: "09:00 AM", checkOut: "05:00 PM" },
+    { id: 105, date: "2025-10-28", checkIn: "09:00 AM", checkOut: "05:00 PM" },
+  ];
+
+  // 🔹 Time parsing and work hours
+  const parseTime = (timeStr, dateStr) => {
+    if (!timeStr || timeStr === "-") return null;
+    const [time, modifier] = timeStr.split(" ");
+    let [hours, minutes] = time.split(":").map(Number);
+    if (modifier === "PM" && hours < 12) hours += 12;
+    if (modifier === "AM" && hours === 12) hours = 0;
+    return new Date(`${dateStr}T${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:00`);
+  };
+
+  const calculateWorkHours = (checkIn, checkOut, date) => {
+    const inTime = parseTime(checkIn, date);
+    const outTime = parseTime(checkOut, date);
+    if (!inTime || !outTime) return "-";
+    const diff = outTime - inTime;
+    const hrs = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hrs}h ${mins}m`;
+  };
+
+  const toDecimalHours = (str) => {
+    if (!str || str === "-") return 0;
+    const match = str.match(/(\d+)h\s*(\d*)m?/);
+    if (!match) return 0;
+    const h = parseInt(match[1]) || 0;
+    const m = parseInt(match[2]) || 0;
+    return h + m / 60;
+  };
+
+  // 🔹 Merge employee info and attendance
+  const mergedData = attendance
+  .filter(item => {
+    const [year, month] = item.date.split("-").map(Number);
+    return year === currentYear && month === currentMonth;
+  })
+  .map(item => {
+    const emp = employees.find(e => e.id === item.id);
+
+    // ✅ Determine status automatically
+    let status = item.status;
+    if (item.checkIn === "-" || !item.checkIn) {
+      status = "Absent";
+    } else {
+      const checkInTime = parseTime(item.checkIn, item.date);
+      const lateThreshold = parseTime("09:45 AM", item.date);
+      status = checkInTime > lateThreshold ? "Late" : "Present";
+    }
+
+    return {
+      ...item,
+      employeeName: emp?.name,
+      role: emp?.role,
+      department: emp?.department,
+      project: emp?.project,
+      workHours: calculateWorkHours(item.checkIn, item.checkOut, item.date),
+      status, // ✅ updated status
+    };
+  });
+
+  useEffect(() => {
+    setAttendanceData(mergedData);
+  }, []);
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const getUniqueValues = (col) =>
+    [...new Set(attendanceData.map((item) => item[col]))].filter((v) => v && v !== "-");
+
+  const tableData = useMemo(() => {
+    let filtered = attendanceData;
+
+    if (searchTerm) {
+      filtered = filtered.filter(
+        (row) =>
+          row.id.toString() === searchTerm ||
+          row.employeeName.toLowerCase() === searchTerm.toLowerCase()
+      );
+    }
+
+    filtered = filtered.filter((row) =>
+      Object.keys(filters).every((key) => {
+        if (!filters[key]) return true;
+        return row[key]?.toString().toLowerCase().includes(filters[key].toLowerCase());
+      })
+    );
+
+    if (!searchTerm && Object.values(filters).every((v) => v === "")) {
+      filtered = filtered
+        .filter((row) => row.date === formattedToday)
+        .sort((a, b) => {
+          const parseTime = (t) => {
+            if (!t || t === "-") return 0;
+            const [time, mod] = t.split(" ");
+            let [h, m] = time.split(":").map(Number);
+            if (mod === "PM" && h < 12) h += 12;
+            if (mod === "AM" && h === 12) h = 0;
+            return h * 60 + m;
+          };
+          return parseTime(b.checkIn) - parseTime(a.checkIn); // ✅ latest first
+        });
+    }
+
+    return filtered;
+  }, [attendanceData, searchTerm, filters, formattedToday]);
+
+  // Graph data
+  const getCurrentWeekDates = () => {
+    const curr = new Date();
+    const first = curr.getDate() - curr.getDay() + 1;
+    return Array.from({ length: 5 }, (_, i) => {
+      const d = new Date(curr);
+      d.setDate(first + i);
+      return d.toISOString().split("T")[0];
+    });
+  };
+  const currentWeekDates = getCurrentWeekDates();
+
+  const lineChartData = useMemo(() => {
+    const isSearching = searchTerm !== "";
+    const relevant = isSearching
+      ? attendanceData.filter(
+          (r) =>
+            r.id.toString() === searchTerm ||
+            r.employeeName.toLowerCase() === searchTerm.toLowerCase()
+        )
+      : attendanceData.filter((r) => currentWeekDates.includes(r.date));
+
+    const map = {};
+    if (isSearching) {
+      relevant.forEach((r) => {
+        if (r.status === "Absent") return;
+        const key = `${r.employeeName} (${r.id})`;
+        if (!map[r.date]) map[r.date] = { date: r.date };
+        map[r.date][key] = toDecimalHours(r.workHours);
+      });
+    } else {
+      relevant.forEach((r) => {
+        if (r.status === "Absent") return;
+        if (!map[r.date]) map[r.date] = { date: r.date, total: 0, count: 0 };
+        map[r.date].total += toDecimalHours(r.workHours);
+        map[r.date].count++;
+      });
+      Object.keys(map).forEach((d) => (map[d].avgHours = (map[d].total / map[d].count).toFixed(2)));
+    }
+
+    return Object.values(map);
+  }, [attendanceData, searchTerm]);
+
+  const barChartData = useMemo(() => {
+    const isSearching = searchTerm !== "";
+    const relevant = isSearching
+      ? attendanceData.filter(
+          (r) =>
+            r.id.toString() === searchTerm ||
+            r.employeeName.toLowerCase() === searchTerm.toLowerCase()
+        )
+      : attendanceData.filter((r) => new Date(r.date) <= today);
+
+    const map = {};
+    relevant.forEach((r) => {
+      if (r.status === "Absent") return;
+      const week = Math.ceil(new Date(r.date).getDate() / 7);
+      const hrs = toDecimalHours(r.workHours);
+      if (!map[week]) map[week] = { week: `W${week}`, total: 0, count: 0 };
+      map[week].total += hrs;
+      map[week].count++;
+    });
+    Object.keys(map).forEach((w) => (map[w].avgHours = (map[w].total / map[w].count).toFixed(2)));
+
+    return Object.values(map);
+  }, [attendanceData, searchTerm]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        filterRef.current &&
+        !filterRef.current.contains(event.target) &&
+        !event.target.classList.contains("filter-icon")
+      ) {
+        setShowFilterPanel(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div className="attendance-emp">
+      <div className="search-bar" style={{ marginBottom: "15px" }}>
+        <input
+          className="input-search-bar"
+          type="text"
+          placeholder="Search by Employee ID or Name..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      {/* Graphs */}
+      <div className="attendance-graphs">
+        <div className="graph-box">
+          <h4>Current Week Attendance (Mon–Fri)</h4>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={lineChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" angle={-30} textAnchor="end" height={60} interval={0}/>
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              {lineChartData[0] &&
+                (searchTerm ? (
+                  Object.keys(lineChartData[0])
+                    .filter((k) => k !== "date")
+                    .map((k, i) => (
+                      <Line key={k} dataKey={k} stroke={`hsl(${i * 60},70%,50%)`} strokeWidth={3} />
+                    ))
+                ) : (
+                  <Line type="monotone" dataKey="avgHours" stroke="#007bff" strokeWidth={3} />
+                ))}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="graph-box">
+          <h4>Monthly Attendance (Weekly Avg Hours)</h4>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={barChartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="week" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="avgHours" fill="#28a745" barSize={35} radius={[10, 10, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Filters */}
+      <div className="table-header">
+        <h3>Employee Attendance Table</h3>
+        <FaFilter
+          className="filter-icon"
+          onClick={() => setShowFilterPanel(!showFilterPanel)}
+        />
+      </div>
+
+      {showFilterPanel && (
+        <div className="filter-panel-fixed" ref={filterRef}>
+          {Object.keys(filters).map((col) => (
+            <div key={col} className="filter-item">
+              <label>{col.charAt(0).toUpperCase() + col.slice(1)}</label>
+
+              {col === "date" ? (
+                <input
+                  type="date"
+                  name="date"
+                  value={filters.date}
+                  onChange={handleFilterChange}
+                />
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    list={`${col}-list`}
+                    name={col}
+                    value={filters[col]}
+                    onChange={handleFilterChange}
+                    placeholder="Type to search..."
+                  />
+                  <datalist id={`${col}-list`}>
+                    {getUniqueValues(col).map((val) => (
+                      <option key={val} value={val} />
+                    ))}
+                  </datalist>
+                </>
+              )}
+            </div>
+          ))}
+              {/* ✅ Reset Button */}
+    <button
+      style={{
+        marginTop: "10px",
+        padding: "8px 12px",
+        backgroundColor: "#dc3545",
+        color: "white",
+        border: "none",
+        borderRadius: "20px",
+        cursor: "pointer",
+        fontWeight: "200"
+      }}
+      onClick={() =>
+        setFilters({
+          id: "",
+          employeeName: "",
+          role: "",
+          department: "",
+          project: "",
+          date: "",
+          status: "",
+          checkIn: "",
+          checkOut: "",
+          workHours: "",
+        })
+      }
+    >
+      Reset
+    </button>
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="table-container">
+        <table className="attendance-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Employee Name</th>
+              <th>
+                <select name="role" value={filters.role} onChange={handleFilterChange}>
+                  <option value="">Role</option>
+                  {getUniqueValues("role").map((val) => (
+                    <option key={val} value={val}>{val}</option>
+                  ))}
+                </select>
+              </th>
+              <th>
+                <select name="department" value={filters.department} onChange={handleFilterChange}>
+                  <option value="">Department</option>
+                  {getUniqueValues("department").map((val) => (
+                    <option key={val} value={val}>{val}</option>
+                  ))}
+                </select>
+              </th>
+              <th>
+                <select name="project" value={filters.project} onChange={handleFilterChange}>
+                  <option value="">Project</option>
+                  {getUniqueValues("project").map((val) => (
+                    <option key={val} value={val}>{val}</option>
+                  ))}
+                </select>
+              </th>
+              <th>
+                <div 
+                  style={{ cursor: "pointer" }} 
+                  onClick={() => setShowDatePicker(!showDatePicker)}
+                >
+                  Date
+                </div>
+                {showDatePicker && (
+                  <input
+                    type="date"
+                    value={filters.date}
+                    name="date"
+                    style={{ marginTop: "5px" }}
+                    onChange={(e) => {
+                      handleFilterChange(e);       // update the filter
+                      setShowDatePicker(false);    // hide the calendar after selection
+                    }}
+                  />
+                )}
+              </th>
+              <th>
+                <select name="status" value={filters.status} onChange={handleFilterChange}>
+                  <option value="">Status</option>
+                  {getUniqueValues("status").map((val) => (
+                    <option key={val} value={val}>{val}</option>
+                  ))}
+                </select>
+              </th>
+              <th>Check In</th>
+              <th>Check Out</th>
+              <th>Work Hours</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tableData.length > 0 ? (
+              tableData.map((row, i) => (
+                <tr key={`${row.id}-${row.date}-${i}`}>
+                  <td>{row.id}</td>
+                  <td>{row.employeeName}</td>
+                  <td>{row.role}</td>
+                  <td>{row.department}</td>
+                  <td>{row.project}</td>
+                  <td>{row.date}</td>
+                  <td>{row.status}</td>
+                  <td>{row.checkIn}</td>
+                  <td>{row.checkOut}</td>
+                  <td>{row.workHours}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="10" style={{ textAlign: "center" }}>No records found</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

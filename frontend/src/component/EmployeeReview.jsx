@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import "./EmployeeReview.css";
 
-export default function EmployeeDetails() {
+export default function EmployeeReview() {
   const { id } = useParams();
 
   // ========================

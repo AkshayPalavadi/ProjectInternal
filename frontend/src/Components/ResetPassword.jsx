@@ -1,173 +1,205 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import "./Login.css";
+import "./Register.css";
 import logo from "../assets/logo.jpg";
 
-export default function ResetPassword() {
-  const [email, setEmail] = useState("");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+const ResetPassword = () => {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    email: "",
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const [errors, setErrors] = useState({});
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [message, setMessage] = useState("");
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Ensure default users are stored in localStorage if missing
-  useEffect(() => {
-    const storedUsers = JSON.parse(localStorage.getItem("users"));
-    if (!storedUsers || storedUsers.length === 0) {
-      const defaultUsers = [
-        { id: 1, role: "admin", name: "admin", email: "admin@dhatvibs.com", password: "password123" },
-        { id: 2, role: "employee", name: "Akshay", email: "akshay@dhatvibs.com", password: "password123" },
-        { id: 3, role: "employee", name: "Sathvika", email: "sathvika@dhatvibs.com", password: "password123" },
-        { id: 4, role: "employee", name: "Sravani", email: "sravani@dhatvibs.com", password: "password123" },
-      ];
-      localStorage.setItem("users", JSON.stringify(defaultUsers));
+  // 🔒 Same password regex and validation logic as Register.jsx
+  const validate = (name, value) => {
+    let message = "";
+
+    switch (name) {
+      case "email":
+        if (!/^[a-zA-Z0-9._%+-]+@dhatvibs\.com$/.test(value)) {
+          message = "Please enter a valid @dhatvibs.com email address";
+        }
+        break;
+
+      case "newPassword":
+        if (
+          !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{12,}$/.test(value)
+        ) {
+          message =
+            "Password must include 1 uppercase, 1 lowercase, 1 number, and 1 special character (min 12 chars)";
+        }
+        break;
+
+      case "confirmPassword":
+        if (value !== formData.newPassword) {
+          message = "Passwords do not match";
+        }
+        break;
+
+      default:
+        break;
     }
-  }, []);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+    setErrors((prev) => ({ ...prev, [name]: message }));
+  };
 
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const userIndex = users.findIndex((u) => u.email === email);
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    validate(name, value);
+  };
 
-    if (userIndex === -1) {
-      setMessage("❌ Email not found.");
-      return;
-    }
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setMessage("");
 
-    if (users[userIndex].password !== currentPassword) {
+  // Run validation for all fields before submitting
+  Object.keys(formData).forEach((key) => validate(key, formData[key]));
+  const hasErrors = Object.values(errors).some((msg) => msg);
+  if (hasErrors) {
+    setMessage("❌ Please fix the highlighted errors before submitting.");
+    return;
+  }
+
+  // 🧪 Simulate API
+  setLoading(true);
+  setTimeout(() => {
+    // Fake password check
+    if (formData.currentPassword === "oldpassword123") {
+      setMessage("✅ Password reset successful!");
+      setTimeout(() => navigate("/login"), 1500);
+    } else {
       setMessage("❌ Current password is incorrect.");
-      return;
     }
-
-    if (newPassword !== confirmPassword) {
-      setMessage("❌ New passwords do not match.");
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      setMessage("❌ Password must be at least 6 characters long.");
-      return;
-    }
-
-    // ✅ Update password
-    users[userIndex].password = newPassword;
-    localStorage.setItem("users", JSON.stringify(users));
-
-    setMessage("✅ Password updated successfully!");
-    setTimeout(() => navigate("/login"), 1500);
-  };
-
-  const handleSendMail = () => {
-    setMessage("📩 A password reset request has been sent to your registered email.");
-  };
+    setLoading(false);
+  }, 1500);
+};
 
   return (
-    <div className="login-main-container">
-      <div className="headerlogin">
-        <img src={logo} alt="logo" />
-        <div className="title">
-          <h1>DhaTvi Business Solutions Pvt.LTD</h1>
-          <p style={{ paddingTop: "15px" }}>
-            <i>Driving Technology Delivering Trust</i>
-          </p>
-        </div>
+    <div className="emp-register-container">
+      <div className="emp-register-left">
+        <img src={logo} alt="DhaTvi Logo" className="emp-logo" />
+        <h1>
+          Welcome to <span className="emp-highlight">DhaTvi</span>
+        </h1>
+        <p className="emp-content">
+          Securely reset your password and continue your professional journey.
+        </p>
       </div>
-      <hr />
 
-      <div className="login-container">
-        <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
-          {/* Fake hidden inputs to block autofill */}
-          <input type="text" name="fakeusernameremembered" style={{ display: "none" }} />
-          <input type="password" name="fakepasswordremembered" style={{ display: "none" }} />
-
-          <h1 className="heading">Reset Password</h1>
-
-          <label>Email ID:</label>
+      <div className="emp-register-form">
+        <h2>Reset Password</h2>
+        <form onSubmit={handleSubmit} autoComplete="off">
           <input
             type="email"
-            placeholder="Enter your registered email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            name="email"
+            placeholder="Registered Email"
+            value={formData.email}
+            onChange={handleChange}
             required
-            autoComplete="new-email"
           />
+          {errors.email && <p className="emp-error">{errors.email}</p>}
 
-          <label>Current Password:</label>
-          <div className="password-input">
+          <div className="emp-password-group">
             <input
+              className="emp-password-input"
               type={showCurrent ? "text" : "password"}
-              placeholder="Enter current password"
-              value={currentPassword}
-              onChange={(e) => setCurrentPassword(e.target.value)}
+              name="currentPassword"
+              placeholder="Current Password"
+              value={formData.currentPassword}
+              onChange={handleChange}
               required
               autoComplete="new-password"
             />
-            <span onClick={() => setShowCurrent(!showCurrent)} className="eye-icon">
+            <span
+              className="emp-eye-icon"
+              onClick={() => setShowCurrent((prev) => !prev)}
+            >
               {showCurrent ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
 
-          <label>New Password:</label>
-          <div className="password-input">
+          <div className="emp-password-group">
             <input
+              className="emp-password-input"
               type={showNew ? "text" : "password"}
-              placeholder="Enter new password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              name="newPassword"
+              placeholder="New Password"
+              value={formData.newPassword}
+              onChange={handleChange}
               required
               autoComplete="new-password"
             />
-            <span onClick={() => setShowNew(!showNew)} className="eye-icon">
+            <span
+              className="emp-eye-icon"
+              onClick={() => setShowNew((prev) => !prev)}
+            >
               {showNew ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
+          {errors.newPassword && (
+            <p className="emp-error">{errors.newPassword}</p>
+          )}
 
-          <label>Re-enter New Password:</label>
-          <div className="password-input">
+          <div className="emp-password-group">
             <input
+              className="emp-password-input"
               type={showConfirm ? "text" : "password"}
-              placeholder="Re-enter new password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              name="confirmPassword"
+              placeholder="Confirm New Password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
               required
               autoComplete="new-password"
             />
-            <span onClick={() => setShowConfirm(!showConfirm)} className="eye-icon">
+            <span
+              className="emp-eye-icon"
+              onClick={() => setShowConfirm((prev) => !prev)}
+            >
               {showConfirm ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
-
-          {message && (
-            <p style={{ color: message.includes("✅") ? "green" : "red" }}>{message}</p>
+          {errors.confirmPassword && (
+            <p className="emp-error">{errors.confirmPassword}</p>
           )}
 
-          <button type="submit">Update Password</button>
-
-          <div className="reset-password-link" style={{ marginTop: "15px", textAlign: "center" }}>
-            <p>
-              Forgot password?{" "}
-              <span
-                onClick={handleSendMail}
-                style={{ color: "#4a90e2", cursor: "pointer", textDecoration: "underline" }}
-              >
-                Send request
-              </span>
+          {message && (
+            <p
+              className="emp-message"
+              style={{ color: message.includes("✅") ? "green" : "red" }}
+            >
+              {message}
             </p>
-          </div>
+          )}
 
-          <div style={{ textAlign: "center", marginTop: "20px" }}>
-            <Link to="/login" style={{ color: "#4a90e2", textDecoration: "underline", fontWeight: "500" }}>
-              Go to Login Page
-            </Link>
-          </div>
+          <button className="submit-reg" type="submit" disabled={loading}>
+            {loading ? "Updating..." : "Update Password"}
+          </button>
         </form>
+
+        <p className="emp-login-text">
+          Back to{" "}
+          <span
+            className="emp-login-link"
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </span>
+        </p>
       </div>
     </div>
   );
-}
+};
+
+export default ResetPassword;
