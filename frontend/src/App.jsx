@@ -5,7 +5,6 @@ import Home from "./Components/Home.jsx";
 import Dashboard from "./Components/Dashboard.jsx";
 import Leaves from "./Components/Leaves.jsx";
 import Login from "./Components/Login.jsx";
-import Admin from "./Components/Admin.jsx";
 import ResetPassword from "./Components/ResetPassword.jsx";
 import Admin from "./Components/Admin.jsx"
 import Register from "./Components/Register.jsx";
@@ -14,7 +13,6 @@ import PerformanceManagement from "./Components/PerformanceManagement.jsx";
 import PersonApp from "./component/PersonApp.jsx";
 import TimeSheet from "./Components/TimeSheet.jsx";
 import CarrierApp from "./carrier/carrierapp.jsx";
-import  ResetPassword from "./Components/ResetPassword.jsx";
 
 import AdminSidebarLayout from "./Components/Admin/AdminSidebarLayout.jsx";
 import AdminDashboard from "./Components/Admin/AdminDashboard.jsx";
@@ -155,7 +153,6 @@ function App() {
           <Route path="home" element={<Home />} />
           <Route path="dashboard" element={<Dashboard projects={employeeData.projects} />} />
           <Route path="timesheet" element={<TimeSheet />} />
-          <Route path="resetpassword" element={<ResetPassword />} />
 
           <Route path="performancemanagement" element={<PerformanceManagement />} />
           <Route

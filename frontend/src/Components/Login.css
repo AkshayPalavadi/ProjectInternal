@@ -13,12 +13,7 @@
   font-family: Arial, sans-serif;
 }
 
-<<<<<<< HEAD
 .login-container-employee {
-=======
-/* 🧱 Login Box */
-.login-container {
->>>>>>> 1e677f3241f2139f65096b4a1ca70e3dfef14ccb
   margin-top: -40px;
   background: #fff;
   padding: 30px 40px;
@@ -61,12 +56,7 @@ hr {
   border-top: 1px solid #ddd;
 }
 
-<<<<<<< HEAD
 .heading-employee {
-=======
-/* 💡 Login Form */
-.heading {
->>>>>>> 1e677f3241f2139f65096b4a1ca70e3dfef14ccb
   text-align: center;
   font-size: 30px;
   margin-bottom: 20px;
