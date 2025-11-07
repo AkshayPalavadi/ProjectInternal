@@ -88,6 +88,14 @@ function App() {
       setEmployeeData((prev) => ({ ...prev, projects: assignedProjects }));
     }
   }, [employeeId]);
+const [applicationSubmitted, setApplicationSubmitted] = useState(
+  localStorage.getItem("applicationSubmitted") === "true"
+);
+
+useEffect(() => {
+  localStorage.setItem("applicationSubmitted", applicationSubmitted);
+}, [applicationSubmitted]);
+
 
   const userEmail = localStorage.getItem("userEmail") || "";
 
@@ -168,10 +176,10 @@ function App() {
           <Route
   path="profile"
   element={
-    localStorage.getItem("applicationSubmitted") === "true" ? (
-      <EmployeeReview />
+    applicationSubmitted ? (
+      <EmployeeReview key="review" />
     ) : (
-      <PersonApp />
+      <PersonApp key="form" setApplicationSubmitted={setApplicationSubmitted}/>
     )
   }
 />
@@ -231,7 +239,7 @@ function App() {
                   ? userRole === "admin"
                     ? "/admin"
                     : "/employee/home"
-                  : "/login"
+                  : "/register"
               }
               replace
             />
