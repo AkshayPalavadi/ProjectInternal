@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./AdminEmployee.css";
+import PersonApp from "../../component/PersonApp";
 
 export default function AdminEmployees() {
   const [employees, setEmployees] = useState([]);
@@ -59,7 +60,7 @@ export default function AdminEmployees() {
   );
 
   const HandleSubmit = () => {
-    navigate("/employee");
+    navigate("/admin/add-employee");
   };
 
   return (

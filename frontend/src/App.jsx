@@ -186,12 +186,18 @@ function App() {
         >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="add-employee" element={<PersonApp />} />
+
           <Route path="employees" element={<AdminEmployees />} />
           <Route path="employees/:id" element={<EmployeeDetails />} />
+
+          
           <Route path="careers" element={<AdminCareer />} />
                     <Route path="jobform" element={<AdminJobform />} />
+          
           <Route path="carriers1" element={<AdminCarrier1 />} />
           <Route path="jobapplicants" element={<AdminJobApplicants />} />
+
         
         <Route path="monthjobs" element={<MonthJobApplicants />} />
 
