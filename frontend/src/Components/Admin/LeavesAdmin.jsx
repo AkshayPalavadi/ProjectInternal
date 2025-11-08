@@ -9,13 +9,13 @@ export default function LeavesAdmin() {
 
   return (
     <div>
-      <div className="navigation-cards-row">
-        <Link to="/admin/leaves" className="nav-card">
+      <div className="leavesadmin-navigation-cards-row">
+        <Link to="/admin/leaves" className="leavesadmin-nav-card">
           <h2>Leaves</h2>
           <p>Track employee Leaves</p>
         </Link>
 
-        <Link to="/admin/attendance" className="nav-card">
+        <Link to="/admin/attendance" className="leavesadmin-nav-card">
           <h2>Attendance</h2>
           <p>Track employee Attendance</p>
         </Link>

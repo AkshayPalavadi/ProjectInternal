@@ -471,22 +471,16 @@ export default function AdminDashboard() {
         <div className="admindashboard-card">
           <div className="admindashboard-small">Total Employees</div>
           <div className="admindashboard-big">{stats.totalEmployees}</div>
-          <button className="admindashboard-btn-update" onClick={handleUpdateEmployees}>Add / Update</button>
-          <div className="admindashboard-footer-note" style={{ marginTop: 8 }}>
-            {stats.employeesAdded > 0 ? `${stats.employeesAdded} new employees added` : "No new employees"}
-          </div>
         </div>
 
         <div className="admindashboard-card">
           <div className="admindashboard-small">Job Applied</div>
           <div className="admindashboard-big">{stats.jobApplied}</div>
-          <div className="admindashboard-footer-note">+22.0%</div>
         </div>
 
         <div className="admindashboard-card">
           <div className="admindashboard-small">Leave Request</div>
           <div className="admindashboard-big">{stats.leaveRequests}</div>
-          <div className="admindashboard-footer-note">+12.0%</div>
         </div>
 
         <div className="admindashboard-card upcoming-events">

@@ -6,8 +6,8 @@ import "./PerformanceManagement.css";
 
 const PerformanceManagement = () => {
   const [user] = useState({
-    name: localStorage.getItem("employeeName") || "",
-    id: localStorage.getItem("employeeId") || "",
+    name: localStorage.getItem("userName") || "",
+    id: localStorage.getItem("empId") || "",
     designation: localStorage.getItem("employeeDesignation") || "",
     experience: localStorage.getItem("employeeExperience") || "",
   });
@@ -22,24 +22,41 @@ const PerformanceManagement = () => {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [agree, setAgree] = useState(false);
   const [showReviewBox, setShowReviewBox] = useState(false);
-
-  // Tasks state
   const [tasks, setTasks] = useState([]);
   const [openTaskReview, setOpenTaskReview] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const currentFY = `FY${String(currentYear).slice(-2)}`;
+  const isFinalizeEnabled = selectedYear === currentFY && new Date().getMonth() === 2;
+
+// Inside useEffect or fetchTasks function
+const fetchTasks = async () => {
+  setLoading(true);
+  try {
+    const res = await fetch("https://internal-website-rho.vercel.app/api/tasks");
+    const data = await res.json();
+    // Filter tasks assigned BY logged-in user
+    const assignedByMe = data.filter(
+      (t) => t.fy === selectedYear && t.assigned === user.name
+    );
+    setTasks(assignedByMe);
+  } catch (err) {
+    console.error(err);
+    setError("Failed to fetch tasks");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
-    const allTasks = JSON.parse(localStorage.getItem("tasks") || "{}");
-    setTasks(allTasks[selectedYear] || []);
+    fetchTasks();
   }, [selectedYear]);
 
   const updateTasks = (updatedTasks) => {
     setTasks(updatedTasks);
-    const allTasks = JSON.parse(localStorage.getItem("tasks") || "{}");
-    allTasks[selectedYear] = updatedTasks;
-    localStorage.setItem("tasks", JSON.stringify(allTasks));
   };
 
-  // Final reviews per FY
   const finalReviews = {
     "FY25": { rating: 4.5, comments: "Consider participating in public speaking opportunities." },
     "FY24": { rating: 4.2, comments: "Good progress shown in UI optimization tasks." },
@@ -47,14 +64,6 @@ const PerformanceManagement = () => {
   };
   const reviewData = finalReviews[selectedYear];
 
-  const currentDate = new Date();
-  const currentMonth = currentDate.getMonth(); // 0 = Jan
-  const currentYearShort = String(currentDate.getFullYear()).slice(-2);
-  const currentFY = `FY${currentYearShort}`;
-
-  const isFinalizeEnabled = selectedYear === currentFY && currentMonth === 2;
-
-  // Calculate overall rating and score
   const totalScore = tasks.reduce((sum, t) => sum + (t.score || 0), 0);
   const totalRating = tasks.reduce((sum, t) => sum + (t.rating || 0), 0);
   const avgRating = tasks.length ? (totalRating / tasks.length).toFixed(2) : 0;
@@ -83,9 +92,7 @@ const PerformanceManagement = () => {
             onChange={(e) => setSelectedYear(e.target.value)}
             className="performance-management-fy-dropdown"
           >
-            {years.map((year) => (
-              <option key={year} value={year}>{year}</option>
-            ))}
+            {years.map((year) => <option key={year} value={year}>{year}</option>)}
           </select>
           <p>April - March</p>
         </div>
@@ -102,17 +109,21 @@ const PerformanceManagement = () => {
       {/* Goals/Tasks */}
       <div className="performance-management-goals-section">
         <div className="performance-management-goals-header">
-          <h3>Goals/Tasks</h3>
+          <h3>Goals/Tasks (Assigned by Me)</h3>
         </div>
 
-        {tasks.length === 0 ? (
-          <p className="performance-management-no-goals">No tasks assigned for {selectedYear}</p>
+        {loading ? (
+          <p>Loading tasks...</p>
+        ) : error ? (
+          <p style={{ color: "red" }}>{error}</p>
+        ) : tasks.length === 0 ? (
+          <p className="performance-management-no-goals">No tasks assigned by you for {selectedYear}</p>
         ) : (
           <table className="performance-management-goals-table fade-in">
             <thead>
               <tr>
                 <th>Task</th>
-                <th>Assigned</th>
+                <th>Assigned To</th>
                 <th>Assigned Date</th>
                 <th>Due Date</th>
                 <th>Rating</th>
@@ -123,31 +134,27 @@ const PerformanceManagement = () => {
             <tbody>
               {tasks.map((task) => {
                 const today = new Date();
-                const assignedDate = new Date(task.assignedDate);
+                const assignedDate = task.assignedDate ? new Date(task.assignedDate) : today;
                 const dueDate = task.dueDate ? new Date(task.dueDate) : today;
                 const totalDuration = Math.max(dueDate - assignedDate, 1);
                 const elapsed = Math.min(Math.max(today - assignedDate, 0), totalDuration);
                 const progress = Math.round((elapsed / totalDuration) * 100);
 
                 return (
-                  <React.Fragment key={task.id}>
+                  <React.Fragment key={task._id || task.id}>
                     <tr
                       className="performance-management-task-row"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => setOpenTaskReview(task.id === openTaskReview ? null : task.id)}
+                      onClick={() => setOpenTaskReview(task._id === openTaskReview ? null : task._id)}
                     >
                       <td>{task.text}</td>
                       <td>{task.assigned}</td>
-                      <td>{task.assignedDate}</td>
-                      <td>{task.dueDate}</td>
+                      <td>{assignedDate.toLocaleDateString()}</td>
+                      <td>{dueDate.toLocaleDateString()}</td>
                       <td>
                         {[...Array(5)].map((_, i) => (
                           <FaStar
                             key={i}
-                            style={{
-                              color: i < (task.rating || 0) ? "#ffb400" : "#ccc",
-                              marginRight: 2,
-                            }}
+                            style={{ color: i < (task.rating || 0) ? "#ffb400" : "#ccc", marginRight: 2 }}
                           />
                         ))}
                       </td>
@@ -156,25 +163,16 @@ const PerformanceManagement = () => {
                         <div className="performance-management-progress-bar">
                           <div
                             className={`progress-fill ${
-                              progress >= 100
-                                ? "green"
-                                : progress >= 75
-                                ? "yellow"
-                                : progress >= 40
-                                ? "orange"
-                                : "red"
+                              progress >= 100 ? "green" : progress >= 75 ? "yellow" : progress >= 40 ? "orange" : "red"
                             }`}
                             style={{ width: `${progress}%` }}
-                          ></div>
+                          />
                         </div>
-                        <span className="performance-management-status-text">
-                          {progress >= 100 ? "Completed" : `${progress}%`}
-                        </span>
+                        <span className="performance-management-status-text">{progress >= 100 ? "Completed" : `${progress}%`}</span>
                       </td>
                     </tr>
 
-                    {/* Reviews Chat per Task */}
-                    {openTaskReview === task.id && (
+                    {openTaskReview === task._id && (
                       <tr>
                         <td colSpan="7" className="performance-management-task-review-section">
                           <Reviews task={task} tasks={tasks} setTasks={setTasks} />
@@ -186,25 +184,19 @@ const PerformanceManagement = () => {
               })}
 
               {/* Overall summary */}
-              {tasks.length > 0 && (
-                <tr className="performance-management-overall-row">
-                  <td colSpan={4} style={{ textAlign: "right", fontWeight: "600" }}>Overall:</td>
-                  <td>
-                    {[...Array(5)].map((_, i) => (
-                      <FaStar
-                        key={i}
-                        style={{
-                          color: i < Math.round(avgRating) ? "#ffb400" : "#ccc",
-                          marginRight: 2,
-                        }}
-                      />
-                    ))}
-                    {/* <span style={{ marginLeft: 5 }}>{avgRating}</span> */}
-                  </td>
-                  <td>{totalScore} / {tasks.length * 5}</td>
-                  <td></td>
-                </tr>
-              )}
+              <tr className="performance-management-overall-row">
+                <td colSpan={4} style={{ textAlign: "right", fontWeight: "600" }}>Overall:</td>
+                <td>
+                  {[...Array(5)].map((_, i) => (
+                    <FaStar
+                      key={i}
+                      style={{ color: i < Math.round(avgRating) ? "#ffb400" : "#ccc", marginRight: 2 }}
+                    />
+                  ))}
+                </td>
+                <td>{totalScore} / {tasks.length * 5}</td>
+                <td></td>
+              </tr>
             </tbody>
           </table>
         )}
@@ -213,7 +205,7 @@ const PerformanceManagement = () => {
           <button
             className="performance-management-add-task-btn"
             onClick={() => setShowTaskModal(true)}
-            disabled={selectedYear !== `FY${String(currentYear).slice(-2)}`}
+            disabled={selectedYear !== currentFY}
           >
             Add Task
           </button>
@@ -230,53 +222,46 @@ const PerformanceManagement = () => {
       </div>
 
       {/* Final Review Section */}
-      <div className="performance-management-final-review-container">
-        <div
-          className="performance-management-final-review-toggle"
-          onClick={() => setShowReviewBox(!showReviewBox)}
-        >
-          <h3>Final Review ({selectedYear})</h3>
-          {showReviewBox ? <FaChevronUp /> : <FaChevronDown />}
-        </div>
-
-        {showReviewBox && reviewData && (
-          <div className="performance-management-final-review fade-in">
-            <div className="performance-management-final-left">
-              <p className="performance-management-emp-name">{user.name}</p>
-              <div className="performance-management-rating">
-                {[...Array(5)].map((_, i) => (
-                  <FaStar
-                    key={i}
-                    className={i < Math.floor(reviewData.rating) ? "star" : "half-star"}
-                  />
-                ))}
-                <span>{reviewData.rating}</span>
-              </div>
-              <label className="performance-management-agree-label">
-                <input
-                  type="checkbox"
-                  checked={agree}
-                  onChange={(e) => setAgree(e.target.checked)}
-                />{" "}
-                I Agree with the Review
-              </label>
-            </div>
-
-            <div className="performance-management-final-right">
-              <h4>Manager Comments</h4>
-              <textarea value={reviewData.comments} readOnly />
-              <div className="performance-management-btn-box">
-                <button className="performance-management-finalize-btn" disabled={!isFinalizeEnabled}>Finalize Review</button>
-              </div>
-              {!isFinalizeEnabled && (
-                <small style={{ color: "#888", paddingTop: "10px" }}>
-                  Finalization is only allowed in the last month of the current FY.
-                </small>
-              )}
-            </div>
+      {reviewData && (
+        <div className="performance-management-final-review-container">
+          <div
+            className="performance-management-final-review-toggle"
+            onClick={() => setShowReviewBox(!showReviewBox)}
+          >
+            <h3>Final Review ({selectedYear})</h3>
+            {showReviewBox ? <FaChevronUp /> : <FaChevronDown />}
           </div>
-        )}
-      </div>
+
+          {showReviewBox && (
+            <div className="performance-management-final-review fade-in">
+              <div className="performance-management-final-left">
+                <p className="performance-management-emp-name">{user.name}</p>
+                <div className="performance-management-rating">
+                  {[...Array(5)].map((_, i) => (
+                    <FaStar
+                      key={i}
+                      className={i < Math.floor(reviewData.rating) ? "star" : "half-star"}
+                    />
+                  ))}
+                  <span>{reviewData.rating}</span>
+                </div>
+                <label className="performance-management-agree-label">
+                  <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />{" "}
+                  I Agree with the Review
+                </label>
+              </div>
+
+              <div className="performance-management-final-right">
+                <h4>Manager Comments</h4>
+                <textarea value={reviewData.comments} readOnly />
+                <div className="performance-management-btn-box">
+                  <button className="performance-management-finalize-btn" disabled={!isFinalizeEnabled}>Finalize Review</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

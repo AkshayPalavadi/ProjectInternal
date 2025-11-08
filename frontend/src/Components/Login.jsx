@@ -19,51 +19,70 @@ function Login({ setIsLoggedIn, setUserRole }) {
     if (token && storedRole) {
       setIsLoggedIn(true);
       setUserRole(storedRole);
-      navigate(storedRole === "admin" ? "/admin" : "/employee/home", { replace: true });
+      navigate(storedRole === "admin" ? "/admin" : "/employee", { replace: true });
     }
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
 
-    if (!email.endsWith("@dhatvibs.com")) {
-      setError("Only @dhatvibs.com email addresses are allowed.");
-      return;
-    }
+  if (!email.endsWith("@dhatvibs.com")) {
+    setError("Only @dhatvibs.com email addresses are allowed.");
+    return;
+  }
 
-    try {
-      const response = await fetch("https://internal-website-rho.vercel.app/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+  try {
+    // Step 1: Login user
+    const response = await fetch("https://internal-website-rho.vercel.app/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-      const result = await response.json();
-      console.log("📦 API Login Response:", result);
+    const result = await response.json();
+    console.log("📦 Login API Response:", result);
 
-      if (response.ok) {
-        // ✅ Store auth info
+    if (response.ok && result.token) {
+      // ✅ Save token
+      localStorage.setItem("token", result.token);
+
+      // Step 2: Fetch employee details
+      const empResponse = await fetch("https://internal-website-rho.vercel.app/api/auth");
+      const empResult = await empResponse.json();
+      console.log("📦 Employees API Response:", empResult);
+
+      const user = empResult.employees.find((emp) => emp.email === email);
+
+      if (user) {
+        // ✅ Store user details
+        localStorage.setItem("employeeName", `${user.firstName} ${user.lastName}`);
+        localStorage.setItem("userEmail", user.email);
+        localStorage.setItem("employeeId", user.employeeId);
+        localStorage.setItem("userRole", user.role);
+
         setIsLoggedIn(true);
-        setUserRole(role);
-        if (result.token) localStorage.setItem("token", result.token);
-        localStorage.setItem("userRole", role);
+        setUserRole(user.role);
 
-        navigate(role === "admin" ? "/admin" : "/employee/home");
+        // ✅ Navigate based on actual role
+        navigate(user.role === "admin" ? "/admin" : "/employee");
       } else {
-        setError(result.msg || "Invalid email or password");
+        setError("User data not found.");
       }
-    } catch (err) {
-      console.error("🚨 API Error:", err);
-      setError("Server not reachable. Please try again later.");
+    } else {
+      setError(result.msg || "Invalid email or password");
     }
-  };
+  } catch (err) {
+    console.error("🚨 Error:", err);
+    setError("Server not reachable. Please try again later.");
+  }
+};
 
   return (
-    <div className="login-main-container">
-      <div className="headerlogin">
+    <div className="loginpage-login-main-container">
+      <div className="loginpage-headerlogin">
         <img src={logo} alt="logo" />
-        <div className="title">
+        <div className="loginpage-title">
           <h1>DhaTvi Business Solutions Pvt. Ltd.</h1>
           <p style={{ paddingTop: "15px" }}>
             <i>Driving Technology Delivering Trust</i>
@@ -71,9 +90,9 @@ function Login({ setIsLoggedIn, setUserRole }) {
         </div>
       </div>
       <hr />
-      <div className="login-container">
-        <form className="login-form" onSubmit={handleSubmit}>
-          <h1 className="heading">Login</h1>
+      <div className="loginpage-login-container">
+        <form className="loginpage-login-form" onSubmit={handleSubmit}>
+          <h1 className="loginpage-heading">Login</h1>
 
           <label>Select Role:</label>
           <select value={role} onChange={(e) => setRole(e.target.value)}>
@@ -92,7 +111,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
           />
 
           <label>Password :</label>
-          <div className="password-input">
+          <div className="loginpage-password-input">
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
@@ -102,25 +121,25 @@ function Login({ setIsLoggedIn, setUserRole }) {
               autoComplete="off"
             />
             <span
-              className="eye-icon"
+              className="loginpage-eye-icon"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
 
-          <div className="reset-password-link">
+          <div className="loginpage-reset-password-link">
             <Link to="/reset-password">Reset Password?</Link>
           </div>
 
-          {error && <p className="error">{error}</p>}
+          {error && <p className="loginpage-error">{error}</p>}
 
           <button type="submit">Login</button>
 
-          <p className="register-link-text">
-            Don’t have an account?{" "}
+          <p className="loginpage-register-link-text">
+            Don't have an account?{" "}
             <span
-              className="register-link"
+              className="loginpage-register-link"
               onClick={() => navigate("/register")}
             >
               Register

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import "./Register.css";
+import "./ResetPassword.css";
 import logo from "../assets/logo.jpg";
 
 const ResetPassword = () => {
@@ -87,18 +87,18 @@ const handleSubmit = async (e) => {
 };
 
   return (
-    <div className="emp-register-container">
-      <div className="emp-register-left">
-        <img src={logo} alt="DhaTvi Logo" className="emp-logo" />
+    <div className="resetpassword-emp-register-container">
+      <div className="resetpassword-emp-register-left">
+        <img src={logo} alt="DhaTvi Logo" className="resetpassword-emp-logo" />
         <h1>
-          Welcome to <span className="emp-highlight">DhaTvi</span>
+          Welcome to <span className="resetpassword-emp-highlight">DhaTvi</span>
         </h1>
-        <p className="emp-content">
+        <p className="resetpassword-emp-content">
           Securely reset your password and continue your professional journey.
         </p>
       </div>
 
-      <div className="emp-register-form">
+      <div className="resetpassword-emp-register-form">
         <h2>Reset Password</h2>
         <form onSubmit={handleSubmit} autoComplete="off">
           <input
@@ -109,11 +109,11 @@ const handleSubmit = async (e) => {
             onChange={handleChange}
             required
           />
-          {errors.email && <p className="emp-error">{errors.email}</p>}
+          {errors.email && <p className="resetpassword-emp-error">{errors.email}</p>}
 
-          <div className="emp-password-group">
+          <div className="resetpassword-emp-password-group">
             <input
-              className="emp-password-input"
+              className="resetpassword-emp-password-input"
               type={showCurrent ? "text" : "password"}
               name="currentPassword"
               placeholder="Current Password"
@@ -123,16 +123,16 @@ const handleSubmit = async (e) => {
               autoComplete="new-password"
             />
             <span
-              className="emp-eye-icon"
+              className="resetpassword-emp-eye-icon"
               onClick={() => setShowCurrent((prev) => !prev)}
             >
               {showCurrent ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
 
-          <div className="emp-password-group">
+          <div className="resetpassword-emp-password-group">
             <input
-              className="emp-password-input"
+              className="resetpassword-emp-password-input"
               type={showNew ? "text" : "password"}
               name="newPassword"
               placeholder="New Password"
@@ -142,19 +142,19 @@ const handleSubmit = async (e) => {
               autoComplete="new-password"
             />
             <span
-              className="emp-eye-icon"
+              className="resetpassword-emp-eye-icon"
               onClick={() => setShowNew((prev) => !prev)}
             >
               {showNew ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
           {errors.newPassword && (
-            <p className="emp-error">{errors.newPassword}</p>
+            <p className="resetpassword-emp-error">{errors.newPassword}</p>
           )}
 
-          <div className="emp-password-group">
+          <div className="resetpassword-emp-password-group">
             <input
-              className="emp-password-input"
+              className="resetpassword-emp-password-input"
               type={showConfirm ? "text" : "password"}
               name="confirmPassword"
               placeholder="Confirm New Password"
@@ -164,34 +164,34 @@ const handleSubmit = async (e) => {
               autoComplete="new-password"
             />
             <span
-              className="emp-eye-icon"
+              className="resetpassword-emp-eye-icon"
               onClick={() => setShowConfirm((prev) => !prev)}
             >
               {showConfirm ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
           {errors.confirmPassword && (
-            <p className="emp-error">{errors.confirmPassword}</p>
+            <p className="resetpassword-emp-error">{errors.confirmPassword}</p>
           )}
 
           {message && (
             <p
-              className="emp-message"
+              className="resetpassword-emp-message"
               style={{ color: message.includes("✅") ? "green" : "red" }}
             >
               {message}
             </p>
           )}
 
-          <button className="submit-reg" type="submit" disabled={loading}>
+          <button className="resetpassword-submit-reg" type="submit" disabled={loading}>
             {loading ? "Updating..." : "Update Password"}
           </button>
         </form>
 
-        <p className="emp-login-text">
+        <p className="resetpassword-emp-login-text">
           Back to{" "}
           <span
-            className="emp-login-link"
+            className="resetpassword-emp-login-link"
             onClick={() => navigate("/login")}
           >
             Login

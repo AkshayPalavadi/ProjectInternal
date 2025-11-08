@@ -1,118 +1,81 @@
 // src/pages/History.jsx
+import React from "react";
 import "./History.css";
 
-export default function History({ requests, onDelete }) {
+export default function History({ requests = [], onDelete }) {
+  if (!requests || requests.length === 0) {
+    return <p>No leave requests submitted yet.</p>;
+  }
+
   return (
-    <div className="history-container">
-      <div className="table-wrapper">
-      <table className="history-table">
-        <thead>
-          <tr>
-            <th>From Date</th>
-            <th>To Date</th>
-            <th>Total Days</th>
-            <th>Leave Type & Breakdown</th>
-            <th>Reason</th>
-            <th>File</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {[...requests]
-            .sort((a, b) => {
-              const dateA = new Date(a.requestDate || a.fromDate);
-              const dateB = new Date(b.requestDate || b.fromDate);
-              return dateB - dateA; // latest applied leave first
-            })
-            .map((req, index) => (
-            <tr key={index}>
-              <td>{req.fromDate}</td>
-
-              <td>{req.toDate}</td>
-
-              <td>{req.daysApplied}</td>
-
-              <td>
-                {req.leaveType === "custom" ? (
-                  <div>
-                    <strong>Custom Mix:</strong>
-                    <ul className="custom-breakdown">
-                      {req.leaveDetails &&
-                        Object.entries(
-                          typeof req.leaveDetails === "string"
-                            ? JSON.parse(req.leaveDetails)
-                            : req.leaveDetails
-                        ).map(([type, days]) => (
-                          <li key={type}>
-                            {type.charAt(0).toUpperCase() + type.slice(1)} —{" "}
-                            <span className="days-count">
-                              {days} day{days > 1 ? "s" : ""}
-                            </span>
-                          </li>
-                        ))
-                      }
-                    </ul>
-                  </div>
-                ) : (
-                  <span>
-                    {req.leaveType.charAt(0).toUpperCase() +
-                      req.leaveType.slice(1)}{" "}
-                    <span className="days-count">
-                      ({req.daysApplied} day
-                      {req.daysApplied > 1 ? "s" : ""})
-                    </span>
-                  </span>
-                )}
-              </td>
-
-              <td className="reason-cell">{req.reason}</td>
-
-              <td>
-                {req.file ? (
-                  typeof req.file === "string" ? (
-                    <a
-                      href={req.file}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="file-emoji"
-                    >
-                      📄
-                    </a>
-                  ) : req.file instanceof File ? (
-                    <a
-                      href={URL.createObjectURL(req.file)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="file-emoji"
-                    >
-                      📄
-                    </a>
-                  ) : (
-                    "—"
-                  )
-                ) : (
-                  "—"
-                )}
-              </td>
-
-              <td>
-                <span
-                  className={`status-badge ${
-                    req.status === "Pending"
-                      ? "pending"
-                      : req.status === "Approved" || req.status === "Granted"
-                      ? "approved"
-                      : "rejected"
-                  }`}
-                >
-                  {req.status}
-                </span>
-              </td>
+    <div className="employeehistory-history-container">
+      <div className="employeehistory-table-wrapper">
+        <table className="employeehistory-history-table">
+          <thead>
+            <tr>
+              <th>From Date</th>
+              <th>To Date</th>
+              <th>Total Days</th>
+              <th>Leave Type</th>
+              <th>Reason</th>
+              <th>File</th>
+              <th>Status</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {[...requests]
+              .sort((a, b) => new Date(b.fromDate) - new Date(a.fromDate))
+              .map((req, idx) => (
+                <tr key={idx}>
+                  <td>{new Date(req.fromDate).toLocaleDateString()}</td>
+                  <td>{new Date(req.toDate).toLocaleDateString()}</td>
+                  <td>{req.daysApplied}</td>
+                  <td>
+                    {req.leaveType.charAt(0).toUpperCase() + req.leaveType.slice(1)}
+                    {req.leaveDetails &&
+                      Object.keys(req.leaveDetails).length > 0 && (
+                        <ul style={{ margin: "4px 0", paddingLeft: "16px" }}>
+                          {Object.entries(req.leaveDetails).map(([type, days]) => (
+                            <li key={type}>
+                              {type.charAt(0).toUpperCase() + type.slice(1)}: {days} day{days > 1 ? "s" : ""}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                  </td>
+                  <td>{req.reason}</td>
+                  <td>
+                    {req.file && req.file.name ? (
+                      <a
+                        href={req.file.url || "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="employeehistory-file-emoji"
+                      >
+                        📄
+                      </a>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td>
+                    <span
+                      className={`status-badge ${
+                        req.status === "Sent" || req.status === "Pending"
+                          ? "pending"
+                          : req.status === "Granted" || req.status === "Manager Approved" || req.status === "HR Approved"
+                          ? "approved"
+                          : "rejected"
+                      }`}
+                    >
+                      {req.status}
+                    </span>
+                  </td>
+
+                </tr>
+              ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );

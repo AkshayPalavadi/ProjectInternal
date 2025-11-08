@@ -8,7 +8,6 @@ import Leaves from "./Components/Leaves.jsx";
 // import Profile from "./Components/Profile.jsx";
 import Login from "./Components/Login.jsx";
 import ResetPassword from "./Components/ResetPassword.jsx";
-import Admin from "./Components/Admin.jsx"
 import Register from "./Components/Register.jsx";
 import EmployeeReview from "./component/EmployeeReview.jsx";
 import PerformanceManagement from "./Components/PerformanceManagement.jsx";

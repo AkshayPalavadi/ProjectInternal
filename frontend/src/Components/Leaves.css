@@ -1,282 +1,309 @@
-/* 🌟 Leaves Page inside content area */
-.leaves-page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* ==============================
+   GLOBAL PAGE STYLING
+============================== */
+.employeeleaves-leaves-page {
+  font-family: "Poppins", sans-serif;
+  background-color: #f5f7fa;
   min-height: 100vh;
-  padding: 30px 20px 40px;
-  margin-top: 0px;
-  background: linear-gradient(135deg, #f6f9fc, #eaf4ff);
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  width: 100%;
-  box-sizing: border-box;
-
-  height: 100%;
-  overflow: hidden;
+  padding: 30px 20px;
 }
 
-/* 📌 Tabs */
-.tabs {
-  position: fixed;
-  top: 0;
-  left: 58%;
-  transform: translateX(-50%);
-  width: 700px;
-  max-width: 95%;
+/* ==============================
+   TABS SECTION
+============================== */
+.employeeleaves-tabs {
   display: flex;
   justify-content: center;
-  gap: 10px;
-  background: white;
-  padding: 5px 10px;
-  border-bottom: 1px solid #ddd;
-   border-top: 1px solid #ddd;
-  border-radius: 12px 12px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  z-index: 1000;
-  margin-top: 30px ;
+  gap: 15px;
+  margin-bottom: 25px;
+  flex-wrap: wrap;
 }
 
-/* Tab button */
-.tab {
-  flex: 1;
-  padding: 9px;
-  font-size: 15px;
+.employeeleaves-tabs .tab {
+  padding: 10px 25px;
+  width: 300px;
+  background: #e4e8ee;
   border: none;
-  margin-top: 5px;
-  background: rgba(53, 52, 53, 0.267);
-  border-radius: 8px;
+  border-radius: 10px;
+  font-size: 16px;
+  color: #333;
   cursor: pointer;
-  transition: all 0.25s ease;
-
-}
-.tab:hover { background: #b4fa9f; }
-.tab.active { background: #0cc905; color: white; font-weight: bold; }
-
-/* Scrollable form & requests */
-.form-box, .requests-box, .history-container {
-  max-width: 1000px;
-  width: 100%;
-  background: #fff;
-  padding: 25px;
-  /* border-radius: 12px; */
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  margin-top: 80px; /* space below tabs */
-  box-sizing: border-box;
-  animation: fadeIn 0.3s ease-in-out;
-  max-height: calc(100vh - 150px);
-  overflow-y: auto;
-
+  font-size: larger;
+  transition: all 0.3s ease;
 }
 
+.employeeleaves-tabs .tab:hover {
+  background: #d1d7e0;
+}
 
-/* Form groups */
-.form-group { margin-bottom: 18px; display: flex; flex-direction: column; }
-.form-group label { margin-bottom: 6px; font-weight: 600; color: #444; }
-.form-group input, .form-group select {
+.employeeleaves-tabs .tab.active {
+  background: #007bff;
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+}
+
+/* ==============================
+   FORM BOX
+============================== */
+.employeeleaves-form-box {
+  background: #ffffff;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 35px 40px;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.employeeleaves-form-box h2 {
+  text-align: center;
+  color: #222;
+  font-weight: 600;
+  margin-bottom: 25px;
+}
+
+/* ==============================
+   FORM ELEMENTS
+============================== */
+.employeeleaves-form-group {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.employeeleaves-form-group label {
+  font-size: 15px;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.employeeleaves-form-group input,
+.employeeleaves-form-group select {
   padding: 10px 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
-  font-size: 14px;
-  width: 797px;
+  outline: none;
+  transition: all 0.2s ease;
+  font-size: 15px;
 }
-.form-group input:focus, .form-group select:focus { border-color: #007bff; outline: none; }
 
-/* Checkbox group */
-.checkbox-group { display: flex; flex-wrap: wrap; gap: 10px; }
-.checkbox-group label {
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-  padding: 6px 10px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
+.employeeleaves-form-group input:focus,
+.employeeleaves-form-group select:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
-.checkbox-group input { margin-right: 6px; }
 
-/* Leave breakdown */
-.leave-breakdown-box {
-  background: #f7faff;
-  border: 1px solid #d7e3ff;
-  padding: 12px 15px;
+/* ==============================
+   CUSTOM DATE RANGE
+============================== */
+.employeeleaves-custom-date-range {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8faff;
+  padding: 15px;
+  border: 1px solid #cce0ff;
+  border-radius: 10px;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+}
+
+.employeeleaves-custom-date-range input[type="date"] {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  margin-bottom: 18px;
-  width: 770px;
+  background: white;
+  font-size: 14px;
+  transition: border 0.3s ease;
 }
-.leave-breakdown-box ul { list-style: none; padding: 0; margin: 0; }
-.leave-breakdown-box li { font-size: 14px; margin: 4px 0; color: #333; }
 
-/* Submit button */
-.submit-btn {
-  width: 87%;
+.employeeleaves-custom-date-range input[type="date"]:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.2);
+}
+
+/* Smooth fade-in animation for custom range */
+.employeeleaves-custom-date-range {
+  opacity: 0;
+  transform: translateY(-10px);
+  max-height: 0;
+  overflow: hidden;
+}
+
+.employeeleaves-custom-date-range.active {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 200px;
+  overflow: visible;
+  transition: all 0.4s ease;
+}
+
+/* ==============================
+   CHECKBOX GROUPS (INLINE FIX)
+============================== */
+.employeeleaves-checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px; /* spacing between checkboxes */
+  margin-top: 8px;
+}
+
+.employeeleaves-checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  color: #333;
+  background: #f8faff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid #dce3f0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.employeeleaves-checkbox-group label:hover {
+  background-color: #e9f3ff;
+  border-color: #007bff;
+}
+
+.employeeleaves-checkbox-group input[type="checkbox"] {
+  accent-color: #007bff;
+  transform: scale(1.1);
+}
+
+/* Compoff checkbox group (if same issue there) */
+.employeeleaves-form-group label input[type="checkbox"] {
+  margin-right: 6px;
+  vertical-align: middle;
+}
+
+
+/* ==============================
+   LEAVE BALANCE BOX
+============================== */
+.employeeleaves-leave-breakdown-box {
+  background: #f2f6ff;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 15px 0;
+  color: #333;
+  font-size: 15px;
+  box-shadow: inset 0 0 5px rgba(0, 123, 255, 0.1);
+}
+
+.employeeleaves-leave-breakdown-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.employeeleaves-leave-breakdown-box li {
+  margin: 5px 0;
+}
+
+.employeeleaves-green-text {
+  color: #28a745;
+  font-weight: 600;
+}
+
+/* ==============================
+   WARNINGS & ERRORS
+============================== */
+.employeeleaves-warning-text {
+  font-size: 14px;
+  color: #d9534f;
+  margin-top: 4px;
+}
+
+/* ==============================
+   BUTTONS
+============================== */
+.employeeleaves-submit-btn {
+  width: 100%;
   padding: 12px;
   border: none;
   border-radius: 8px;
-  background: #007bff;
+  background-color: #007bff;
   color: white;
-  font-size: 15px;
-  font-weight: bold;
+  font-size: 16px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s ease;
-}
-.submit-btn:hover { background: #0056b3; }
-
-/* Errors */
-.error-box { background: #ffe5e5; border: 1px solid #ffcccc; padding: 10px; border-radius: 8px; margin-bottom: 15px; color: #d60000; font-size: 14px; }
-.green-text { color: #28a745; font-weight: bold; }
-
-/* ✅ Status bar bottom */
-.status-bar-bottom {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 30px;
-  padding: 15px;
-  background: #f7f7f7;
-  border-radius: 10px;
-  border: 1px solid #ddd;
+  transition: all 0.3s ease;
+  margin-top: 10px;
 }
 
-.status-step {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  flex: 1;
-  position: relative;
-  text-align: center;
+.employeeleaves-submit-btn:hover {
+  background-color: #0056b3;
 }
-.status-step:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  top: 15px;
-  right: -50%;
-  width: 100%;
-  height: 3px;
-  background: #ddd;
-  z-index: -1;
-}
-.status-step.active:not(:last-child)::after { background: green; }
 
-.status-step .circle {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  border: 2px solid gray;
+/* ==============================
+   POPUP STYLING
+============================== */
+.employeeleaves-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 8px;
-  font-weight: bold;
-  background: gray;
+  z-index: 1000;
+}
+
+.employeeleaves-popup-box {
+  background: white;
+  border-radius: 12px;
+  padding: 25px 35px;
+  text-align: center;
+  width: 400px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
+}
+
+.employeeleaves-popup-box h3 {
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+.employeeleaves-popup-box p {
+  color: #555;
+  margin-bottom: 20px;
+}
+
+/* Popup buttons */
+.employeeleaves-popup-box button {
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  background-color: #007bff;
   color: white;
+  cursor: pointer;
+  font-weight: 500;
   transition: all 0.3s ease;
 }
-.status-step.active .circle { background: green; border-color: green; }
-.status-step p { font-size: 13px; font-weight: 600; color: #555; }
 
-/* Approved button */
-.approved-btn {
-  text-align: center;
-  padding: 12px;
-  color: white;
-  border-radius: 6px;
-  margin-top: 15px;
-  font-weight: bold;
-  background: gray;
-  transition: background 0.3s ease;
-}
-.approved-btn.granted { background: green; }
-
-/* Popups */
-.popup-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.4);
-  display: flex; justify-content: center; align-items: center;
-  z-index: 2000;
-}
-.popup-box {
-  background: white;
-  padding: 30px;
-  border-radius: 12px;
-  text-align: center;
-  max-width: 400px;
-  width: 90%;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-}
-.popup-box h3 { margin-bottom: 15px; color: #333; }
-.popup-box p { margin-bottom: 20px; color: #555; font-size: 14px; }
-.popup-box button {
-  padding: 10px 20px;
-  border: none;
-  background: #007bff;
-  color: white;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-}
-.popup-box button:hover { background: #0056b3; }
-
-/* History table */
-.history-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 15px;
-  text-align: center;
+.employeeleaves-popup-box button:hover {
+  background-color: #0056b3;
 }
 
-.history-table th {
-  background: #2a6592;
-  color: white;
-  padding: 12px;
-  text-transform: uppercase;
-  font-weight: 600;
-}
-
-.history-table td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-.history-table tr:hover {
-  background: #f8f9ff;
-  transition: 0.2s;
-}
-
-.status-badge {
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  display: inline-block;
-}
-.status-badge.pending {
-  background: #fff3cd;
-  color: #856404;
-}
-.status-badge.approved {
-  background: #d4edda;
-  color: #155724;
-}
-.status-badge.rejected {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-
-
-/* Animations */
-@keyframes fadeIn {
-  from { opacity:0; transform: translateY(10px);}
-  to {opacity:1; transform: translateY(0);}
-}
-
-/* Responsive */
+/* ==============================
+   RESPONSIVE DESIGN
+============================== */
 @media (max-width: 768px) {
-  .tabs { width: 95%; }
-  .form-box, .requests-box, .history-container { max-width: 95%; padding: 20px; }
-  .status-bar-bottom { flex-direction: column; gap: 15px; }
-  .status-step:not(:last-child)::after { display: none; }
-  .history-table th, .history-table td { padding: 8px; font-size: 13px; }
-  .status-badge { font-size: 11px; padding: 4px 8px; }
+  .employeeleaves-form-box {
+    padding: 25px;
+  }
+
+  .employeeleaves-custom-date-range {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .employeeleaves-custom-date-range input[type="date"] {
+    width: 100%;
+  }
 }

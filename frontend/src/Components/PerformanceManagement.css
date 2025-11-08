@@ -10,7 +10,7 @@
 .performance-management-page-title {
   text-align: center;
   margin-bottom: 25px;
-  font-size: 1.performance-management-6rem;
+  font-size: 1.6rem;
 }
 
 .performance-management-employee-card {
@@ -33,7 +33,7 @@
   padding-top: 5px;
   grid-template-columns: 1fr 1fr; /* 2 items per row */
   gap: 10px 30px; /* row gap 10px, column gap 30px */
-  font-size: 0.performance-management-95rem;
+  font-size: 0.95rem;
 }
 
 .performance-management-emp-info div {
@@ -69,27 +69,27 @@
 }
 
 /* .performance-management-role-icon-clock {
-  font-size: 1.performance-management-6rem;
+  font-size: 1.6rem;
   padding-left: 20px;
   margin-bottom: 5px;
   color: #555;
 }
 
 .performance-management-role-icon-manager {
-  font-size: 1.performance-management-6rem;
+  font-size: 1.6rem;
   padding-left: 15px;
   margin-bottom: 5px;
   color: #555;
 } */
 
 .performance-management-role-card span {
-  font-size: 0.performance-management-85rem;
+  font-size: 0.85rem;
   color: #777;
 }
 
 .performance-management-fy-dropdown {
   padding: 4px 8px;
-  font-size: 0.performance-management-95rem;
+  font-size: 0.95rem;
   border-radius: 5px;
   border: 1px solid #ccc;
   margin-top: 5px;
@@ -102,7 +102,7 @@
   font-weight: 500;
   color: #555;
   border-bottom: 3px solid transparent;
-  transition: all 0.performance-management-3s ease;
+  transition: all 0.3s ease;
 }
 
 .performance-management-tab-btn:hover {
@@ -116,7 +116,7 @@
 
 /* Fade-in animation */
 .performance-management-fade-in {
-  animation: fadeIn 0.performance-management-4s ease-in-out;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 @keyframes fadeIn {
@@ -165,7 +165,7 @@
   text-align: left;
   padding: 10px;
   border-bottom: 1px solid #eaeaea;
-  font-size: 0.performance-management-95rem;
+  font-size: 0.95rem;
   word-break: break-word; 
   white-space: normal; 
 }
@@ -214,7 +214,7 @@
 
 .performance-management-progress-fill {
   height: 10px;
-  transition: width 0.performance-management-4s ease;
+  transition: width 0.4s ease;
   border-radius: 6px;
 }
 
@@ -235,7 +235,7 @@
 }
 
 .performance-management-status-text {
-  font-size: 0.performance-management-85rem;
+  font-size: 0.85rem;
 }
 
 .performance-management-add-task-wrapper {
@@ -260,7 +260,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.performance-management-5);
+  background-color: rgba(0,0,0,0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -273,7 +273,7 @@
   border-radius: 8px;
   min-width: 650px;
   max-width: 900px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.performance-management-3);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
   position: relative;
 }
 
@@ -329,7 +329,7 @@
 }
 
 .performance-management-half-star {
-  opacity: 0.performance-management-6;
+  opacity: 0.6;
 }
 
 .performance-management-agree-label {
@@ -337,7 +337,7 @@
   align-items: center;
   gap: 8px;
   margin-top: 10px;
-  font-size: 0.performance-management-9rem;
+  font-size: 0.9rem;
 }
 
 textarea {
@@ -365,7 +365,7 @@ textarea {
 
 .performance-management-final-review.performance-management-fade-in {
   margin-top: 25px;
-  animation: fadeIn 0.performance-management-4s ease-in-out;
+  animation: fadeIn 0.4s ease-in-out;
 }
 
 /* --- Final Review Dropdown --- */
@@ -384,7 +384,7 @@ textarea {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: background 0.performance-management-3s ease;
+  transition: background 0.3s ease;
 }
 
 .performance-management-final-review-toggle:hover {
@@ -428,7 +428,7 @@ textarea {
   border-radius: 6px;
   cursor: pointer;
   align-self: flex-end;
-  transition: background-color 0.performance-management-3s ease;
+  transition: background-color 0.3s ease;
 }
 
 .performance-management-finalize-btn:disabled {

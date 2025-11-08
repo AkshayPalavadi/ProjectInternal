@@ -1,100 +1,148 @@
-/* ================= Admin Job Form Styling ================= */
+/* ===== Container ===== */
 .adminjobform-job-form-container {
-  /* max-width: 900px; */
+  max-width: 900px;
   margin: 40px auto;
+  padding: 30px 40px;
   background: #ffffff;
-  padding: 40px 50px;
-  border-radius: 16px;
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   font-family: "Inter", "Segoe UI", sans-serif;
-  color: #1f2937;
+  position: relative;
 }
 
+/* ===== Form Title ===== */
 .adminjobform-form-title {
   text-align: center;
-  font-size: 1.8rem;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 600;
   margin-bottom: 30px;
   color: #111827;
 }
 
-/* ================= Form Layout ================= */
-.adminjobform-job-form {
-  display: flex;
-  flex-direction: column;
-}
-
+/* ===== Form Grid ===== */
 .adminjobform-form-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px 30px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
 }
 
+/* ===== Form Group ===== */
 .adminjobform-form-group {
   display: flex;
   flex-direction: column;
 }
 
-.adminjobform-form-group.adminjobform-full-width {
-  grid-column: span 2;
+.adminjobform-form-group.full-width {
+  grid-column: 1 / -1;
 }
 
-label {
-  font-weight: 600;
+.adminjobform-form-group label {
+  font-weight: 500;
   margin-bottom: 6px;
-  color: #4b5563;
-  font-size: 0.95rem;
+  color: #374151;
 }
 
-/* ================= Input Fields ================= */
-input,
-select,
-textarea {
-  border: 1.5px solid #d1d5db;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 0.95rem;
-  background-color: #f9fafb;
-  transition: all 0.3s ease;
+/* ===== Inputs & Selects ===== */
+.adminjobform-form-group input,
+.adminjobform-form-group select,
+.adminjobform-form-group textarea {
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+  transition: border-color 0.2s;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
+.adminjobform-form-group input:focus,
+.adminjobform-form-group select:focus,
+.adminjobform-form-group textarea:focus {
   border-color: #2563eb;
-  background-color: #fff;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
   outline: none;
 }
 
-/* ================= Button Styling ================= */
+/* ===== Error Styles ===== */
+.error {
+  border-color: #dc3545 !important;
+}
+
+.error-text {
+  font-size: 12px;
+  color: #dc3545;
+  margin-top: 4px;
+}
+
+/* ===== Submit Button ===== */
 .adminjobform-submit-btn {
-  margin-top: 30px;
-  padding: 14px 0;
-  background: #2563eb;
-  color: #fff;
-  font-weight: 600;
+  margin-top: 25px;
+  padding: 12px 25px;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 500;
   border: none;
-  border-radius: 12px;
-  font-size: 1rem;
+  border-radius: 10px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
+  transition: background-color 0.2s;
 }
 
 .adminjobform-submit-btn:hover {
-  background: #1e40af;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+  background-color: #1d4ed8;
 }
 
-/* ================= Responsive Design ================= */
-@media (max-width: 768px) {
-  .adminjobform-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .adminjobform-job-form-container {
-    padding: 25px 20px;
-  }
+/* ===== Overlay ===== */
+.adminjobform-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 99;
 }
+
+/* ===== Popup Box ===== */
+.adminjobform-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  padding: 25px 40px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 18px;
+  min-width: 320px;
+  justify-content: center;
+}
+
+/* Success & Error Styles */
+.adminjobform-popup.success {
+  border-left: 6px solid #28a745;
+  color: #28a745;
+}
+
+.adminjobform-popup.error {
+  border-left: 6px solid #dc3545;
+  color: #dc3545;
+}
+
+/* Popup Icon */
+.popup-icon {
+  font-size: 28px;
+}
+
+/* Popup Animation */
+.adminjobform-popup {
+  animation: popupFade 0.3s ease-in-out;
+}
+
+@keyframes popupFade {
+  0% { transform: translate(-50%, -60%) scale(0.8); opacity: 0; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
