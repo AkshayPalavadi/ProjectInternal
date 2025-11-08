@@ -1,4 +1,4 @@
-.sidebar {
+.sidebar-fs {
   background: #f9f9f9;
   padding: 20px;
   border-radius: 8px;
@@ -7,11 +7,11 @@
   color: #333;
 }
 
-.filter-section {
+.filter-section-fs {
   margin-bottom: 20px;
 }
 
-.filter-section h3 {
+.filter-section-fs h3 {
   color: #2c7a36;
   display: flex;
   align-items: center;
@@ -20,12 +20,12 @@
   font-size: 16px;
 }
 
-.filter-icon {
+.filter-icon-fs {
   color: #065717;
 }
 
-.search-input,
-.dropdown {
+.search-input-fs,
+.dropdown-fs {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid #ccc;
@@ -41,7 +41,7 @@ li {
   margin-bottom: 8px;
 }
 
-.clear-btn {
+.clear-btn-fs {
   background-color: #df4a4a;
   color: white;
   border: none;
@@ -55,7 +55,7 @@ li {
   transition: 0.3s;
 }
 
-.clear-btn:hover {
+.clear-btn-fs:hover {
   background-color: #cc3131;
   transform: translateY(-2px);
 }

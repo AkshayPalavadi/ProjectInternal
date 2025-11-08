@@ -8,7 +8,7 @@ import {
   FaRupeeSign,
   FaTimesCircle,
 } from "react-icons/fa";
-import "./FilterSidebar.css";
+import "./FilterSidebar.css"
 
 const FilterSidebar = ({ updateFilters }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,24 +73,24 @@ const FilterSidebar = ({ updateFilters }) => {
   };
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar-fs">
       {/* Search */}
-      <div className="filter-section">
-        <h3><FaSearch className="filter-icon" /> Search</h3>
+      <div className="filter-section-fs">
+        <h3><FaSearch className="filter-icon-fs" /> Search</h3>
         <input
           type="text"
           placeholder="Search by job title..."
-          className="search-input"
+          className="search-input-fs"
           value={searchTerm}
           onChange={handleSearchChange}
         />
       </div>
 
       {/* Location */}
-      <div className="filter-section">
-        <h3><FaMapMarkerAlt className="filter-icon" /> Location</h3>
+      <div className="filter-section-fs">
+        <h3><FaMapMarkerAlt className="filter-icon-fs" /> Location</h3>
         <select
-          className="dropdown"
+          className="dropdown-fs"
           value={location}
           onChange={handleLocationChange}
         >
@@ -102,8 +102,8 @@ const FilterSidebar = ({ updateFilters }) => {
       </div>
 
       {/* Job Type */}
-      <div className="filter-section">
-        <h3><FaBriefcase className="filter-icon" /> Job Type</h3>
+      <div className="filter-section-fs">
+        <h3><FaBriefcase className="filter-icon-fs" /> Job Type</h3>
         <ul>
           {["Full Time", "Part Time"].map((type) => (
             <li key={type}>
@@ -122,8 +122,8 @@ const FilterSidebar = ({ updateFilters }) => {
       </div>
 
       {/* Experience */}
-      <div className="filter-section">
-        <h3><FaUserTie className="filter-icon" /> Experience Level</h3>
+      <div className="filter-section-fs">
+        <h3><FaUserTie className="filter-icon-fs" /> Experience Level</h3>
         <ul>
           {["Fresher", "1-2 Years", "2+ Years"].map((exp) => (
             <li key={exp}>
@@ -147,10 +147,10 @@ const FilterSidebar = ({ updateFilters }) => {
       </div>
 
       {/* Education */}
-      <div className="filter-section">
-        <h3><FaGraduationCap className="filter-icon" /> Education</h3>
+      <div className="filter-section-fs">
+        <h3><FaGraduationCap className="filter-icon-fs" /> Education</h3>
         <select
-          className="dropdown"
+          className="dropdown-fs"
           value={education}
           onChange={handleEducationChange}
         >
@@ -163,8 +163,8 @@ const FilterSidebar = ({ updateFilters }) => {
       </div>
 
       {/* Salary */}
-      <div className="filter-section">
-        <h3><FaRupeeSign className="filter-icon" /> Min Salary: ₹{salaryRange.toLocaleString()}</h3>
+      <div className="filter-section-fs-fs">
+        <h3><FaRupeeSign className="filter-icon-fs" /> Min Salary: ₹{salaryRange.toLocaleString()}</h3>
         <input
           type="range"
           min="150000"
@@ -176,9 +176,9 @@ const FilterSidebar = ({ updateFilters }) => {
       </div>
 
       {/* Clear Filters */}
-      <div className="filter-section">
-        <button className="clear-btn" onClick={clearFilters}>
-          <FaTimesCircle className="filter-icon-f" /> Clear Filters
+      <div className="filter-section-fs">
+        <button className="clear-btn-fs" onClick={clearFilters}>
+          <FaTimesCircle className="filter-icon-fs" /> Clear Filters
         </button>
       </div>
     </aside>

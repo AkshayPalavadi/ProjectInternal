@@ -1,6 +1,6 @@
 import React from "react";
 import "./Contact.css";
-// import "@fortawesome/fontawesome-free/css/all.min.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Contact = () => {
   return (
@@ -102,7 +102,7 @@ const Contact = () => {
       <footer className="footer">
         <div className="footer-container">
           {/* COMPANY INFO */}
-          <div className="footer-column">
+          <div className="footer-column-c">
             <h3>DhaTvi Business Solutions</h3>
             <p>
               We empower businesses through technology — offering modern
@@ -111,7 +111,7 @@ const Contact = () => {
           </div>
 
           {/* SERVICES & LINKS */}
-          <div className="footer-column">
+          <div className="footer-column-c">
             <h4>Company</h4>
             <ul>
               <li><a href="#">Services</a></li>
@@ -120,7 +120,7 @@ const Contact = () => {
             </ul>
           </div>
 
-          <div className="footer-column">
+          <div className="footer-column-c">
             <h4>Legal</h4>
             <ul>
               <li><a href="#">Terms & Conditions</a></li>
@@ -129,7 +129,7 @@ const Contact = () => {
           </div>
 
           {/* CONTACT INFO */}
-          <div className="footer-column">
+          <div className="footer-column-c">
             <h4>Contact</h4>
             <p>Email: info@dhatvibs.com</p>
             <p>Tel: +91 40 45374487</p>
@@ -161,5 +161,3 @@ const Contact = () => {
 };
 
 export default Contact;
-
-

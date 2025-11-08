@@ -5,6 +5,7 @@ import EducationDetails from './EducationDetails';
 import ProfessionalDetails from './ProfessionalDetails';
 import ReviewSubmit from './ReviewSubmit';
 import './PersonApp.css';
+import Logo from "../assets/dhatvi.jpg"
 
 function PersonApp() {
   const [active, setActive] = useState('personal'); // 'personal' | 'education' | 'professional' | 'review'
@@ -94,7 +95,6 @@ function PersonApp() {
       interOrDiploma: data.course || "",
     }));
 
-    // ✅ Autofill Professional Details
     setProfessional((prev) => ({
       ...prev,
       jobType: data.employeeType || "",
@@ -110,7 +110,7 @@ function PersonApp() {
     <div className="dashboard-job">
       <aside className="sidebar-wrap">
         <div className="brand">
-          <div> <img className="brand-circle" src="logo.jpg" alt="Company Logo" /></div>
+          <div> <img className="brand-circle" src={Logo} alt="Company Logo" /></div>
           <div>
             <div className="brand-title">DhaTvi Business</div>
             <div className="brand-sub">Driving Technology</div>

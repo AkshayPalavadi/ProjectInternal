@@ -2,25 +2,44 @@ import React, { useState, useEffect, useRef } from "react";
 import "./Navbar.css";
 import Logo from "../assets/dhatvi.jpg";
 import { Link, useNavigate } from "react-router-dom";
+import { FaUserCircle } from "react-icons/fa";
+import { FiEdit } from "react-icons/fi";
+import { MdOutlinePhotoCamera } from "react-icons/md";
 
 const Navbar = ({ scrollToAbout, scrollToJobs, scrollToSubscribe }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState("");
+  const [userName, setUserName] = useState("");
+  const [appliedJobsCount, setAppliedJobsCount] = useState(0);
+  const [savedJobsCount, setSavedJobsCount] = useState(0);
+  const [profilePic, setProfilePic] = useState(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState("");
+
   const dropdownRef = useRef(null);
+  const fileInputRef = useRef(null);
   const navigate = useNavigate();
 
-  // ✅ Check login status on load
   useEffect(() => {
     const loggedIn = localStorage.getItem("isLoggedIn");
     const email = localStorage.getItem("userEmail");
+    const name = localStorage.getItem("userName") || "User";
+    const pic = localStorage.getItem("profilePic");
+    const appliedJobs = JSON.parse(localStorage.getItem("appliedJobs")) || [];
+    const savedJobs = JSON.parse(localStorage.getItem("savedJobs")) || [];
+
     if (loggedIn === "true") {
       setIsLoggedIn(true);
       setUserEmail(email || "");
+      setUserName(name);
+      setProfilePic(pic);
     }
+
+    setAppliedJobsCount(appliedJobs.length);
+    setSavedJobsCount(savedJobs.length);
   }, []);
 
-  // ✅ Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -34,8 +53,45 @@ const Navbar = ({ scrollToAbout, scrollToJobs, scrollToSubscribe }) => {
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
     localStorage.removeItem("userEmail");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("profilePic");
     setIsLoggedIn(false);
-    navigate("/carrier/login"); // ✅ redirect to carrier login
+    navigate("/");
+  };
+
+ const handleFileChange = (e) => {
+  console.log("upload photo")
+  const file = e.target.files[0];
+  // if (file) {
+  //   const reader = new FileReader();
+  //   reader.onload = () => {
+  //     const base64 = reader.result;
+  //     setProfilePic(base64);
+  //     localStorage.setItem("profilePic", base64);
+  //     setDropdownOpen(false);
+  //     setTimeout(() => setDropdownOpen(true), 100);
+  //   };
+  //   reader.readAsDataURL(file);
+  // }
+   if (file) {
+      const newImageUrl = URL.createObjectURL(file);
+      setProfilePic(newImageUrl);
+      console.log(newImageUrl)
+    }
+};
+
+
+  const handleEditClick = () => {
+    setIsEditingName(true);
+    setTempName(userName);
+  };
+
+  const handleNameSave = () => {
+    if (tempName.trim() !== "") {
+      setUserName(tempName);
+      localStorage.setItem("userName", tempName);
+    }
+    setIsEditingName(false);
   };
 
   return (
@@ -50,41 +106,111 @@ const Navbar = ({ scrollToAbout, scrollToJobs, scrollToSubscribe }) => {
       </div>
 
       <ul className="nav-links">
-        {/* ✅ All carrier links must start with /carrier */}
         <li>
-          <Link to="/carrier/jobs">Careers</Link>
+          <Link to={"/carrier/jobs"}>Careers</Link>
         </li>
         <li onClick={scrollToAbout}>What we do</li>
         <li onClick={scrollToSubscribe}>Join Talent Network</li>
 
         <li ref={dropdownRef}>
           {!isLoggedIn ? (
-            // 🔹 Show Login button when not logged in
-            <button
-              className="login-btn-nav"
-              onClick={() => navigate("/carrier/login")}
-            >
+            <button className="login-btn-nav" onClick={() => navigate("/login")}>
               Login →
             </button>
           ) : (
-            // 🔹 Show Profile dropdown when logged in
             <div
               className="profile-dropdown"
               onClick={() => setDropdownOpen(!dropdownOpen)}
+              
             >
-              <span className="profile-name">👤 Profile</span>
+              <div className="profile-pic-container">
+
+             {profilePic ? <img src={profilePic} className="profile-pic-img"/>: <FaUserCircle size={25} className="profile-icon" />}
+              </div>
+             
+
               {dropdownOpen && (
-                <div className="dropdown-menu-job">
-                  <p onClick={() => navigate("/carrier/appliedjoblist")}>
-                    Applied Jobs
-                  </p>
-                  <p onClick={() => navigate("/carrier/savedjoblist")}>
-                    Saved Jobs
-                  </p>
-                  <hr />
-                  <p onClick={handleLogout} className="logout">
+                <div onClick={(e)=> e.stopPropagation()} className="dropdown-menu modern-profile-dropdown">
+                  
+                  <div className="profile-header">
+                    <div className="profile-pic-container-dd">
+                      {profilePic ? (
+                        <img
+                          src={profilePic}
+                          alt="Profile"
+                          className="profile-pic-img"
+                        />
+                      ) : (
+                        <FaUserCircle className="profile-pic" />
+                      )}
+                      <label
+                      htmlFor="fileInput"
+                        className="camera-icon"
+                        // onClick={() => fileInputRef.current.click()}
+                      >
+                        <MdOutlinePhotoCamera />
+                      </label>
+                      <input
+                      id="fileInput"
+                        type="file"
+                        ref={fileInputRef}
+                        // accept="image/*"
+                        style={{ display:"none" }}
+                        onChange={handleFileChange}
+                      />
+                    </div>
+
+                    <div className="profile-info">
+                      <div className="profile-name-section">
+                        {isEditingName ? (
+                          <>
+                            <input
+                              type="text"
+                              value={tempName}
+                              onChange={(e) => setTempName(e.target.value)}
+                              onBlur={handleNameSave}
+                              onKeyDown={(e) => e.key === "Enter" && handleNameSave()}
+                              autoFocus
+                              className="edit-name-input"
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <span className="profile-name-text">{userName}</span>
+                            <FiEdit
+                              className="edit-icon"
+                              onClick={() => {
+                                setDropdownOpen(false);
+                                navigate("/carrier/quickdetails");  
+                              }}
+                            />
+                          </>
+                        )}
+                      </div>
+                      <p className="profile-email">{userEmail}</p>
+                    </div>
+                  </div>
+
+                  <div className="job-stats">
+                    <div
+                      className="job-box"
+                      onClick={() => navigate("/carrier/appliedjoblist")}
+                    >
+                      <span className="job-number">{appliedJobsCount}</span>
+                      <span className="job-label">Applied Jobs</span>
+                    </div>
+                    <div
+                      className="job-box"
+                      onClick={() => navigate("/carrier/savedjoblist")}
+                    >
+                      <span className="job-number">{savedJobsCount}</span>
+                      <span className="job-label">Saved Jobs</span>
+                    </div>
+                  </div>
+
+                  <button className="logout-btn" onClick={handleLogout}>
                     Logout
-                  </p>
+                  </button>
                 </div>
               )}
             </div>

@@ -1,61 +1,3 @@
-/* .search-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgb(255, 255, 255);
-  border-radius: 30px;
-  padding: 10px 10px;
-  width: 70%;
-  margin: 30px auto;
-  box-shadow: 10px 15px 15px rgba(0, 0, 0, 0.1);
-}
-
-.search-section input,
-.search-section select {
-  border: none;
-  outline: none;
-  font-size: 14px;
-  margin-right: 10px;
-  padding: 10px;
-}
-
-.search-section input {
-  flex: 2;
-}
-
-.search-section select {
-  flex: 1;
-  border-left: 1px solid #ddd;
-  padding-left: 15px;
-}
-
-.search-section button {
-  background: #0b8bb3;
-  border: none;
-  color: rgb(247, 243, 243, 43);
-  padding: 10px 20px;
-  border-radius: 30px;
-  cursor: pointer;
-  width: 60px;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.search-section button:hover {
-  background: #515253;
-}
-
- */
-
-
-
-
-
-
-
-
  .search-section {
   position: relative;
   display: flex;
@@ -70,10 +12,7 @@
 .search-label {
     display: flex;
     width: 60vw;
-    margin: auto;
-  
-  
-  
+    margin: auto;  
 }
 
 .search-label input {
@@ -81,6 +20,7 @@
   font-size: 16px;
   flex: 1;
   border-radius: 10px;
+  margin-right: 10px;
 }
 
 .search-btn {
@@ -89,12 +29,17 @@
   padding: 8px 12px;
   cursor: pointer;
   color: white;
+  margin-right: 10px;
+  border-radius: 10px;
 }
 
 select {
   padding: 8px;
 }
 
+.search-skills {
+  margin-left: 10px;
+}
 .jobs-dropdown {
   position: absolute;
   top: 100%;

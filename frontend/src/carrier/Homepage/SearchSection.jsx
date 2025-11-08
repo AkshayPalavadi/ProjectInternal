@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import "./SearchSection.css";
+// import { Navigate } from "react-router-dom";
+import {useNavigate} from "react-router-dom"
 
 const jobsList = [
   "Sr. Web Developer",
@@ -15,8 +17,10 @@ const SearchSection = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredJobs, setFilteredJobs] = useState([]);
   const [noResults, setNoResults] = useState(false);
-  const [experience, setExperience] = useState(""); // for Experience dropdown
-  const [skill, setSkill] = useState(""); // for Skills dropdown
+  const [experience, setExperience] = useState("");
+  const [skill, setSkill] = useState(""); 
+  
+  const navigate=useNavigate()
 
   const handleChange = (e) => {
     const value = e.target.value;
@@ -34,8 +38,8 @@ const SearchSection = () => {
     }
   };
 
-  const handleApply = (job) => {
-    alert(`You applied for ${job}`);
+  const handleApply = (jobId) => {
+    navigate(`/carrier/job/${jobId}`)
   };
 
   return (
@@ -67,7 +71,7 @@ const SearchSection = () => {
         </select>
 
         {/* Skills dropdown */}
-        <select value={skill} onChange={(e) => setSkill(e.target.value)}>
+        <select className="search-skills" value={skill} onChange={(e) => setSkill(e.target.value)}>
           <option value="">Skills</option>
           <option value="ReactJS">ReactJS</option>
           <option value="NodeJS">NodeJS</option>
@@ -84,7 +88,7 @@ const SearchSection = () => {
           {filteredJobs.map((job, index) => (
             <li key={index} className="job-item">
               {job}
-              <button className="apply-btn" onClick={() => handleApply(job)}>
+              <button className="apply-btn" onClick={() => handleApply(index+1)}>
                 Apply
               </button>
             </li>

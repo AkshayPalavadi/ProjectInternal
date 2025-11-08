@@ -18,10 +18,6 @@ const SavedJobList = () => {
     setJobs(updatedJobs);
   };
 
-  // const handleApply = () => {
-  //   navigate(`/JobDetail/${job.id}`); // navigates to PersonApp page
-  // };
-
   return (
     <div className="saved-job-container">
       <h3 className="saved-job-title">My Saved Job List</h3>
@@ -52,11 +48,10 @@ const SavedJobList = () => {
                     title="Delete Job"
                   />
 
-                  <Link to={`/job/${job.id}`}>
+                  <Link to={`/carrier/job/${job.id}`}>
                   
                   <button
                     className="apply-btn"
-                    // onClick={handleApply}
                   >
                     Apply
                   </button>

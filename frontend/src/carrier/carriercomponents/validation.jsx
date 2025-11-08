@@ -18,7 +18,7 @@ export const simpleValidatePersonal = (data) => {
 
   if (!data.phone) errs.phone = 'Phone number is required';
   if (!data.gender) errs.gender = 'Gender is required';
-  if (!data.bloodGroup) errs.bloodGroup = 'Blood group is required';
+  // if (!data.bloodGroup) errs.bloodGroup = 'Blood group is required';
   if (!data.currentAddress) errs.currentAddress = 'Current address is required';
   if (!data.permanentAddress) errs.permanentAddress = 'Permanent address is required';
   if (!data.pincode) errs.pincode = 'Pincode is required';
@@ -77,8 +77,6 @@ export const simpleValidateEducation = (data) => {
     }
   }
 
-  // --- Enforce Gap Reason Input ---
-  // If a gap error exists, the user MUST provide a reason.
   if (errs.gapReason12 && isEmpty(data.gapReason12)) {
     errs.gapReason12 = 'Reason for this gap is required.';
   }

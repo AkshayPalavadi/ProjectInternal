@@ -96,7 +96,7 @@ function Latestjobs({ subscribeRef }) {
             <a href="https://www.dhatvibs.com/about/">About us</a>
             {/* <a href="/discover">Discover</a> */}
             {/* <a href="/explore">Explore</a> */}
-            <a href="carrier/contact">Contact us</a>
+            <a href="/carrier/contact">Contact us</a>
           </div>
 
           <div className="social-links">

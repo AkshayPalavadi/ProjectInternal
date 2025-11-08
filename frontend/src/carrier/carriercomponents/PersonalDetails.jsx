@@ -130,7 +130,7 @@ const PersonalDetails = ({ data, setData, setActive, errors, setErrors }) => {
         </div>
 
         <div className="field">
-          <label>Blood Group  <span className="required-star">*</span></label>
+          <label>Blood Group  </label>
           <select name="bloodGroup" value={data.bloodGroup || ''} onChange={handleChange}>
             <option value="">Select</option>
             <option value="A+">A+</option>
@@ -254,3 +254,4 @@ const PersonalDetails = ({ data, setData, setActive, errors, setErrors }) => {
 };
 
 export default PersonalDetails;
+
