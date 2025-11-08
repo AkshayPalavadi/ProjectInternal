@@ -88,6 +88,14 @@ function App() {
       setEmployeeData((prev) => ({ ...prev, projects: assignedProjects }));
     }
   }, [employeeId]);
+const [applicationSubmitted, setApplicationSubmitted] = useState(
+  localStorage.getItem("applicationSubmitted") === "true"
+);
+
+useEffect(() => {
+  localStorage.setItem("applicationSubmitted", applicationSubmitted);
+}, [applicationSubmitted]);
+
 
   const userEmail = localStorage.getItem("userEmail") || "";
 
@@ -168,10 +176,10 @@ function App() {
           <Route
   path="profile"
   element={
-    localStorage.getItem("applicationSubmitted") === "true" ? (
-      <EmployeeReview />
+    applicationSubmitted ? (
+      <EmployeeReview key="review" />
     ) : (
-      <PersonApp />
+      <PersonApp key="form" setApplicationSubmitted={setApplicationSubmitted}/>
     )
   }
 />
@@ -186,12 +194,18 @@ function App() {
         >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="add-employee" element={<PersonApp />} />
+
           <Route path="employees" element={<AdminEmployees />} />
           <Route path="employees/:id" element={<EmployeeDetails />} />
+
+          
           <Route path="careers" element={<AdminCareer />} />
                     <Route path="jobform" element={<AdminJobform />} />
+          
           <Route path="carriers1" element={<AdminCarrier1 />} />
           <Route path="jobapplicants" element={<AdminJobApplicants />} />
+
         
         <Route path="monthjobs" element={<MonthJobApplicants />} />
 
@@ -225,7 +239,7 @@ function App() {
                   ? userRole === "admin"
                     ? "/admin"
                     : "/employee/home"
-                  : "/login"
+                  : "/register"
               }
               replace
             />

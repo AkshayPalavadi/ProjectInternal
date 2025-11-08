@@ -16,8 +16,9 @@ const ReviewSubmit = ({ personal, education, professional,prevStep, setErrors, o
     setSubmitErrors(errs);
 
     if (Object.keys(errs).length === 0) {
-            navigate("/employee/details");
 
+      console.log("✅ Validation passed — calling onSuccess()");
+  if (onSuccess) onSuccess();
     } else {
       const el = document.querySelector('.content-card');
       if (el) el.scrollIntoView({ behavior: 'smooth' });

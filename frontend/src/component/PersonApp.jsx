@@ -13,7 +13,7 @@ import {
   simpleValidateProfessional,
 } from "./validation.jsx";
 
-function PersonApp() {
+function PersonApp({ setApplicationSubmitted }) {
   const navigate = useNavigate();
 
   // -------------------- STEP MANAGEMENT --------------------
@@ -44,8 +44,12 @@ function PersonApp() {
   const active = getStepName();
 
   const handleSuccess = () => {
+  setApplicationSubmitted(true);
     localStorage.setItem("applicationSubmitted", "true");
-    navigate("/employee/details");
+
+    navigate("/employee/profile");
+
+     
   };
 
   // -------------------- FORM STATES --------------------
