@@ -53,7 +53,7 @@ function SidebarLayout({ userName, setUserName, userPhoto, setUserPhoto }) {
   return (
     <div className="layout">
       {/* Sidebar */}
-      <aside className="sidebar">
+      <aside className="sidebar-inner">
         <div className="profile-section">
           <div className="photo-name-container">
             <div className="photo-wrapper" onClick={handlePhotoClick}>

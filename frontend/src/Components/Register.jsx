@@ -12,7 +12,7 @@ const Register = () => {
     lastname: "",
     dob: "",
     email: "",
-    countryCode: "",
+    countryCode: "+91",
     phone: "",
     password: "",
     confirmPassword: "",
@@ -22,14 +22,19 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Validation function
+  // ✅ Validation function
   const validate = (name, value) => {
     let message = "";
 
     switch (name) {
       case "email":
-        if (!/^[a-zA-Z0-9._%+-]+@dhatvibs\.com$/.test(value)) {
-          message = "Please enter a valid Gmail address";
+        if (
+          !/^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com|outlook\.com|dhatvibs\.com)$/.test(
+            value
+          )
+        ) {
+          message =
+            "Please enter a valid email address (gmail, yahoo, outlook, or dhatvibs.com)";
         }
         break;
 
@@ -61,35 +66,35 @@ const Register = () => {
     setErrors((prev) => ({ ...prev, [name]: message }));
   };
 
+  // ✅ Handle change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     validate(name, value);
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  // ✅ Handle submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  // Run full validation before submit
-  Object.keys(formData).forEach((key) => validate(key, formData[key]));
-  const hasErrors = Object.values(errors).some((msg) => msg);
-  if (hasErrors) {
-    alert("Please fix the highlighted errors before submitting.");
-    return;
-  }
+    // Validate all fields
+    Object.keys(formData).forEach((key) => validate(key, formData[key]));
+    const hasErrors = Object.values(errors).some((msg) => msg);
+    if (hasErrors) {
+      alert("Please fix the highlighted errors before submitting.");
+      return;
+    }
 
-  // ✅ Send data to backend API
-try {
-const payload = {
-  firstName: formData.firstname,
-  lastName: formData.lastname,
-  dateOfBirth: formData.dob,
-  email: formData.email,
-  phoneNumber: formData.phone,
-  password: formData.password,
-  confirmPassword: formData.confirmPassword,
-};
-console.log("📤 Sending payload:", payload);
+    try {
+      const payload = {
+        firstName: formData.firstname,
+        lastName: formData.lastname,
+        dateOfBirth: formData.dob,
+        email: formData.email,
+        phoneNumber: formData.phone,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword,
+      };
 
   const response = await fetch("https://internal-website-rho.vercel.app/api/auth/register", {
     method: "POST",
@@ -97,22 +102,29 @@ console.log("📤 Sending payload:", payload);
     body: JSON.stringify(payload),
   });
 
-  const result = await response.json();
-  console.log("📦 API Response:", result);
+      
 
-  if (response.ok) {
-    // alert("Registration successful! Redirecting to Login...");
-    navigate("/login");
-  } else {
-    alert(`Server Error: ${result.msg || "Unable to register user."}`);
-  }
-} catch (error) {
-  console.error("🚨 API error:", error);
-  alert("Server not reachable. Data saved locally.");
-}
+      const result = await response.json();
+      console.log("📦 API Response:", result);
 
-};
+      if (response.ok) {
+        const emailDomain = formData.email.split("@")[1].toLowerCase();
 
+        if (emailDomain === "dhatvibs.com") {
+          alert("Registration successful! Redirecting to internal login...");
+          navigate("/login"); // Internal Login Page
+        } else {
+          alert("Registration successful! Redirecting to career login...");
+          navigate("/carrier/login"); // Career Login Page
+        }
+      } else {
+        alert(`Server Error: ${result.msg || "Unable to register user."}`);
+      }
+    } catch (error) {
+      console.error("🚨 API error:", error);
+      alert("Server not reachable. Please try again later.");
+    }
+  };
 
   return (
     <div className="registerpage-emp-register-container">
@@ -130,9 +142,14 @@ console.log("📤 Sending payload:", payload);
       <div className="registerpage-emp-register-form">
         <h2>Register</h2>
         <form onSubmit={handleSubmit} autoComplete="off">
-          {/* Hidden dummy fields to block browser autofill */}
-          <input type="text" name="fakeuser" style={{ display: "none" }} autoComplete="off" />
-          <input type="password" name="fakepass" style={{ display: "none" }} autoComplete="new-password" />
+          {/* Hidden fields to stop autofill */}
+          <input type="text" name="fakeuser" style={{ display: "none" }} />
+          <input
+            type="password"
+            name="fakepass"
+            style={{ display: "none" }}
+            autoComplete="new-password"
+          />
 
           <input
             type="text"
@@ -141,8 +158,8 @@ console.log("📤 Sending payload:", payload);
             value={formData.firstname}
             onChange={handleChange}
             required
-            autoComplete="off"
           />
+
           <input
             type="text"
             name="lastname"
@@ -150,8 +167,8 @@ console.log("📤 Sending payload:", payload);
             value={formData.lastname}
             onChange={handleChange}
             required
-            autoComplete="off"
           />
+
           <p>Date of Birth:</p>
           <input
             type="date"
@@ -159,7 +176,6 @@ console.log("📤 Sending payload:", payload);
             value={formData.dob}
             onChange={handleChange}
             required
-            autoComplete="off"
           />
 
           <input
@@ -169,7 +185,6 @@ console.log("📤 Sending payload:", payload);
             value={formData.email}
             onChange={handleChange}
             required
-            autoComplete="off"
           />
           {errors.email && <p className="registerpage-emp-error">{errors.email}</p>}
 
@@ -195,7 +210,6 @@ console.log("📤 Sending payload:", payload);
               value={formData.phone}
               onChange={handleChange}
               required
-              autoComplete="off"
             />
           </div>
           {errors.phone && <p className="registerpage-emp-error">{errors.phone}</p>}
@@ -209,7 +223,6 @@ console.log("📤 Sending payload:", payload);
               value={formData.password}
               onChange={handleChange}
               required
-              autoComplete="new-password"
             />
             <span
               className="registerpage-emp-eye-icon"
@@ -229,7 +242,6 @@ console.log("📤 Sending payload:", payload);
               value={formData.confirmPassword}
               onChange={handleChange}
               required
-              autoComplete="new-password"
             />
             <span
               className="registerpage-emp-eye-icon"

@@ -173,7 +173,7 @@ export default function TimeSheet() {
     <div className="timesheet-container">
       {/* Calendar */}
       <div ref={calendarRef}>
-        <header className="header">
+        <header className="header-timesheet">
           <button onClick={handlePrev}>&lt;</button>
           <h2>
             {monthName} {year}

@@ -109,10 +109,6 @@ const PersonalDetails = ({
       setErrors((prev) => ({ ...prev, [name]: "" }));
 
       if (name === "photo") setPhotoPreview(URL.createObjectURL(file));
-      if (name === "aadharUpload") setAadharPreview(URL.createObjectURL(file));
-      if (name === "panUpload") setPanPreview(URL.createObjectURL(file));
-      if (name === "marriageCertificate")
-        setMarriagePreview(URL.createObjectURL(file));
 
       return;
     }

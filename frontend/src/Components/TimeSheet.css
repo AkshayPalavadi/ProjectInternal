@@ -12,7 +12,8 @@
 }
 
 /* 🧭 Header Navigation */
-.header {
+.header-timesheet
+ {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -23,13 +24,14 @@
   box-shadow: 0 6px 18px rgba(58, 71, 82, 0.4);
 }
 
-.header h2 {
+.header-timesheet h2 {
   margin: 0;
   font-size: 1.6rem;
   letter-spacing: 0.5px;
 }
 
-.header button {
+.header-timesheet
+ button {
   background: white;
   color: #1976d2;
   border: none;
@@ -42,7 +44,7 @@
   transition: all 0.3s ease;
 }
 
-.header button:hover {
+.header-timesheet button:hover {
   background: #1565c0;
   color: #fff;
   transform: scale(1.05);

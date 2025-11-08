@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
 import SidebarLayout from "./Components/SidebarLayout.jsx";
 import Home from "./Components/Home.jsx";
 import Dashboard from "./Components/Dashboard.jsx";
 import Leaves from "./Components/Leaves.jsx";
-// import Profile from "./Components/Profile.jsx";
 import Login from "./Components/Login.jsx";
 import ResetPassword from "./Components/ResetPassword.jsx";
 import Register from "./Components/Register.jsx";
@@ -13,7 +11,7 @@ import EmployeeReview from "./component/EmployeeReview.jsx";
 import PerformanceManagement from "./Components/PerformanceManagement.jsx";
 import PersonApp from "./component/PersonApp.jsx";
 import TimeSheet from "./Components/TimeSheet.jsx";
-
+import CarrierApp from "./carrier/carrierapp.jsx";
 
 import AdminSidebarLayout from "./Components/Admin/AdminSidebarLayout.jsx";
 import AdminDashboard from "./Components/Admin/AdminDashboard.jsx";
@@ -35,14 +33,13 @@ import LeavesEmp from "./Components/Admin/LeavesEmp.jsx";
 import EmployeeDetails from "./Components/Admin/employee/EmployeeDetails.jsx";
 
 function App() {
-  // Leaves & Attendance
   const totalLeaves = 12;
   const totalDays = 30;
 
   const [leavesUsed, setLeavesUsed] = useState(4);
   const [absentDays, setAbsentDays] = useState(4);
 
-  // Employee data
+
   const [employeeData, setEmployeeData] = useState({
     totalLeaves,
     leavesUsed,
@@ -79,32 +76,71 @@ function App() {
   // Admin projects stored in localStorage
   const [adminProjects, setAdminProjects] = useState([]);
 
-  // Load projects from localStorage on mount
   useEffect(() => {
     const storedProjects = JSON.parse(localStorage.getItem("projects")) || [];
     setAdminProjects(storedProjects);
 
-    // Filter projects for current employee
     if (employeeId) {
-      const assignedProjects = storedProjects.filter(p => p.assignedEmployees.includes(employeeId));
-      setEmployeeData(prev => ({ ...prev, projects: assignedProjects }));
+      const assignedProjects = storedProjects.filter((p) =>
+        p.assignedEmployees.includes(employeeId)
+      );
+      setEmployeeData((prev) => ({ ...prev, projects: assignedProjects }));
     }
   }, [employeeId]);
+const [applicationSubmitted, setApplicationSubmitted] = useState(
+  localStorage.getItem("applicationSubmitted") === "true"
+);
+
+useEffect(() => {
+  localStorage.setItem("applicationSubmitted", applicationSubmitted);
+}, [applicationSubmitted]);
+
+
+  const userEmail = localStorage.getItem("userEmail") || "";
+
+  // ✅ Set default route logic
+  const getDefaultRoute = () => {
+  const currentPath = window.location.pathname;
+
+  // ✅ If user tries to go to /carrier, send them directly to /carrier/jobs
+  if (currentPath === "/carrier" || currentPath === "/carrier/") {
+    return "/carrier/jobs";
+  }
+
+  // ✅ Allow all other /carrier routes to load normally (like /carrier/login, etc.)
+  if (currentPath.startsWith("/carrier")) {
+    return currentPath;
+  }
+
+  // ✅ Not logged in
+  if (!isLoggedIn) return "/register";
+
+  // ✅ Employee internal users
+  if (userEmail.endsWith("@dhatvibs.com")) {
+    return "/employee/home";
+  }
+
+  // ✅ Default external users
+  return "/register";
+};
+
+
 
   return (
     <Router>
       <Routes>
-        {/* Login Page */}
+        {/* Internal Login */}
         <Route
           path="/login"
           element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />}
         />
 
+        {/* Register */}
         <Route path="/reset-password" element={<ResetPassword />} />
 
         <Route path="/register" element={<Register />} />
 
-        {/* Employee Routes */}
+        {/* Internal Employee Routes */}
         <Route
           path="/employee"
           element={
@@ -122,15 +158,9 @@ function App() {
         >
           <Route index element={<Navigate to="home" replace />} />
           <Route path="home" element={<Home />} />
-          <Route
-            path="dashboard"
-            element={
-              <Dashboard
-                projects={employeeData.projects}
-              />
-            }
-          />
+          <Route path="dashboard" element={<Dashboard projects={employeeData.projects} />} />
           <Route path="timesheet" element={<TimeSheet />} />
+
           <Route path="performancemanagement" element={<PerformanceManagement />} />
           <Route
             path="leaves"
@@ -145,16 +175,16 @@ function App() {
           <Route
   path="profile"
   element={
-    localStorage.getItem("applicationSubmitted") === "true" ? (
-      <EmployeeReview />
+    applicationSubmitted ? (
+      <EmployeeReview key="review" />
     ) : (
-      <PersonApp />
+      <PersonApp key="form" setApplicationSubmitted={setApplicationSubmitted}/>
     )
   }
 />
         </Route>
 
-        {/* Admin Routes */}
+        {/* Admin Route */}
         <Route
           path="/admin"
           element={
@@ -163,12 +193,18 @@ function App() {
         >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="add-employee" element={<PersonApp />} />
+
           <Route path="employees" element={<AdminEmployees />} />
           <Route path="employees/:id" element={<EmployeeDetails />} />
+
+          
           <Route path="careers" element={<AdminCareer />} />
                     <Route path="jobform" element={<AdminJobform />} />
+          
           <Route path="carriers1" element={<AdminCarrier1 />} />
           <Route path="jobapplicants" element={<AdminJobApplicants />} />
+
         
         <Route path="monthjobs" element={<MonthJobApplicants />} />
 
@@ -189,6 +225,8 @@ function App() {
           <Route path="attendance" element={<AttendanceEmp />} />
         </Route>
 
+        {/* Carrier App */}
+        <Route path="/carrier/*" element={<CarrierApp />} />
 
         {/* Default redirect */}
         <Route
@@ -200,7 +238,7 @@ function App() {
                   ? userRole === "admin"
                     ? "/admin"
                     : "/employee/home"
-                  : "/login"
+                  : "/register"
               }
               replace
             />
