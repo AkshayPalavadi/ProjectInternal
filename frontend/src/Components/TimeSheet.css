@@ -186,16 +186,16 @@
 }
 
 .holiday {
-  background: linear-gradient(135deg, #ffe9e9, #ffd6d6);
+  /* background: linear-gradient(135deg, #ffe9e9, #ffd6d6); */
   color: #000000;
-  border: 1px dashed #ff5252;
+  /* border: 1px dashed #ff5252; */
   position: relative;
   font-weight: 600;
-  font-style: italic;
+  /* font-style: italic; */
 }
 
 .holiday::after {
-  content: "🛑";
+  /* content: "🛑"; */
   position: absolute;
   top: 5px;
   right: 6px;
@@ -216,7 +216,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgb(196, 192, 192) ;
+  /* background: rgb(196, 192, 192) ; */
   color: rgb(0, 0, 0);
   font-weight: 700;
   border-radius: 12px;
@@ -493,18 +493,6 @@
   }
 }
 
-/* 📱 Responsive */
-/* @media (max-width: 768px) {
-  .header { flex-direction: column; gap: 10px; }
-  .weekday-row, .week-row { grid-template-columns: repeat(7, 1fr); }
-  .week-total-header, .week-total-cell { display: none; }
-  .entry-form { padding: 20px; }
-  .form-row { flex-direction: column; align-items: flex-start; }
-  .form-row label { margin-bottom: 5px; }
-  .radio-group { flex-direction: column; gap: 12px; }
-  .entry-form button { margin-left: 0; width: 100%; }
-} */
-
 /* For tablets and small laptops */
 @media (max-width: 1024px) {
   .timesheet-container {
@@ -512,3 +500,78 @@
     padding: 25px;
   }
 }   
+
+.project-type {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 20px 0;
+  font-family: "Poppins", sans-serif;
+}
+
+.project-type-label {
+  font-weight: 600;
+  font-size: 15px;
+  color: #333;
+  margin-right: 10px;
+}
+
+.radio-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  border: 2px solid #d1d5db;
+  border-radius: 25px;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.25s ease;
+  background: #fff;
+  margin-left: 37px;
+}
+
+.radio-option input[type="radio"] {
+  display: none; /* Hide native radio */
+}
+
+/* Hover effect */
+.radio-option:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+/* Selected state */
+.radio-option.selected {
+  background: #dfe7f5;
+  border-color: #3b82f6;
+  color: rgb(0, 0, 0);
+  box-shadow: 0 3px 10px rgba(59, 130, 246, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Add focus ring when using keyboard */
+.radio-option input[type="radio"]:focus + span {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+  border-radius: 20px;
+}
+
+.holiday-dot {
+  width: 6px;
+  height: 6px;
+  background-color: red;
+  border-radius: 50%;
+  margin: 2px auto 0;
+}
+
+.cell.holiday:hover {
+  background-color: #ffeaea;
+  cursor: default;
+}
+
+.cell.holiday.not-editable {
+  opacity: 0.8;
+}
