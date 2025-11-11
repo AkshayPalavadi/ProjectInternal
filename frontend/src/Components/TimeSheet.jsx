@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useRef } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import Select from "react-select";
 import "./TimeSheet.css";
 import * as XLSX from "xlsx";
@@ -17,12 +17,51 @@ export default function TimeSheet() {
   const [projectType, setProjectType] = useState("billable");
   const [hours, setHours] = useState("");
   const [showPopup, setShowPopup] = useState(false);
-  const [pendingRequests, setPendingRequests] = useState([]);
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [error, setError] = useState("");
+    const [pendingRequests, setPendingRequests] = useState([]);
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
+    const [error, setError] = useState("");
 
 // Structure: [{ date: '2025-11-10', status: 'pending' }]
+
+  // 🟢 Holidays from API
+  const [holidays, setHolidays] = useState([]);
+    // --- Fetch Holidays from API ---
+useEffect(() => {
+  const fetchHolidays = async () => {
+    try {
+      const res = await fetch("https://internal-website-rho.vercel.app/api/holidays");
+      if (!res.ok) throw new Error("Failed to fetch holidays");
+      const data = await res.json();
+      console.log("Holiday API response:", data);
+
+      let holidaysArray = [];
+
+      if (Array.isArray(data)) {
+        holidaysArray = data;
+      } else if (Array.isArray(data.holidays)) {
+        holidaysArray = data.holidays;
+      } else if (Array.isArray(data.data)) {
+        holidaysArray = data.data;
+      }
+
+      // normalize key names
+      const normalized = holidaysArray.map((h) => ({
+        date: (h.date || h.holiday_date).split("T")[0],
+        name: h.name || h.holiday_name || "Public Holiday",
+      }));
+
+      setHolidays(normalized);
+    } catch (err) {
+      console.error("Error fetching holidays:", err);
+      setHolidays([]);
+    }
+  };
+  fetchHolidays();
+}, []);
+
+
+    const holidaysSet = useMemo(() => new Set(holidays.map((h) => h.date)), [holidays]);
 
 const isOverdue = (dateObj) => {
   const key = fmtKey(dateObj);
@@ -86,16 +125,18 @@ const isOverdue = (dateObj) => {
     },
   };
 
-  // Holidays placeholder
-  const holidaysSet = useMemo(() => new Set(), []);
 
-  const fmtKey = (d) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  const fmtKey = (d) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+      d.getDate()
+    ).padStart(2, "0")}`;
+
   const monthName = useMemo(
     () => new Date(year, month).toLocaleString("default", { month: "long" }),
     [month, year]
   );
 
-  const handlePrev = () => {
+   const handlePrev = () => {
     if (month === 0) {
       setMonth(11);
       setYear((y) => y - 1);
@@ -119,7 +160,7 @@ const isOverdue = (dateObj) => {
 
   const isDateEditable = (dateObj) => {
     const key = fmtKey(dateObj);
-    if (holidaysSet.has(key)) return false;
+    if (holidaysSet.has(key)) return false; // disable editing on holidays
     const entryDate = new Date(dateObj);
     entryDate.setHours(0, 0, 0, 0);
     const today = new Date();
@@ -128,7 +169,7 @@ const isOverdue = (dateObj) => {
     return diffDays >= 0 && diffDays <= 2;
   };
 
-  const buildWeeks = () => {
+    const buildWeeks = () => {
     const weeks = [];
     const firstOfMonth = new Date(year, month, 1);
     const start = new Date(firstOfMonth);
@@ -147,39 +188,64 @@ const isOverdue = (dateObj) => {
 
   const weeks = buildWeeks();
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!selectedDate) return alert("Select a date first!");
+  if (!isDateEditable(selectedDate))
+    return alert("Cannot update timesheet for holidays or older than 2 days.");
+  if (!projectName || !projectCode) return alert("Select project and code!");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!selectedDate) return alert("Select a date first!");
-    if (!isDateEditable(selectedDate))
-      return alert("Cannot update timesheet for holidays or older than 2 days.");
-    if (!projectName || !projectCode) return alert("Select project and code!");
+  const key = fmtKey(selectedDate);
+  const h = parseFloat(hours || 0);
+  if (isNaN(h) || h < 0 || h > 24) return alert("Enter valid hours (0 - 24).");
 
-    const key = fmtKey(selectedDate);
-    const h = parseFloat(hours || 0);
-    if (isNaN(h) || h < 0 || h > 24) return alert("Enter valid hours (0 - 24).");
+  // Update local state first
+  const newEntry = {
+    category,
+    projectName: projectName.value,
+    projectCode: projectCode.value,
+    projectType,
+    hours: h,
+    date: key,
+  };
 
-    setEntries({
-      ...entries,
-      [key]: {
-        category,
-        projectName: projectName.value,
-        projectCode: projectCode.value,
-        projectType,
-        hours: h,
+  setEntries({
+    ...entries,
+    [key]: newEntry,
+  });
+
+  try {
+    // 🔹 Send to backend API
+    const response = await fetch("https://internal-website-rho.vercel.app/api/timesheet/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify(newEntry),
     });
 
-    // reset form
-    setCategory("");
-    setProjectName(null);
-    setProjectCode(null);
-    setProjectType("billable");
-    setHours("");
+    if (!response.ok) throw new Error("Failed to save timesheet entry");
 
-    if (calendarRef.current)
-      calendarRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+    const result = await response.json();
+    console.log("✅ Timesheet saved successfully:", result);
+    alert("Timesheet saved successfully!");
+
+  } catch (err) {
+    console.error("❌ Error saving timesheet:", err);
+    alert("Failed to save timesheet. Please try again later.");
+  }
+
+  // reset form
+  setCategory("");
+  setProjectName(null);
+  setProjectCode(null);
+  setProjectType("billable");
+  setHours("");
+
+  if (calendarRef.current)
+    calendarRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
 
   const sameDay = (a, b) =>
     a &&
@@ -235,7 +301,6 @@ const isOverdue = (dateObj) => {
   };
 
 
-
   return (
     <div className="timesheet-container">
       {/* Calendar */}
@@ -272,11 +337,14 @@ const isOverdue = (dateObj) => {
                   const currentMonth = dateObj.getMonth() === month && dateObj.getFullYear() === year;
                   const editable = isDateEditable(dateObj);
                   const isSunday = dateObj.getDay() === 0;
+const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+                  const holiday = holidays.find((h) => h.date === dateStr);
 
                   const hoursValue = entry?.hours ?? null;
 
                   let cellClass = "cell";
                   if (!currentMonth) cellClass += " other-month";
+                 if (holiday) cellClass += " holiday";
                   if (hoursValue >= 9) cellClass += " cell-green";
                   else if (hoursValue > 0) cellClass += " cell-yellow";
                   else if (hoursValue === 0) cellClass += " cell-red";
@@ -287,20 +355,39 @@ const isOverdue = (dateObj) => {
 
                   return (
                     <div
-                      key={ci}
-                      className={cellClass}
-                      onClick={() => {
-                        if (!currentMonth) {
-                          setMonth(dateObj.getMonth());
-                          setYear(dateObj.getFullYear());
-                        }
-                        setSelectedDate(new Date(dateObj));
-                        if (entries[key]) setShowPopup(true);
-                        if (formRef.current)
-                          formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-                      }}
-                    >
+                        key={ci}
+                        className={cellClass}
+                             title={
+                        holiday
+                          ? `Public Holiday: ${holiday.name}`
+                          : dateObj > new Date()
+                          ? "Future date (not allowed)"
+                          : ""
+                      }
+                        onClick={() => {
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+
+                          // 🚫 Prevent selecting future dates
+                          if (dateObj > today) {
+                            // alert("You cannot select future dates!");
+                            return;
+                          }
+
+                          if (!currentMonth) {
+                            setMonth(dateObj.getMonth());
+                            setYear(dateObj.getFullYear());
+                          }
+
+                          setSelectedDate(new Date(dateObj));
+                          if (entries[key]) setShowPopup(true);
+                          if (formRef.current)
+                            formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                        }}
+                      >
+
                       <div className="day">{dateObj.getDate()}</div>
+                      {holiday && <div className="holiday-dot"></div>}
                       {entry && <div className="hours">{entry.hours}h</div>}
                     </div>
                   );
@@ -522,29 +609,29 @@ const isOverdue = (dateObj) => {
 
         {/* Project Type */}
         <div className="project-type">
-          <label>Project Type:</label>
-          <div className="radio-group">
-            <label>
-              <input
-                type="radio"
-                name="projectType"
-                value="billable"
-                checked={projectType === "billable"}
-                onChange={(e) => setProjectType(e.target.value)}
-              />
-              <span>Billable</span>
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="projectType"
-                value="non-billable"
-                checked={projectType === "non-billable"}
-                onChange={(e) => setProjectType(e.target.value)}
-              />
-              <span>Non-Billable</span>
-            </label>
-          </div>
+          <label className="project-type-label">Project Type:</label>
+
+          <label className={`radio-option ${projectType === "billable" ? "selected" : ""}`}>
+            <input
+              type="radio"
+              name="projectType"
+              value="billable"
+              checked={projectType === "billable"}
+              onChange={(e) => setProjectType(e.target.value)}
+            />
+            <span>Billable</span>
+          </label>
+
+          <label className={`radio-option ${projectType === "non-billable" ? "selected" : ""}`}>
+            <input
+              type="radio"
+              name="projectType"
+              value="non-billable"
+              checked={projectType === "non-billable"}
+              onChange={(e) => setProjectType(e.target.value)}
+            />
+            <span>Non-Billable</span>
+          </label>
         </div>
 
         {/* Hours */}
