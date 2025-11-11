@@ -1,8 +1,7 @@
-
 /* 🌟 Root Container */
 .timesheet-container {
   font-family: "Poppins", sans-serif;
-  max-width: 1000px;
+  max-width: 700px;
   margin: 40px auto;
   padding: 35px;
   background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
@@ -10,41 +9,38 @@
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
 }
-
-/* 🧭 Header Navigation */
-.header-timesheet
- {
+ 
+/* 🧭 Header Navigation - Smaller Size */
+.header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: linear-gradient(135deg, #80bef0, #021831);
-  color: white;
-  padding: 15px 25px;
+  /* background: linear-gradient(135deg, #80bef0, #021831); */
+  padding: 10px 15px; 
   border-radius: 15px;
   box-shadow: 0 6px 18px rgba(58, 71, 82, 0.4);
 }
 
-.header-timesheet h2 {
+.header h2 {
   margin: 0;
-  font-size: 1.6rem;
+  font-size: 1.2rem; /* smaller month/year text */
   letter-spacing: 0.5px;
 }
 
-.header-timesheet
- button {
+.header button {
   background: white;
   color: #1976d2;
   border: none;
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  font-size: 1.3rem;
+  width: 30px;  /* smaller buttons */
+  height: 30px;
+  font-size: 1rem; /* smaller arrow icons */
   cursor: pointer;
-  font-weight: 700;
+  font-weight: 400;
   transition: all 0.3s ease;
 }
 
-.header-timesheet button:hover {
+.header button:hover {
   background: #1565c0;
   color: #fff;
   transform: scale(1.05);
@@ -53,7 +49,7 @@
 /* 📅 Weekday Header */
 .weekday-row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr) 110px; 
+  grid-template-columns: repeat(7, 1fr) 110px;
   column-gap: 8px;
   margin-top: 10px;
   text-align: center;
@@ -75,16 +71,17 @@
   font-size: 1rem;
   letter-spacing: 0.3px;
   border-radius: 10px;
+  margin-right: -40px;
 }
 
 /* 🎨 Full Background Colors for Weekday Headers */
-.weekday:nth-child(1) { background: #f7cccc; color: black; } 
-.weekday:nth-child(2) { background: #bbdefb; color: black; } 
-.weekday:nth-child(3) { background: #bbdefb; color: black; } 
-.weekday:nth-child(4) { background: #bbdefb; color: black; } 
-.weekday:nth-child(5) { background: #bbdefb; color: black; } 
-.weekday:nth-child(6) { background: #bbdefb; color: black; } 
-.weekday:nth-child(7) { background: #bbdefb; color: black; } 
+.weekday:nth-child(1) {  color: rgb(197, 7, 7); width: 78px; } 
+.weekday:nth-child(2) {  color: rgb(0, 0, 0); width: 78px; margin-left: 6px;} 
+.weekday:nth-child(3) { color: black; width: 78px; margin-left: 9px;} 
+.weekday:nth-child(4) { color: black; width: 78px; margin-left: 10px;} 
+.weekday:nth-child(5) {  color: black; width: 78px; margin-left: 10px;} 
+.weekday:nth-child(6) {  color: black; width: 78px; margin-left: 11px;} 
+.weekday:nth-child(7) {  color: black; width: 78px; margin-left: 13px;} 
 
 /* Center Weekly Hours header */
 .week-total-header {
@@ -92,12 +89,13 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-  background: #f5bba0;
+  /* background: #f5bba0; */
   color: black;
   font-weight: 600;
   font-size: 1rem;
   height: 45px;  
   border-radius: 10px;
+  margin-left: 10px;
 }
 
 /* 🖌 Hover styling for weekday headers */
@@ -115,7 +113,7 @@
 
 .week-row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr) 110px;
+  grid-template-columns: repeat(7, 1fr) 90px;
   column-gap: 8px;
   margin-bottom: 10px;
 }
@@ -125,8 +123,8 @@
   background: white;
   margin: 5px;
   border-radius: 14px;
-  padding: 8px;
-  min-height: 40px;
+  padding: 5px;
+  min-height: 5px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -149,28 +147,28 @@
 }
 
 /* 🧭 Cell Colors based on entries / state */
-.cell-green { background: linear-gradient(135deg, #b2f2bb, #8de38d); color: #1b5e20; }
+.cell-green { background: linear-gradient(135deg, #ffffff, #ffffff); color: #000000; }
 .cell-yellow { background: linear-gradient(135deg, #fff3b0, #ffe57f); color: #8d6e63; }
 .cell-red { background: linear-gradient(135deg, #ffb3b3, #ff9999); color: #b71c1c; }
 
 .sunday-cell {
-  background: linear-gradient(135deg, #f1919b, #fd9992); 
-  color: black; 
+  /* background: rgb(226, 199, 199);  */
+  color: rgb(236, 42, 42); 
   font-weight: 600;
   border-radius: 14px;
-  box-shadow: 0 2px 6px rgba(17, 17, 17, 0.3);
+  /* box-shadow: 0 2px 6px rgba(17, 17, 17, 0.3); */
   transition: all 0.25s ease;
 }
 
 .sunday-cell:hover {
   transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 4px 10px rgba(183, 28, 28, 0.5);
+  /* box-shadow: 0 4px 10px rgba(183, 28, 28, 0.5); */
 }
 
 .sunday-cell .day,
 .sunday-cell .hours {
-  color: black !important;
-  font-weight: 600;
+  /* color: black !important; */
+  font-weight: 500;
 }
 
 .saturday {
@@ -210,42 +208,80 @@
 }
 
 /* 🗓️ Day and Hours Text */
-.day { font-weight: 700; font-size: 1.1rem; }
-.hours { font-size: 1.2rem; color: black; font-weight: 200; }
+.day { font-weight:500; font-size: 1rem; }
+.hours { font-size: 0.7rem; color: rgb(4, 158, 12); font-weight: 500; }
 
 /* 🔢 Weekly & Monthly Totals */
 .week-total-cell {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #6b6b6bbb;
-  color: white;
+  background: rgb(196, 192, 192) ;
+  color: rgb(0, 0, 0);
   font-weight: 700;
   border-radius: 12px;
   margin: 5px;
-  box-shadow: 0 4px 10px rgba(25, 118, 210, 0.4);
+  width: 70px;
+  /* box-shadow: 0 4px 10px rgba(25, 118, 210, 0.4); */
   font-size: 1.1rem;
   transition: all 0.3s ease;
 }
 
 .week-total-cell:hover {
   transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 8px 20px rgba(25, 118, 210, 0.6);
+  /* box-shadow: 0 8px 20px rgba(25, 118, 210, 0.6); */
   background: #5a5a5abb;
   cursor: pointer;
 }
 
-.total-summary {
-  background: linear-gradient(135deg, #80bef0, #021831);
-  color: #fff;
+.working-days{
+  background: rgb(196, 192, 192) ;
+  color: #000000;
+  justify-content: center;
   text-align: center;
   padding: 10px;
   border-radius: 10px;
   margin-top: 15px;
-  width: 220px;
+  width: 230px;
+  font-weight: 100;
+  /* margin-left: auto; */
+  height: 20px;
+}
+
+.working-days h3 {
+  margin-top:  3px;;
+  font-size: 1.1rem;
+} 
+
+.total-summary {
+  background: rgb(196, 192, 192) ;
+  color: #fff;
+  justify-content: center;
+  text-align: center;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 15px;
+  width: 230px;
   font-weight: 100;
   margin-left: auto;
+  height: 20px;  color: #000000;
+  justify-content: center;
+  text-align: center;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 15px;
+  width: 230px;
+  font-weight: 100;
+  margin-left: auto;
+  height: 20px;
 }
+
+.total-summary h3 {
+  margin-top:  3px;;
+  font-size: 1.1rem;
+}
+
+
 
 /* 📍 Selected Date Display */
 .selected-date-display {
@@ -259,6 +295,10 @@
   display: inline-block;
   box-shadow: 0 2px 6px rgba(6, 39, 94, 0.2);
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
 }
 
 .selected-date-display span {
@@ -272,7 +312,7 @@
 .selected-day {
   background: #3b82f6 !important;
   color: white !important;
-  font-weight: bold;
+  /* font-weight: bold; */
   box-shadow: 0 0 6px rgba(59, 130, 246, 0.4);
 }
 
@@ -454,7 +494,7 @@
 }
 
 /* 📱 Responsive */
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .header { flex-direction: column; gap: 10px; }
   .weekday-row, .week-row { grid-template-columns: repeat(7, 1fr); }
   .week-total-header, .week-total-cell { display: none; }
@@ -463,4 +503,12 @@
   .form-row label { margin-bottom: 5px; }
   .radio-group { flex-direction: column; gap: 12px; }
   .entry-form button { margin-left: 0; width: 100%; }
-}
+} */
+
+/* For tablets and small laptops */
+@media (max-width: 1024px) {
+  .timesheet-container {
+    max-width: 90%;
+    padding: 25px;
+  }
+}   

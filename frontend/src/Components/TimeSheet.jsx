@@ -1,6 +1,9 @@
 import React, { useMemo, useState, useRef } from "react";
 import Select from "react-select";
 import "./TimeSheet.css";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 
 export default function TimeSheet() {
   // --- State ---
@@ -14,6 +17,22 @@ export default function TimeSheet() {
   const [projectType, setProjectType] = useState("billable");
   const [hours, setHours] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [error, setError] = useState("");
+
+// Structure: [{ date: '2025-11-10', status: 'pending' }]
+
+const isOverdue = (dateObj) => {
+  const key = fmtKey(dateObj);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today - dateObj) / (1000 * 60 * 60 * 24));
+ 
+  // Overdue if no hours entered and older than 2 days
+  return !entries[key] && diffDays > 2;
+};
 
   const formRef = useRef(null);
   const calendarRef = useRef(null);
@@ -138,7 +157,7 @@ export default function TimeSheet() {
 
     const key = fmtKey(selectedDate);
     const h = parseFloat(hours || 0);
-    if (isNaN(h) || h < 0 || h > 9) return alert("Enter valid hours (0 - 9).");
+    if (isNaN(h) || h < 0 || h > 24) return alert("Enter valid hours (0 - 24).");
 
     setEntries({
       ...entries,
@@ -169,11 +188,59 @@ export default function TimeSheet() {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate();
 
+     const exportToExcel = () => {
+    const allEntries = Object.entries(entries).map(([key, entry]) => {
+      const [yearVal, monthVal, dayVal] = key.split("-").map(Number);
+      return {
+        Date: `${dayVal}/${monthVal}/${yearVal}`,
+        Category: entry.category || "N/A",
+        "Project Name": entry.projectName || "N/A",
+        "Project Code": entry.projectCode || "N/A",
+        "Project Type": entry.projectType || "N/A",
+        Hours: entry.hours || 0,
+      };
+    });
+
+    if (allEntries.length === 0) {
+      alert("No timesheet data available to export!");
+      return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(allEntries);
+
+    // Protect the sheet by marking cells as read-only (non-editable)
+    Object.keys(worksheet).forEach((key) => {
+      if (key[0] !== "!") worksheet[key].s = { protection: { locked: true } };
+    });
+
+    worksheet["!protect"] = {
+      password: "timesheet", // sheet protection password
+      selectLockedCells: true,
+      selectUnlockedCells: false,
+    };
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Timesheet");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+      cellStyles: true,
+    });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(blob, `Timesheet_${year}_${month + 1}.xlsx`);
+  };
+
+
+
   return (
     <div className="timesheet-container">
       {/* Calendar */}
       <div ref={calendarRef}>
-        <header className="header-timesheet">
+        <header className="header">
           <button onClick={handlePrev}>&lt;</button>
           <h2>
             {monthName} {year}
@@ -242,18 +309,152 @@ export default function TimeSheet() {
               </div>
             );
           })}
+
+          <div className="total-summary-container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 0 }}>
+           <div className="working-days">
+              <h3>
+                Working Days: {
+                  Object.entries(entries).filter(([key, entry]) => {
+                    const [y, m] = key.split('-').map(Number);
+                    return y === year && m === month + 1 && entry.hours > 0;
+                  }).length
+                }
+              </h3>
+            </div>
+
+            <div className="total-summary">
+              <h3>Monthly Total: {totalHours.toFixed(1)} hours</h3>
+            </div>
+          </div>
+
+
+
+          {selectedDate && (
+  <div className="selected-date-display" style={{ marginTop: 12 }}>
+{selectedDate && (
+  <div
+    className="selected-date-display"
+    style={{
+      marginTop: 12,
+      display: "flex",
+      alignItems: "center",
+      gap: "15px",
+    }}
+  >
+    <span>📅 Selected Date:</span>
+    <strong>{selectedDate.toDateString()}</strong>
+
+    {/* 🟢 Export to Excel Button */}
+    {/* <button
+      style={{
+        fontSize: "0.8rem",
+        background: "#1976d2",
+        color: "#fff",
+        border: "none",
+        borderRadius: "5px",
+        padding: "4px 8px",
+        cursor: "pointer",
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        exportToExcel();
+      }}
+    >
+      Export Timesheet to Excel
+    </button> */}
+
+    {/* Manager Request Button */}
+    {isOverdue(selectedDate) && selectedDate <= new Date() && (
+      <button
+        style={{
+          fontSize: "0.8rem",
+          background: "#ff7043",
+          color: "#fff",
+          border: "none",
+          borderRadius: "5px",
+          padding: "4px 6px",
+          cursor: "pointer",
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          const key = fmtKey(selectedDate);
+
+          const existingRequest = pendingRequests.find(
+            (r) => r.date === key
+          );
+          if (existingRequest) {
+            alert("You have already requested manager approval for this date!");
+            return;
+          }
+
+          setPendingRequests([
+            ...pendingRequests,
+            { date: key, status: "pending" },
+          ]);
+          alert(`Request sent for ${selectedDate.toDateString()}`);
+        }}
+      >
+        Request Manager Approval
+      </button>
+    )}
+  </div>
+)}
+  <button
+      style={{
+        fontSize: "0.8rem",
+        background: "#1976d2",
+        color: "#fff",
+        border: "none",
+        borderRadius: "5px",
+        padding: "4px 8px",
+        cursor: "pointer",
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        exportToExcel();
+      }}
+    >
+      Export Timesheet to Excel
+    </button>
+
+    {/* Manager Request Button */}
+    {/* {isOverdue(selectedDate) &&
+     selectedDate <= new Date() && (
+      <button
+        style={{
+          fontSize: '0.8rem',
+          marginTop: '4px',
+          background: '#ff7043',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '5px',
+          padding: '4px 6px',
+          cursor: 'pointer',
+          marginLeft: '25px',
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          const key = fmtKey(selectedDate);
+
+          // Check if request already exists
+          const existingRequest = pendingRequests.find(r => r.date === key);
+          if (existingRequest) {
+            alert("You have already requested manager approval for this date!");
+            return;
+          }
+
+          setPendingRequests([...pendingRequests, { date: key, status: 'pending' }]);
+          alert(`Request sent for ${selectedDate.toDateString()}`);
+        }}
+      >
+        Request Manager Approval
+      </button>
+    )} */}
+  </div>
+)}
+
         </div>
       </div>
-
-      <div className="summary total-summary" style={{ marginTop: 18 }}>
-        <h3>Monthly Total: {totalHours.toFixed(1)} hours</h3>
-      </div>
-
-      {selectedDate && (
-        <div className="selected-date-display" style={{ marginTop: 12 }}>
-          <span>📅 Selected Date:</span> <strong>{selectedDate.toDateString()}</strong>
-        </div>
-      )}
 
       {/* --- Entry Form --- */}
       <form className="entry-form" onSubmit={handleSubmit} ref={formRef} style={{ marginTop: 20 }}>
@@ -351,14 +552,26 @@ export default function TimeSheet() {
           <label>Hours:</label>
           <input
             type="number"
-            min="0"
+            min="1"
             max="9"
-            step="0.1"
             value={hours}
-            onChange={(e) => setHours(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (
+              val === "" ||
+              (parseInt(val, 10) >= 1 && parseInt(val, 10) <= 9
+              )){
+              setHours(val);
+              setError("");
+            } else {
+              setError("Please enter a hours between 1 and 9.");
+            }
+                }}           
             required
           />
+          {error && <p className="error-text">{error}</p>}
         </div>
+
         <button type="submit">Save Entry</button>
       </form>
 
