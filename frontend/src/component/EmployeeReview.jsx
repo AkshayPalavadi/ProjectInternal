@@ -4,6 +4,8 @@ import "./EmployeeReview.css";
 import { useParams } from "react-router-dom";
 
 export default function EmployeeReview() {
+  const employeeId=localStorage.getItem("employeeId");
+  console.log(employeeId);
   const { id } = useParams(); // expecting route like /employee/:id
   console.log("🧭 useParams() output:", useParams());
   console.log("🆔 Employee ID:", id);
@@ -25,7 +27,7 @@ export default function EmployeeReview() {
       try {
         setLoading(true);
 
-        const apiUrl = `https://internal-website-rho.vercel.app/api/employee/details/${id}`;
+        const apiUrl = `https://internal-website-rho.vercel.app/api/employee/details/${employeeId}`;
         console.log("🔗 Fetching employee details for:", apiUrl);
 
         const res = await axios.get(apiUrl, { timeout: 10000 });

@@ -21,133 +21,71 @@ function Login({ setIsLoggedIn, setUserRole }) {
       setUserRole(storedRole);
       navigate(storedRole === "admin" ? "/admin" : "/employee", { replace: true });
     }
-  }, []);
-  const checkIfUserExists = async (email) => {
-  try {
-    const res = await fetch(`https://internal-website-rho.vercel.app/api/auth/email/${email}`);
-    const data = await res.json();
-    console.log("✅ Check user API:", data);
+  }, [navigate, setIsLoggedIn, setUserRole]);
 
-<<<<<<< HEAD
-    const exists = !!data.employee;
+  // ✅ Login Handler
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
 
-    // Preserve local truth of applicationSubmitted if we already have it
-    const localSubmitted = localStorage.getItem("applicationSubmitted") === "true";
-    const applicationSubmitted = data.employee?.applicationSubmitted || localSubmitted;
-
-    return { exists, applicationSubmitted };
-  } catch (err) {
-    console.error("Error checking user existence:", err);
-    return { exists: false, applicationSubmitted: false };
-  }
-};
-
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-
-=======
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-
->>>>>>> 953f64225d4d3d8cee7d4d45d9d12ff74bd34772
-  if (!email.endsWith("@dhatvibs.com")) {
-    setError("Only @dhatvibs.com email addresses are allowed.");
-    return;
-  }
-<<<<<<< HEAD
-
-  // ✅ Step 1: Check user existence
-  const { exists, applicationSubmitted } = await checkIfUserExists(email);
-
-  if (!exists) {
-    alert("New user detected! Please fill out your profile form.");
-    localStorage.setItem("applicationSubmitted", "false");
-    navigate("/employee/profile");
-    return;
-  }
-
-  // ✅ Step 2: Store application status for existing user
-  localStorage.setItem("applicationSubmitted", applicationSubmitted ? "true" : "false");
-
-  // ✅ Step 3: Proceed with login
-  try {
-    const response = await fetch("https://internal-website-rho.vercel.app/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const result = await response.json();
-    console.log("📦 API Login Response:", result);
-
-    if (response.ok) {
-      setIsLoggedIn(true);
-      setUserRole(role);
-      if (result.token) localStorage.setItem("token", result.token);
-      localStorage.setItem("userRole", role);
-      localStorage.setItem("loginEmail", email);
-
-      navigate(role === "admin" ? "/admin" : "/employee/home");
-    } else {
-      setError(result.msg || "Invalid email or password");
+    if (!email.endsWith("@dhatvibs.com")) {
+      setError("Only @dhatvibs.com email addresses are allowed.");
+      return;
     }
-  } catch (err) {
-    console.error("🚨 API Error:", err);
-    setError("Server not reachable. Please try again later.");
-  }
-};
 
-=======
+    try {
+      // Step 1: Login API
+      const response = await fetch("https://internal-website-rho.vercel.app/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
 
-  try {
-    // Step 1: Login user
-    const response = await fetch("https://internal-website-rho.vercel.app/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
+      const result = await response.json();
+      console.log("📦 Login API Response:", result);
 
-    const result = await response.json();
-    console.log("📦 Login API Response:", result);
+      if (response.ok && result.token) {
+        // ✅ Save token
+        localStorage.setItem("token", result.token);
 
-    if (response.ok && result.token) {
-      // ✅ Save token
-      localStorage.setItem("token", result.token);
+        // Step 2: Fetch Employee Details
+        const empResponse = await fetch("https://internal-website-rho.vercel.app/api/auth");
+        const empResult = await empResponse.json();
+        console.log("📦 Employees API Response:", empResult);
 
-      // Step 2: Fetch employee details
-      const empResponse = await fetch("https://internal-website-rho.vercel.app/api/auth");
-      const empResult = await empResponse.json();
-      console.log("📦 Employees API Response:", empResult);
+        const user = empResult.employees.find((emp) => emp.email === email);
 
-      const user = empResult.employees.find((emp) => emp.email === email);
+        if (user) {
+          // ✅ Store user details
+          localStorage.setItem("employeeName", `${user.firstName} ${user.lastName}`);
+          localStorage.setItem("userEmail", user.email);
+          localStorage.setItem("userRole", user.role);
+          // localStorage.setItem("employeeId", user.employeeId);
+          setIsLoggedIn(true);
+          setUserRole(user.role);
 
-      if (user) {
-        // ✅ Store user details
-        localStorage.setItem("employeeName", `${user.firstName} ${user.lastName}`);
-        localStorage.setItem("userEmail", user.email);
-        localStorage.setItem("employeeId", user.employeeId);
-        localStorage.setItem("userRole", user.role);
+          // ✅ Manage Application Submitted (per-user)
+          const submissionMap = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
+          const isSubmitted = submissionMap[user.email] === true;
 
-        setIsLoggedIn(true);
-        setUserRole(user.role);
+          // Sync to localStorage
+          localStorage.setItem("applicationSubmitted", isSubmitted ? "true" : "false");
 
-        // ✅ Navigate based on actual role
-        navigate(user.role === "admin" ? "/admin" : "/employee");
+          console.log(`📩 Application Submitted for ${user.email}:`, isSubmitted);
+
+          // ✅ Navigate based on role
+          navigate(user.role === "admin" ? "/admin" : "/employee");
+        } else {
+          setError("User data not found in employee list.");
+        }
       } else {
-        setError("User data not found.");
+        setError(result.msg || "Invalid email or password.");
       }
-    } else {
-      setError(result.msg || "Invalid email or password");
+    } catch (err) {
+      console.error("🚨 Error:", err);
+      setError("Server not reachable. Please try again later.");
     }
-  } catch (err) {
-    console.error("🚨 Error:", err);
-    setError("Server not reachable. Please try again later.");
-  }
-};
->>>>>>> 953f64225d4d3d8cee7d4d45d9d12ff74bd34772
+  };
 
   return (
     <div className="loginpage-login-main-container">
@@ -161,6 +99,7 @@ const handleSubmit = async (e) => {
         </div>
       </div>
       <hr />
+
       <div className="login-container-employee">
         <form className="login-form-employee" onSubmit={handleSubmit}>
           <h1 className="heading-employee">Login</h1>

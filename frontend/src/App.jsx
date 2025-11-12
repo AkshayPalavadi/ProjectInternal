@@ -110,23 +110,52 @@ function App() {
   // -------------------------------
   // Application Submitted per user
   // -------------------------------
-  const [applicationSubmitted, setApplicationSubmitted] = useState(() => {
-    const email = localStorage.getItem("loginEmail");
-    if (!email) return false;
-    const map = readSubmitMap();
-    return !!map[email];
-  });
+  // const [applicationSubmitted, setApplicationSubmitted] = useState(()=>{
+  //   const isApplicationSubmitted = localStorage.getItem("applicationSubmitted");
 
-  // Sync to localStorage when logged in/out
-  useEffect(() => {
-    const email = localStorage.getItem("loginEmail");
-    if (email) {
-      const map = readSubmitMap();
-      const submitted = !!map[email];
-      localStorage.setItem("applicationSubmitted", submitted ? "true" : "false");
-      setApplicationSubmitted(submitted);
-    }
-  }, []);
+  //   return isApplicationSubmitted === true
+  // });
+
+  
+
+  // // Sync to localStorage when logged in/out
+  // useEffect(() => {
+  //   const email = localStorage.getItem("userEmail");
+  //   if (email) {
+  //     localStorage.setItem("applicationSubmitted", submitted ? "true" : "false");
+  //     setApplicationSubmitted(submitted);
+  //   }
+
+
+
+
+  //    const isApplicationSubmitted = localStorage.getItem("applicationSubmitted");
+  //    setApplicationSubmitted(isApplicationSubmitted ? true:false)
+  // }, []);
+  // -------------------------------
+// Application Submitted per user
+// -------------------------------
+const [applicationSubmitted, setApplicationSubmitted] = useState(false);
+
+// Run once after login or when userEmail changes
+useEffect(() => {
+  if (!isLoggedIn) return; // Only check if logged in
+
+  const email = localStorage.getItem("userEmail");
+
+  // Check backend/localStorage if this user has already submitted
+  const storedMap = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
+
+  // If found in map (true), mark as submitted
+  if (storedMap[email]) {
+    setApplicationSubmitted(true);
+    localStorage.setItem("applicationSubmitted", "true");
+  } else {
+    setApplicationSubmitted(false);
+    localStorage.setItem("applicationSubmitted", "false");
+  }
+}, [isLoggedIn]);
+
 
   // -------------------------------
   // Default route helper

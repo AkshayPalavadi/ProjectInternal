@@ -225,7 +225,7 @@ const PersonalDetails = ({
           {errors.email && <small className="err">{errors.email}</small>}
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>
             Phone <span className="required-star">*</span>
           </label>
@@ -246,7 +246,7 @@ const PersonalDetails = ({
           {errors.phone && <small className="err">{errors.phone}</small>}
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>Alternative Phone</label>
           <input
             type="tel"
@@ -264,7 +264,7 @@ onChange={(e) => {
         </div>
 
         {/* ---- Gender and Blood Group ---- */}
-        <div className="field">
+        <div className="field-employee">
           <label>
             Gender <span className="required-star">*</span>
           </label>
@@ -281,7 +281,7 @@ onChange={(e) => {
           {errors.gender && <small className="err">{errors.gender}</small>}
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>
             Blood Group <span className="required-star">*</span>
           </label>
@@ -306,7 +306,7 @@ onChange={(e) => {
         </div>
 
         {/* ---- Photo Upload ---- */}
-        <div className="field full">
+        <div className="field-employee full">
           <label>
             Upload Photo <span className="required-star">*</span>
           </label>
@@ -333,8 +333,8 @@ onChange={(e) => {
           {errors.photo && <small className="err">{errors.photo}</small>}
         </div>
 
-        {/* ---- Address Fields ---- */}
-        <div className="field full">
+        {/* ---- Address field-employees ---- */}
+        <div className="field-employee full">
           <label>
             Current Address <span className="required-star">*</span>
           </label>
@@ -348,7 +348,7 @@ onChange={(e) => {
           )}
         </div>
 
-        <div className="field full checkbox-field">
+        <div className="field-employee full checkbox-field-employee">
           <label>
             <input
               type="checkbox"
@@ -360,7 +360,7 @@ onChange={(e) => {
           </label>
         </div>
 
-        <div className="field full">
+        <div className="field-employee full">
           <label>
             Permanent Address <span className="required-star">*</span>
           </label>
@@ -376,7 +376,7 @@ onChange={(e) => {
         </div>
 
         {/* ---- Additional Address Info ---- */}
-        <div className="field">
+        <div className="field-employee">
           <label>
             Landmark <span className="required-star">*</span>
           </label>
@@ -388,7 +388,7 @@ onChange={(e) => {
           <small className="err">{errors.landmark}</small>
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>
             Pincode <span className="required-star">*</span>
           </label>
@@ -410,7 +410,7 @@ onChange={(e) => {
           {errors.pincode && <small className="err">{errors.pincode}</small>}
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>Village</label>
           <input
             name="village"
@@ -421,7 +421,7 @@ onChange={(e) => {
 
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>
             State <span className="required-star">*</span>
           </label>
@@ -436,7 +436,7 @@ onChange={(e) => {
           {errors.state && <small className="err">{errors.state}</small>}
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>
             Emergency Contact Number <span className="required-star">*</span>
           </label>
@@ -458,7 +458,7 @@ onChange={(e) => {
           )}
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>
             Nominee 1 <span className="required-star">*</span>
           </label>
@@ -470,7 +470,7 @@ onChange={(e) => {
           {errors.nominee1 && <small className="err">{errors.nominee1}</small>}
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>
             Nominee 2 <span className="required-star">*</span>
           </label>
@@ -482,7 +482,7 @@ onChange={(e) => {
           {errors.nominee2 && <small className="err">{errors.nominee2}</small>}
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>
             Aadhar Number <span className="required-star">*</span>
           </label>
@@ -503,7 +503,7 @@ onChange={(e) => {
           )}
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>
             Upload Aadhar Card <span className="required-star">*</span>
           </label>
@@ -518,7 +518,7 @@ onChange={(e) => {
           )}
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>
             PAN Number <span className="required-star">*</span>
           </label>
@@ -539,7 +539,7 @@ onChange={(e) => {
           )}
         </div>
 
-        <div className="field">
+        <div className="field-employee">
           <label>
             Upload PAN Card <span className="required-star">*</span>
           </label>
@@ -554,7 +554,7 @@ onChange={(e) => {
           )}
         </div>
 
-        <div className="field full checkbox-field">
+        <div className="field-employee full checkbox-field-employee">
           <label>
             <input
               type="checkbox"
@@ -567,7 +567,7 @@ onChange={(e) => {
         </div>
 
         {data.isMarried && (
-          <div className="field full">
+          <div className="field-employee full">
             <label>Marriage Certificate (optional)</label>
             <input
               type="file"

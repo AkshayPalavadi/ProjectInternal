@@ -50,16 +50,33 @@ const setSubmitted = (email, val) => {
   map[email] = !!val;
   localStorage.setItem(SUBMIT_MAP_KEY, JSON.stringify(map));
 };
-
 const handleSuccess = () => {
+  // ✅ Get current logged-in user
+  const email = localStorage.getItem("userEmail");
+
+  // ✅ Update applicationSubmitted for current user
   setApplicationSubmitted(true);
   localStorage.setItem("applicationSubmitted", "true");
 
-  const email = localStorage.getItem("loginEmail");
-  if (email) setSubmitted(email, true);
+  // ✅ Update global submission map (per user)
+  if (email) {
+    const map = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
+    map[email] = true;
+    localStorage.setItem("submissionStatusByEmail", JSON.stringify(map));
+  }
 
+  // ✅ Save employeeId for next routes (profile)
+  if (personal.employeeId) {
+    localStorage.setItem("employeeId", personal.employeeId);
+  }
+
+  console.log(`✅ Application marked submitted for: ${email}`);
+
+  // ✅ Redirect user to their profile page
   navigate(`/employee/profile/${personal.employeeId}`);
 };
+
+
 
 
   // -------------------- FORM STATES --------------------

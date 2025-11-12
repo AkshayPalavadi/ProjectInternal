@@ -96,7 +96,9 @@ body {
 /* form */
 .form-wrap{max-width:980px;margin:0 auto}
 .form-wrap h3{margin:18px 0 18px 0}
-.form-grid{
+.form-grid
+
+{
   display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 .field{
   display:flex;flex-direction:column}
