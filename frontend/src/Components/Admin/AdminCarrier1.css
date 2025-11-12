@@ -228,8 +228,8 @@
 }
 
 /* ====== Editable Inputs ====== */
-input,
-textarea {
+.career-header input,
+.career-header textarea {
   width: 100%;
   padding: 10px;
   margin: 5px 0 10px;
@@ -242,14 +242,14 @@ textarea {
   transition: border-color 0.3s ease;
 }
 
-input:focus,
-textarea:focus {
+.career-header input:focus,
+.career-header textarea:focus {
   outline: none;
   border-color: #0f766e;
   background-color: #ffffff;
 }
 
-textarea {
+.career-header textarea {
   min-height: 80px;
   resize: vertical;
 }
