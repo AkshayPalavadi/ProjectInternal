@@ -7,6 +7,8 @@ import {
   FaMapMarkerAlt,
   FaCheckCircle,
   FaArrowLeft,
+  FaSave,
+  FaTimes,
 } from "react-icons/fa";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./AdminCarrier1.css";
@@ -16,8 +18,9 @@ const AdminCarrier1 = () => {
   const location = useLocation();
   const initialRole = location.state?.role || "frontend";
   const [selectedRole, setSelectedRole] = useState(initialRole);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const jobData = {
+  const [jobData, setJobData] = useState({
     frontend: {
       title: "Frontend Developer",
       level: "Fresher",
@@ -31,17 +34,11 @@ const AdminCarrier1 = () => {
         "Develop and maintain the front-end functionality of web applications.",
         "Implement responsive design principles.",
         "Collaborate with designers and backend developers.",
-        "Optimize web pages for speed and scalability.",
-        "Ensure cross-browser compatibility and fix UI/UX issues.",
-        "Integrate APIs and RESTful services.",
-        "Participate in code reviews and maintain standards.",
       ],
       skills: [
         "Strong knowledge of HTML5, CSS3, JavaScript (ES6+).",
         "Experience with React or Vue.js.",
         "Familiarity with Git and GitHub.",
-        "Understanding of REST APIs and JSON.",
-        "Attention to UI/UX detail.",
       ],
       tags: ["Full time", "Commerce", "New York", "Corporate", "Location"],
     },
@@ -53,21 +50,16 @@ const AdminCarrier1 = () => {
       salary: "6,00,000 - 12,00,000",
       location: "Bangalore",
       description:
-        "A Backend Developer builds and maintains the server-side logic, databases, and APIs. They ensure smooth data flow between users and servers while optimizing application performance.",
+        "A Backend Developer builds and maintains the server-side logic, databases, and APIs.",
       responsibilities: [
         "Develop and manage server-side components and APIs.",
         "Design and maintain databases and data models.",
         "Integrate front-end elements with backend logic.",
-        "Ensure application scalability and performance.",
-        "Implement security and data protection.",
-        "Collaborate with front-end and DevOps teams.",
       ],
       skills: [
         "Proficiency in Node.js, Express, or Django.",
         "Strong database knowledge (MySQL, MongoDB).",
         "Experience with RESTful API design.",
-        "Understanding of authentication and security protocols.",
-        "Version control with Git.",
       ],
       tags: ["Backend", "Full time", "Node.js", "Database", "Server"],
     },
@@ -79,20 +71,16 @@ const AdminCarrier1 = () => {
       salary: "3,60,000 - 6,00,000",
       location: "Chennai",
       description:
-        "A Web Developer designs, builds, and maintains websites. They work with both front-end and back-end technologies to deliver user-friendly, responsive, and secure web solutions.",
+        "A Web Developer designs, builds, and maintains websites and web applications.",
       responsibilities: [
         "Design and develop user-friendly websites.",
         "Implement front-end and back-end functionality.",
-        "Maintain and update existing websites.",
         "Collaborate with UI/UX designers for layout improvements.",
-        "Optimize site performance and SEO.",
       ],
       skills: [
         "HTML, CSS, JavaScript, and React basics.",
         "Knowledge of PHP or Node.js.",
         "Database management with MySQL or MongoDB.",
-        "Version control with Git.",
-        "Basic understanding of SEO principles.",
       ],
       tags: ["Web", "Developer", "Full stack", "Responsive", "Teamwork"],
     },
@@ -104,20 +92,16 @@ const AdminCarrier1 = () => {
       salary: "4,00,000 - 9,00,000",
       location: "Pune",
       description:
-        "A UI/UX Designer focuses on user experience and visual design. They create intuitive, attractive, and user-friendly interfaces using design principles and user feedback.",
+        "A UI/UX Designer focuses on user experience and visual design for intuitive interfaces.",
       responsibilities: [
-        "Design visually appealing and user-friendly interfaces.",
+        "Design visually appealing interfaces.",
         "Conduct user research and usability testing.",
-        "Collaborate with developers for implementation.",
         "Create wireframes, prototypes, and design systems.",
-        "Ensure design consistency and accessibility.",
       ],
       skills: [
         "Proficiency in Figma, Adobe XD, or Sketch.",
         "Understanding of UX principles.",
         "Wireframing and prototyping skills.",
-        "Knowledge of responsive design.",
-        "Attention to detail and creativity.",
       ],
       tags: ["Design", "UI", "UX", "Prototyping", "Creative"],
     },
@@ -129,95 +113,216 @@ const AdminCarrier1 = () => {
       salary: "3,00,000 - 6,00,000",
       location: "Remote / Mumbai",
       description:
-        "A Content Writer creates engaging and SEO-friendly content for websites, blogs, and marketing campaigns. They craft clear and compelling text aligned with the brand’s tone and audience.",
+        "A Content Writer creates engaging and SEO-friendly content for websites and blogs.",
       responsibilities: [
         "Write and edit website, blog, and marketing content.",
         "Conduct research on industry-related topics.",
-        "Collaborate with designers for visual alignment.",
         "Optimize content for SEO and readability.",
-        "Maintain brand tone and consistency.",
       ],
       skills: [
         "Excellent writing and grammar skills.",
         "Basic SEO knowledge.",
         "Creative storytelling and editing.",
-        "Research and analytical abilities.",
-        "Time management and attention to detail.",
       ],
       tags: ["Writing", "SEO", "Marketing", "Content", "Remote"],
     },
-  };
+  });
 
   const job = jobData[selectedRole];
+  const [editableJob, setEditableJob] = useState(job);
+
+  // Toggle edit mode
+  const handleEditToggle = () => {
+    setEditableJob(job);
+    setIsEditing(!isEditing);
+  };
+
+  // For single field changes
+  const handleChange = (field, value) => {
+    setEditableJob((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // For array fields (responsibilities, skills, tags)
+  const handleArrayChange = (field, index, value) => {
+    const updatedArray = [...editableJob[field]];
+    updatedArray[index] = value;
+    setEditableJob((prev) => ({ ...prev, [field]: updatedArray }));
+  };
+
+  // Save the edited job
+  const handleSave = () => {
+    setJobData((prev) => ({
+      ...prev,
+      [selectedRole]: editableJob,
+    }));
+    setIsEditing(false);
+  };
 
   return (
-    <div className="admincarrier1-career-container">
-      <div className="admincarrier1-career-role-buttons">
-        {/* <button onClick={() => setSelectedRole("frontend")}>Frontend</button> */}
-        {/* <button onClick={() => setSelectedRole("backend")}>Backend</button> */}
-        {/* <button onClick={() => setSelectedRole("webdev")}>Web Developer</button> */}
-        {/* <button onClick={() => setSelectedRole("uiux")}>UI/UX</button> */}
-        {/* <button onClick={() => setSelectedRole("content")}>Content Writer</button> */}
-      </div>
-
-      <div className="admincarrier1-career-header">
+    <div className="career-container">
+      <div className="career-header">
         <div>
-          <h1>{job.title}</h1>
-          <p>{job.level}</p>
+          {isEditing ? (
+            <>
+              <input
+                type="text"
+                value={editableJob.title}
+                onChange={(e) => handleChange("title", e.target.value)}
+              />
+              <input
+                type="text"
+                value={editableJob.level}
+                onChange={(e) => handleChange("level", e.target.value)}
+              />
+            </>
+          ) : (
+            <>
+              <h1>{job.title}</h1>
+              <p>{job.level}</p>
+            </>
+          )}
         </div>
-        <button className="admincarrier1-edit-btn">
-          <FaEdit />
-        </button>
+
+        <div className="edit-buttons">
+          {isEditing ? (
+            <>
+              {/* <button className="save-btn" onClick={handleSave}> */}
+                {/* <FaSave /> Save */}
+              {/* </button> */}
+              {/* <button className="cancel-btn" onClick={handleEditToggle}> */}
+                {/* <FaTimes /> Cancel */}
+              {/* </button> */}
+            </>
+          ) : (
+            <button className="edit-btn" onClick={handleEditToggle}>
+              <FaEdit /> Edit
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="admincarrier1-career-info">
-        <span><FaBriefcase /> {job.category}</span>
-        <span><FaClock /> {job.type}</span>
-        <span><FaRupeeSign /> {job.salary}</span>
-        <span><FaMapMarkerAlt /> {job.location}</span>
+      <div className="career-info">
+        {isEditing ? (
+          <>
+            <input
+              type="text"
+              value={editableJob.category}
+              onChange={(e) => handleChange("category", e.target.value)}
+            />
+            <input
+              type="text"
+              value={editableJob.type}
+              onChange={(e) => handleChange("type", e.target.value)}
+            />
+            <input
+              type="text"
+              value={editableJob.salary}
+              onChange={(e) => handleChange("salary", e.target.value)}
+            />
+            <input
+              type="text"
+              value={editableJob.location}
+              onChange={(e) => handleChange("location", e.target.value)}
+            />
+          </>
+        ) : (
+          <>
+            <span><FaBriefcase /> {job.category}</span>
+            <span><FaClock /> {job.type}</span>
+            <span><FaRupeeSign /> {job.salary}</span>
+            <span><FaMapMarkerAlt /> {job.location}</span>
+          </>
+        )}
       </div>
 
-      <div className="admincarrier1-career-section">
+      <div className="career-section">
         <h2>Job Description</h2>
-        <p>{job.description}</p>
+        {isEditing ? (
+          <textarea
+            value={editableJob.description}
+            onChange={(e) => handleChange("description", e.target.value)}
+          />
+        ) : (
+          <p>{job.description}</p>
+        )}
       </div>
 
-      <div className="admincarrier1-career-section">
+      <div className="career-section">
         <h2>Key Responsibilities</h2>
         <ul>
-          {job.responsibilities.map((item, index) => (
+          {editableJob.responsibilities.map((item, index) => (
             <li key={index}>
-              <FaCheckCircle /> {item}
+              <FaCheckCircle />
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={item}
+                  onChange={(e) =>
+                    handleArrayChange("responsibilities", index, e.target.value)
+                  }
+                />
+              ) : (
+                item
+              )}
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="admincarrier1-career-section">
+      <div className="career-section">
         <h2>Professional Skills</h2>
         <ul>
-          {job.skills.map((item, index) => (
+          {editableJob.skills.map((item, index) => (
             <li key={index}>
-              <FaCheckCircle /> {item}
+              <FaCheckCircle />
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={item}
+                  onChange={(e) =>
+                    handleArrayChange("skills", index, e.target.value)
+                  }
+                />
+              ) : (
+                item
+              )}
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="admincarrier1-career-section">
-        <h2>Tags:</h2>
-        <div className="admincarrier1-career-tags">
-          {job.tags.map((tag, index) => (
-            <span key={index}>{tag}</span>
-          ))}
+      <div className="career-section">
+        <h2>Tags</h2>
+        <div className="career-tags">
+          {editableJob.tags.map((tag, index) =>
+            isEditing ? (
+              <input
+                key={index}
+                type="text"
+                value={tag}
+                onChange={(e) =>
+                  handleArrayChange("tags", index, e.target.value)
+                }
+              />
+            ) : (
+              <span key={index}>{tag}</span>
+            )
+          )}
         </div>
       </div>
+      {isEditing && (
+  <div className="bottom-buttons">
+    <button className="save-btn" onClick={handleSave}>
+      <FaSave /> Save
+    </button>
+    <button className="cancel-btn" onClick={handleEditToggle}>
+      <FaTimes /> Cancel
+    </button>
+  </div>
+)}
 
-      <div className="admincarrier1-career-back">
-        {/* <button className="admincarrier1-back-btn" onClick={() => navigate(-1)}>
-          <FaArrowLeft /> Back
-        </button> */}
-      </div>
+
+      
     </div>
   );
 };

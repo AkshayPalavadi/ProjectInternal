@@ -19,7 +19,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
     if (token && storedRole) {
       setIsLoggedIn(true);
       setUserRole(storedRole);
-      navigate(storedRole === "admin" ? "/admin" : "/employee/home", { replace: true });
+      navigate(storedRole === "admin" ? "/admin" : "/employee", { replace: true });
     }
   }, []);
   const checkIfUserExists = async (email) => {
@@ -28,6 +28,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
     const data = await res.json();
     console.log("✅ Check user API:", data);
 
+<<<<<<< HEAD
     const exists = !!data.employee;
 
     // Preserve local truth of applicationSubmitted if we already have it
@@ -46,10 +47,17 @@ const handleSubmit = async (e) => {
   e.preventDefault();
   setError("");
 
+=======
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+
+>>>>>>> 953f64225d4d3d8cee7d4d45d9d12ff74bd34772
   if (!email.endsWith("@dhatvibs.com")) {
     setError("Only @dhatvibs.com email addresses are allowed.");
     return;
   }
+<<<<<<< HEAD
 
   // ✅ Step 1: Check user existence
   const { exists, applicationSubmitted } = await checkIfUserExists(email);
@@ -92,12 +100,60 @@ const handleSubmit = async (e) => {
   }
 };
 
+=======
+
+  try {
+    // Step 1: Login user
+    const response = await fetch("https://internal-website-rho.vercel.app/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const result = await response.json();
+    console.log("📦 Login API Response:", result);
+
+    if (response.ok && result.token) {
+      // ✅ Save token
+      localStorage.setItem("token", result.token);
+
+      // Step 2: Fetch employee details
+      const empResponse = await fetch("https://internal-website-rho.vercel.app/api/auth");
+      const empResult = await empResponse.json();
+      console.log("📦 Employees API Response:", empResult);
+
+      const user = empResult.employees.find((emp) => emp.email === email);
+
+      if (user) {
+        // ✅ Store user details
+        localStorage.setItem("employeeName", `${user.firstName} ${user.lastName}`);
+        localStorage.setItem("userEmail", user.email);
+        localStorage.setItem("employeeId", user.employeeId);
+        localStorage.setItem("userRole", user.role);
+
+        setIsLoggedIn(true);
+        setUserRole(user.role);
+
+        // ✅ Navigate based on actual role
+        navigate(user.role === "admin" ? "/admin" : "/employee");
+      } else {
+        setError("User data not found.");
+      }
+    } else {
+      setError(result.msg || "Invalid email or password");
+    }
+  } catch (err) {
+    console.error("🚨 Error:", err);
+    setError("Server not reachable. Please try again later.");
+  }
+};
+>>>>>>> 953f64225d4d3d8cee7d4d45d9d12ff74bd34772
 
   return (
-    <div className="login-main-container">
-      <div className="headerlogin">
+    <div className="loginpage-login-main-container">
+      <div className="loginpage-headerlogin">
         <img src={logo} alt="logo" />
-        <div className="title">
+        <div className="loginpage-title">
           <h1>DhaTvi Business Solutions Pvt. Ltd.</h1>
           <p style={{ paddingTop: "15px" }}>
             <i>Driving Technology Delivering Trust</i>
@@ -126,7 +182,7 @@ const handleSubmit = async (e) => {
           />
 
           <label>Password :</label>
-          <div className="password-input">
+          <div className="loginpage-password-input">
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
@@ -136,25 +192,25 @@ const handleSubmit = async (e) => {
               autoComplete="off"
             />
             <span
-              className="eye-icon"
+              className="loginpage-eye-icon"
               onClick={() => setShowPassword(!showPassword)}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
 
-          <div className="reset-password-link">
+          <div className="loginpage-reset-password-link">
             <Link to="/reset-password">Reset Password?</Link>
           </div>
 
-          {error && <p className="error">{error}</p>}
+          {error && <p className="loginpage-error">{error}</p>}
 
           <button type="submit">Login</button>
 
-          <p className="register-link-text">
-            Don’t have an account?{" "}
+          <p className="loginpage-register-link-text">
+            Don't have an account?{" "}
             <span
-              className="register-link"
+              className="loginpage-register-link"
               onClick={() => navigate("/register")}
             >
               Register

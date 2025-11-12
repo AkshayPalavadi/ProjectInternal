@@ -1,6 +1,9 @@
-import React, { useMemo, useState, useRef } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import Select from "react-select";
 import "./TimeSheet.css";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 
 export default function TimeSheet() {
   // --- State ---
@@ -8,12 +11,119 @@ export default function TimeSheet() {
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
   const [entries, setEntries] = useState({});
+
+  // --- Persist entries in localStorage ---
+useEffect(() => {
+  const savedEntries = localStorage.getItem("timesheetEntries");
+  if (savedEntries) {
+    setEntries(JSON.parse(savedEntries));
+  }
+}, []);
+
+useEffect(() => {
+  localStorage.setItem("timesheetEntries", JSON.stringify(entries));
+}, [entries]);
+
   const [category, setCategory] = useState("");
   const [projectName, setProjectName] = useState(null);
   const [projectCode, setProjectCode] = useState(null);
   const [projectType, setProjectType] = useState("billable");
   const [hours, setHours] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+    const [pendingRequests, setPendingRequests] = useState([]);
+    const [fromDate, setFromDate] = useState("");
+    const [toDate, setToDate] = useState("");
+    const [error, setError] = useState("");
+
+
+  // 🟢 Holidays from API
+  const [holidays, setHolidays] = useState([]);
+    // --- Fetch Holidays from API ---
+useEffect(() => {
+  const fetchHolidays = async () => {
+    try {
+      const res = await fetch("https://internal-website-rho.vercel.app/api/holidays");
+      if (!res.ok) throw new Error("Failed to fetch holidays");
+      const data = await res.json();
+      console.log("Holiday API response:", data);
+
+      let holidaysArray = [];
+
+      if (Array.isArray(data)) {
+        holidaysArray = data;
+      } else if (Array.isArray(data.holidays)) {
+        holidaysArray = data.holidays;
+      } else if (Array.isArray(data.data)) {
+        holidaysArray = data.data;
+      }
+
+      // normalize key names
+      const normalized = holidaysArray.map((h) => ({
+        date: (h.date || h.holiday_date).split("T")[0],
+        name: h.name || h.holiday_name || "Public Holiday",
+      }));
+
+      setHolidays(normalized);
+    } catch (err) {
+      console.error("Error fetching holidays:", err);
+      setHolidays([]);
+    }
+  };
+  fetchHolidays();
+}, []);
+
+// ✅ Fetch existing timesheet entries from backend when component mounts or month/year changes
+useEffect(() => {
+  const fetchTimesheetEntries = async () => {
+    try {
+      const res = await fetch(
+        `https://internal-website-rho.vercel.app/api/timesheet?month=${month + 1}&year=${year}`
+      );
+      if (!res.ok) throw new Error("Failed to fetch timesheet entries");
+
+      const data = await res.json();
+
+      // ✅ Convert backend entries (with ISO date) into your local entries state
+      const formattedEntries = {};
+      if (Array.isArray(data)) {
+        data.forEach((entry) => {
+          const dateObj = new Date(entry.date);
+          const key = dateObj.toISOString().split("T")[0]; // e.g. "2025-11-04"
+
+          formattedEntries[key] = {
+            category: entry.category,
+            projectName: entry.projectName,
+            projectCode: entry.projectCode,
+            projectType: entry.projectType,
+            hours: entry.hours,
+            date: key,
+          };
+        });
+      }
+
+      setEntries(formattedEntries);
+      console.log("✅ Loaded timesheet entries:", formattedEntries);
+    } catch (err) {
+      console.error("❌ Error loading timesheet entries:", err);
+    }
+  };
+
+  fetchTimesheetEntries();
+}, [month, year]);
+
+
+
+    const holidaysSet = useMemo(() => new Set(holidays.map((h) => h.date)), [holidays]);
+
+const isOverdue = (dateObj) => {
+  const key = fmtKey(dateObj);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today - dateObj) / (1000 * 60 * 60 * 24));
+ 
+  // Overdue if no hours entered and older than 2 days
+  return !entries[key] && diffDays > 2;
+};
 
   const formRef = useRef(null);
   const calendarRef = useRef(null);
@@ -67,16 +177,18 @@ export default function TimeSheet() {
     },
   };
 
-  // Holidays placeholder
-  const holidaysSet = useMemo(() => new Set(), []);
 
-  const fmtKey = (d) => `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+  const fmtKey = (d) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
+      d.getDate()
+    ).padStart(2, "0")}`;
+
   const monthName = useMemo(
     () => new Date(year, month).toLocaleString("default", { month: "long" }),
     [month, year]
   );
 
-  const handlePrev = () => {
+   const handlePrev = () => {
     if (month === 0) {
       setMonth(11);
       setYear((y) => y - 1);
@@ -100,7 +212,7 @@ export default function TimeSheet() {
 
   const isDateEditable = (dateObj) => {
     const key = fmtKey(dateObj);
-    if (holidaysSet.has(key)) return false;
+    if (holidaysSet.has(key)) return false; // disable editing on holidays
     const entryDate = new Date(dateObj);
     entryDate.setHours(0, 0, 0, 0);
     const today = new Date();
@@ -110,57 +222,103 @@ export default function TimeSheet() {
   };
 
   const buildWeeks = () => {
-    const weeks = [];
-    const firstOfMonth = new Date(year, month, 1);
-    const start = new Date(firstOfMonth);
-    start.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
-    const cells = [];
-    for (let i = 0; i < 42; i++) {
-      const d = new Date(start);
-      d.setDate(start.getDate() + i);
-      cells.push(d);
+  const firstOfMonth = new Date(year, month, 1);
+  const lastOfMonth = new Date(year, month + 1, 0);
+  const totalDays = lastOfMonth.getDate();
+
+  const weeks = [];
+  let currentWeek = [];
+
+  // --- Fill empty slots before the 1st day ---
+  for (let i = 0; i < firstOfMonth.getDay(); i++) {
+    currentWeek.push(null); // placeholder
+  }
+
+  // --- Fill actual days ---
+  for (let day = 1; day <= totalDays; day++) {
+    const dateObj = new Date(year, month, day);
+    currentWeek.push(dateObj);
+
+    // When week is full (7 days), push it
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek);
+      currentWeek = [];
     }
-    for (let w = 0; w < 6; w++) {
-      weeks.push(cells.slice(w * 7, w * 7 + 7));
+  }
+
+  // --- Fill empty slots after last day ---
+  if (currentWeek.length > 0) {
+    while (currentWeek.length < 7) {
+      currentWeek.push(null); // placeholder
     }
-    return weeks;
-  };
+    weeks.push(currentWeek);
+  }
+
+  return weeks;
+};
+
+
 
   const weeks = buildWeeks();
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!selectedDate) return alert("Select a date first!");
+  if (!isDateEditable(selectedDate))
+    return alert("Cannot update timesheet for holidays or older than 2 days.");
+  if (!projectName || !projectCode) return alert("Select project and code!");
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!selectedDate) return alert("Select a date first!");
-    if (!isDateEditable(selectedDate))
-      return alert("Cannot update timesheet for holidays or older than 2 days.");
-    if (!projectName || !projectCode) return alert("Select project and code!");
+  const key = fmtKey(selectedDate);
+  const h = parseFloat(hours || 0);
+  if (isNaN(h) || h < 0 || h > 24) return alert("Enter valid hours (0 - 24).");
 
-    const key = fmtKey(selectedDate);
-    const h = parseFloat(hours || 0);
-    if (isNaN(h) || h < 0 || h > 9) return alert("Enter valid hours (0 - 9).");
+  // Update local state first
+  const newEntry = {
+    category,
+    projectName: projectName.value,
+    projectCode: projectCode.value,
+    projectType,
+    hours: h,
+    date: key,
+  };
 
-    setEntries({
-      ...entries,
-      [key]: {
-        category,
-        projectName: projectName.value,
-        projectCode: projectCode.value,
-        projectType,
-        hours: h,
+  setEntries({
+    ...entries,
+    [key]: newEntry,
+  });
+
+  try {
+    // 🔹 Send to backend API
+    const response = await fetch("https://internal-website-rho.vercel.app/api/timesheet/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
+      body: JSON.stringify(newEntry),
     });
 
-    // reset form
-    setCategory("");
-    setProjectName(null);
-    setProjectCode(null);
-    setProjectType("billable");
-    setHours("");
+    if (!response.ok) throw new Error("Failed to save timesheet entry");
 
-    if (calendarRef.current)
-      calendarRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+    const result = await response.json();
+    console.log("✅ Timesheet saved successfully:", result);
+    alert("Timesheet saved successfully!");
+
+  } catch (err) {
+    console.error("❌ Error saving timesheet:", err);
+    alert("Failed to save timesheet. Please try again later.");
+  }
+
+  // reset form
+  setCategory("");
+  setProjectName(null);
+  setProjectCode(null);
+  setProjectType("billable");
+  setHours("");
+
+  if (calendarRef.current)
+    calendarRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+};
+
 
   const sameDay = (a, b) =>
     a &&
@@ -169,11 +327,58 @@ export default function TimeSheet() {
     a.getMonth() === b.getMonth() &&
     a.getDate() === b.getDate();
 
+     const exportToExcel = () => {
+    const allEntries = Object.entries(entries).map(([key, entry]) => {
+      const [yearVal, monthVal, dayVal] = key.split("-").map(Number);
+      return {
+        Date: `${dayVal}/${monthVal}/${yearVal}`,
+        Category: entry.category || "N/A",
+        "Project Name": entry.projectName || "N/A",
+        "Project Code": entry.projectCode || "N/A",
+        "Project Type": entry.projectType || "N/A",
+        Hours: entry.hours || 0,
+      };
+    });
+
+    if (allEntries.length === 0) {
+      alert("No timesheet data available to export!");
+      return;
+    }
+
+    const worksheet = XLSX.utils.json_to_sheet(allEntries);
+
+    // Protect the sheet by marking cells as read-only (non-editable)
+    Object.keys(worksheet).forEach((key) => {
+      if (key[0] !== "!") worksheet[key].s = { protection: { locked: true } };
+    });
+
+    worksheet["!protect"] = {
+      password: "timesheet", // sheet protection password
+      selectLockedCells: true,
+      selectUnlockedCells: false,
+    };
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Timesheet");
+
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+      cellStyles: true,
+    });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    saveAs(blob, `Timesheet_${year}_${month + 1}.xlsx`);
+  };
+
+
   return (
     <div className="timesheet-container">
       {/* Calendar */}
       <div ref={calendarRef}>
-        <header className="header-timesheet">
+        <header className="header">
           <button onClick={handlePrev}>&lt;</button>
           <h2>
             {monthName} {year}
@@ -192,68 +397,190 @@ export default function TimeSheet() {
 
         <div className="weeks-wrapper">
           {weeks.map((week, wi) => {
-            const weekTotal = week.reduce((sum, dateObj) => {
-              const key = fmtKey(dateObj);
-              return sum + ((entries[key] && entries[key].hours) || 0);
-            }, 0);
+             const weekTotal = week.reduce((sum, dateObj) => {
+                if (!dateObj) return sum; // ✅ prevents error
+                const key = fmtKey(dateObj);
+                return sum + ((entries[key] && entries[key].hours) || 0);
+              }, 0);
 
             return (
               <div className="week-row" key={wi}>
-                {week.map((dateObj, ci) => {
-                  const key = fmtKey(dateObj);
-                  const entry = entries[key];
-                  const currentMonth = dateObj.getMonth() === month && dateObj.getFullYear() === year;
-                  const editable = isDateEditable(dateObj);
-                  const isSunday = dateObj.getDay() === 0;
+              {week.map((dateObj, ci) => {
+                // handle placeholder (null) cells for alignment
+                if (!dateObj) {
+                  return <div key={ci} className="cell empty"></div>;
+                }
 
-                  const hoursValue = entry?.hours ?? null;
+                const key = fmtKey(dateObj);
+                const entry = entries[key];
+                const currentMonth = dateObj.getMonth() === month && dateObj.getFullYear() === year;
+                const editable = isDateEditable(dateObj);
+                const isSunday = dateObj.getDay() === 0;
+                const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+                const holiday = holidays.find((h) => h.date === dateStr);
+                const hoursValue = entry?.hours ?? null;
 
-                  let cellClass = "cell";
-                  if (!currentMonth) cellClass += " other-month";
-                  if (hoursValue >= 9) cellClass += " cell-green";
-                  else if (hoursValue > 0) cellClass += " cell-yellow";
-                  else if (hoursValue === 0) cellClass += " cell-red";
-                  if (dateObj.getDay() === 6) cellClass += " weekend";
-                  if (isSunday) cellClass += " sunday-cell";
-                  if (!editable) cellClass += " not-editable";
-                  if (sameDay(selectedDate, dateObj)) cellClass += " selected-day";
+                let cellClass = "cell";
+                if (!currentMonth) cellClass += " other-month";
+                if (holiday) cellClass += " holiday";
+                if (hoursValue >= 9) cellClass += " cell-green";
+                else if (hoursValue > 0) cellClass += " cell-yellow";
+                else if (hoursValue === 0) cellClass += " cell-red";
+                if (dateObj.getDay() === 6) cellClass += " weekend";
+                if (isSunday) cellClass += " sunday-cell";
+                if (!editable) cellClass += " not-editable";
+                if (sameDay(selectedDate, dateObj)) cellClass += " selected-day";
 
-                  return (
-                    <div
-                      key={ci}
-                      className={cellClass}
-                      onClick={() => {
-                        if (!currentMonth) {
-                          setMonth(dateObj.getMonth());
-                          setYear(dateObj.getFullYear());
-                        }
-                        setSelectedDate(new Date(dateObj));
-                        if (entries[key]) setShowPopup(true);
-                        if (formRef.current)
-                          formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-                      }}
-                    >
-                      <div className="day">{dateObj.getDate()}</div>
-                      {entry && <div className="hours">{entry.hours}h</div>}
-                    </div>
-                  );
-                })}
+                return (
+                  <div
+                    key={ci}
+                    className={cellClass}
+                    title={
+                      holiday
+                        ? `Public Holiday: ${holiday.name}`
+                        : dateObj > new Date()
+                        ? "Future date (not allowed)"
+                        : ""
+                    }
+                    onClick={() => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      if (dateObj > today) return;
+
+                      if (!currentMonth) {
+                        setMonth(dateObj.getMonth());
+                        setYear(dateObj.getFullYear());
+                      }
+
+                      setSelectedDate(new Date(dateObj));
+                      if (entries[key]) setShowPopup(true);
+                      if (formRef.current)
+                        formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                  >
+                    <div className="day">{dateObj.getDate()}</div>
+                    {holiday && <div className="holiday-dot"></div>}
+                    {entry && <div className="hours">{entry.hours}h</div>}
+                  </div>
+                );
+              })}
+
                 <div className="week-total-cell">{weekTotal.toFixed(1)}h</div>
               </div>
             );
           })}
+
+          <div className="total-summary-container" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 0 }}>
+           <div className="working-days">
+              <h3>
+                Working Days: {
+                  Object.entries(entries).filter(([key, entry]) => {
+                    const [y, m] = key.split('-').map(Number);
+                    return y === year && m === month + 1 && entry.hours > 0;
+                  }).length
+                }
+              </h3>
+            </div>
+
+            <div className="total-summary">
+              <h3>Monthly Total: {totalHours.toFixed(1)} hours</h3>
+            </div>
+          </div>
+
+
+
+          {selectedDate && (
+  <div className="selected-date-display" style={{ marginTop: 12 }}>
+{selectedDate && (
+  <div
+    className="selected-date-display"
+    style={{
+      marginTop: 12,
+      display: "flex",
+      alignItems: "center",
+      gap: "15px",
+    }}
+  >
+    <span>📅 Selected Date:</span>
+    <strong>{selectedDate.toDateString()}</strong>
+
+    {/* 🟢 Export to Excel Button */}
+    {/* <button
+      style={{
+        fontSize: "0.8rem",
+        background: "#1976d2",
+        color: "#fff",
+        border: "none",
+        borderRadius: "5px",
+        padding: "4px 8px",
+        cursor: "pointer",
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        exportToExcel();
+      }}
+    >
+      Export Timesheet to Excel
+    </button> */}
+
+    {/* Manager Request Button */}
+    {isOverdue(selectedDate) && selectedDate <= new Date() && (
+      <button
+        style={{
+          fontSize: "0.8rem",
+          background: "#ff7043",
+          color: "#fff",
+          border: "none",
+          borderRadius: "5px",
+          padding: "4px 6px",
+          cursor: "pointer",
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          const key = fmtKey(selectedDate);
+
+          const existingRequest = pendingRequests.find(
+            (r) => r.date === key
+          );
+          if (existingRequest) {
+            alert("You have already requested manager approval for this date!");
+            return;
+          }
+
+          setPendingRequests([
+            ...pendingRequests,
+            { date: key, status: "pending" },
+          ]);
+          alert(`Request sent for ${selectedDate.toDateString()}`);
+        }}
+      >
+        Request Manager Approval
+      </button>
+    )}
+  </div>
+)}
+  <button
+      style={{
+        fontSize: "0.8rem",
+        background: "#1976d2",
+        color: "#fff",
+        border: "none",
+        borderRadius: "5px",
+        padding: "4px 8px",
+        cursor: "pointer",
+      }}
+      onClick={(e) => {
+        e.stopPropagation();
+        exportToExcel();
+      }}
+    >
+      Export Timesheet to Excel
+    </button>
+  </div>
+)}
+
         </div>
       </div>
-
-      <div className="summary total-summary" style={{ marginTop: 18 }}>
-        <h3>Monthly Total: {totalHours.toFixed(1)} hours</h3>
-      </div>
-
-      {selectedDate && (
-        <div className="selected-date-display" style={{ marginTop: 12 }}>
-          <span>📅 Selected Date:</span> <strong>{selectedDate.toDateString()}</strong>
-        </div>
-      )}
 
       {/* --- Entry Form --- */}
       <form className="entry-form" onSubmit={handleSubmit} ref={formRef} style={{ marginTop: 20 }}>
@@ -321,29 +648,29 @@ export default function TimeSheet() {
 
         {/* Project Type */}
         <div className="project-type">
-          <label>Project Type:</label>
-          <div className="radio-group">
-            <label>
-              <input
-                type="radio"
-                name="projectType"
-                value="billable"
-                checked={projectType === "billable"}
-                onChange={(e) => setProjectType(e.target.value)}
-              />
-              <span>Billable</span>
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="projectType"
-                value="non-billable"
-                checked={projectType === "non-billable"}
-                onChange={(e) => setProjectType(e.target.value)}
-              />
-              <span>Non-Billable</span>
-            </label>
-          </div>
+          <label className="project-type-label">Project Type:</label>
+
+          <label className={`radio-option ${projectType === "billable" ? "selected" : ""}`}>
+            <input
+              type="radio"
+              name="projectType"
+              value="billable"
+              checked={projectType === "billable"}
+              onChange={(e) => setProjectType(e.target.value)}
+            />
+            <span>Billable</span>
+          </label>
+
+          <label className={`radio-option ${projectType === "non-billable" ? "selected" : ""}`}>
+            <input
+              type="radio"
+              name="projectType"
+              value="non-billable"
+              checked={projectType === "non-billable"}
+              onChange={(e) => setProjectType(e.target.value)}
+            />
+            <span>Non-Billable</span>
+          </label>
         </div>
 
         {/* Hours */}
@@ -351,14 +678,26 @@ export default function TimeSheet() {
           <label>Hours:</label>
           <input
             type="number"
-            min="0"
+            min="1"
             max="9"
-            step="0.1"
             value={hours}
-            onChange={(e) => setHours(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (
+              val === "" ||
+              (parseInt(val, 10) >= 1 && parseInt(val, 10) <= 9
+              )){
+              setHours(val);
+              setError("");
+            } else {
+              setError("Please enter a hours between 1 and 9.");
+            }
+                }}           
             required
           />
+          {error && <p className="error-text">{error}</p>}
         </div>
+
         <button type="submit">Save Entry</button>
       </form>
 

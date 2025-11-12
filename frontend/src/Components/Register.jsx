@@ -127,19 +127,19 @@ const Register = () => {
   };
 
   return (
-    <div className="emp-register-container">
-      <div className="emp-register-left">
-        <img src={logo} alt="DhaTvi Logo" className="emp-logo" />
+    <div className="registerpage-emp-register-container">
+      <div className="registerpage-emp-register-left">
+        <img src={logo} alt="DhaTvi Logo" className="registerpage-emp-logo" />
         <h1>
-          Welcome to <span className="emp-highlight">DhaTvi</span>
+          Welcome to <span className="registerpage-emp-highlight">DhaTvi</span>
         </h1>
-        <p className="emp-content">
+        <p className="registerpage-emp-content">
           Build your professional journey with us! Create your account to get
           started.
         </p>
       </div>
 
-      <div className="emp-register-form">
+      <div className="registerpage-emp-register-form">
         <h2>Register</h2>
         <form onSubmit={handleSubmit} autoComplete="off">
           {/* Hidden fields to stop autofill */}
@@ -186,11 +186,11 @@ const Register = () => {
             onChange={handleChange}
             required
           />
-          {errors.email && <p className="emp-error">{errors.email}</p>}
+          {errors.email && <p className="registerpage-emp-error">{errors.email}</p>}
 
-          <div className="emp-phone-group">
+          <div className="registerpage-emp-phone-group">
             <select
-              className="emp-countrycode"
+              className="registerpage-emp-countrycode"
               name="countryCode"
               value={formData.countryCode}
               onChange={handleChange}
@@ -203,7 +203,7 @@ const Register = () => {
             </select>
 
             <input
-              className="emp-phonenumber"
+              className="registerpage-emp-phonenumber"
               type="tel"
               name="phone"
               placeholder="Phone Number"
@@ -212,11 +212,11 @@ const Register = () => {
               required
             />
           </div>
-          {errors.phone && <p className="emp-error">{errors.phone}</p>}
+          {errors.phone && <p className="registerpage-emp-error">{errors.phone}</p>}
 
-          <div className="emp-password-group">
+          <div className="registerpage-emp-password-group">
             <input
-              className="emp-password-input"
+              className="registerpage-emp-password-input"
               type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Password"
@@ -225,17 +225,17 @@ const Register = () => {
               required
             />
             <span
-              className="emp-eye-icon"
+              className="registerpage-emp-eye-icon"
               onClick={() => setShowPassword((prev) => !prev)}
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
-          {errors.password && <p className="emp-error">{errors.password}</p>}
+          {errors.password && <p className="registerpage-emp-error">{errors.password}</p>}
 
-          <div className="emp-password-group">
+          <div className="registerpage-emp-password-group">
             <input
-              className="emp-password-input"
+              className="registerpage-emp-password-input"
               type={showConfirmPassword ? "text" : "password"}
               name="confirmPassword"
               placeholder="Confirm Password"
@@ -244,25 +244,25 @@ const Register = () => {
               required
             />
             <span
-              className="emp-eye-icon"
+              className="registerpage-emp-eye-icon"
               onClick={() => setShowConfirmPassword((prev) => !prev)}
             >
               {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
           </div>
           {errors.confirmPassword && (
-            <p className="emp-error">{errors.confirmPassword}</p>
+            <p className="registerpage-emp-error">{errors.confirmPassword}</p>
           )}
 
-          <button className="submit-reg" type="submit">
+          <button className="registerpage-submit-reg" type="submit">
             Submit
           </button>
         </form>
 
-        <p className="emp-login-text">
+        <p className="registerpage-emp-login-text">
           Already have an account?{" "}
           <span
-            className="emp-login-link"
+            className="registerpage-emp-login-link"
             onClick={(e) => {
               e.preventDefault();
               navigate("/login");

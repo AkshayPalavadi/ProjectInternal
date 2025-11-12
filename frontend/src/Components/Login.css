@@ -1,5 +1,5 @@
 /* 🌿 Main Container */
-.login-main-container {
+.loginpage-login-main-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -13,7 +13,8 @@
   font-family: Arial, sans-serif;
 }
 
-.login-container-employee {
+/* 🧱 Login Box */
+.loginpage-login-container {
   margin-top: -40px;
   background: #fff;
   padding: 30px 40px;
@@ -24,25 +25,25 @@
 }
 
 /* 🧩 Header */
-.headerlogin {
+.loginpage-headerlogin {
   display: flex;
   align-items: center;
   gap: 15px;
 }
 
-.headerlogin img {
+.loginpage-headerlogin img {
   width: 100px;
   border-radius: 50%;
   margin: 10px;
 }
 
-.headerlogin h1 {
+.loginpage-headerlogin h1 {
   font-size: 30px;
   margin: 0;
   color: #333;
 }
 
-.headerlogin p {
+.loginpage-headerlogin p {
   text-align: center;
   font-size: 15px;
   color: #555;
@@ -56,27 +57,28 @@ hr {
   border-top: 1px solid #ddd;
 }
 
-.heading-employee {
+/* 💡 Login Form */
+.loginpage-heading {
   text-align: center;
   font-size: 30px;
   margin-bottom: 20px;
   color: #2c3e50;
 }
 
-.login-form-employee {
+.loginpage-login-form {
   display: flex;
   flex-direction: column;
 }
 
-.login-form-employee label {
+.loginpage-login-form label {
   font-size: 14px;
   font-weight: bold;
   margin-bottom: 5px;
   color: #333;
 }
 
-.login-form-employee input,
-.login-form-employee select {
+.loginpage-login-form input,
+.loginpage-login-form select {
   padding: 12px;
   margin-bottom: 15px;
   border: 1px solid #ccc;
@@ -85,22 +87,22 @@ hr {
   transition: all 0.2s ease;
 }
 
-.login-form-employee input:focus,
-.login-form-employee select:focus {
+.loginpage-login-form input:focus,
+.loginpage-login-form select:focus {
   border-color: #4a90e2;
   outline: none;
   box-shadow: 0px 0px 4px rgba(74, 144, 226, 0.4);
 }
 
 /* 🔐 Password Input */
-.password-input {
+.loginpage-password-input {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
 }
 
-.password-input input {
+.loginpage-password-input input {
   flex: 1;
   height: 44px;
   min-width: 0;
@@ -112,13 +114,13 @@ hr {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.password-input input:focus {
+.loginpage-password-input input:focus {
   border-color: #4a90e2;
   outline: none;
   box-shadow: 0px 0px 4px rgba(74, 144, 226, 0.4);
 }
 
-.eye-icon {
+.loginpage-eye-icon {
   position: absolute;
   right: 12px;
   top: 50%;
@@ -130,21 +132,21 @@ hr {
 }
 
 /* 🧩 Reset Password Link */
-.reset-password-link {
+.loginpage-reset-password-link {
   text-align: right;
   margin-top: -10px;
   margin-bottom: 10px;
 }
 
-.reset-password-link a {
+.loginpage-reset-password-link a {
   color: #4a90e2;
   text-decoration: none;
-  font-size: 13.5px;
+  font-size: 13.loginpage-5px;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
-.reset-password-link a:hover {
+.loginpage-reset-password-link a:hover {
   color: #1e70c1;
   text-decoration: underline;
 }
@@ -172,28 +174,28 @@ button:active {
 }
 
 /* ⚠️ Error Text */
-.error {
+.loginpage-error {
   color: red;
   margin-bottom: 10px;
   text-align: center;
 }
 
 /* 🧭 Register Section */
-.register-link-text {
+.loginpage-register-link-text {
   margin-top: 15px;
   text-align: center;
   font-size: 14px;
   color: #444;
 }
 
-.register-link {
+.loginpage-register-link {
   color: #007bff;
   cursor: pointer;
   font-weight: 600;
   transition: 0.3s;
 }
 
-.register-link:hover {
+.loginpage-register-link:hover {
   text-decoration: underline;
   color: #0056b3;
 }

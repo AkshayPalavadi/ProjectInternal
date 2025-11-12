@@ -125,10 +125,10 @@ const handleFileChange = (e) => {
 
 const [customLeaveSummary, setCustomLeaveSummary] = useState({});
 
-const finalizeSubmit = (request) => {
-  // Update state
-  setRequests((prev) => [...prev, request]);
-  setCurrentIndex(requests.length);
+const finalizeSubmit = async (request) => {
+  setShowSubmitPopup(true);
+
+  setCustomLeaveSummary(request.leaveDetails || {});
 
   // Reset form
   setFromDate("");
@@ -142,21 +142,37 @@ const finalizeSubmit = (request) => {
   setCompoffDates([]);
   setFile(null);
 
-  setShowSubmitPopup(true);
+  // Refetch requests from backend
+  try {
+    const empId = localStorage.getItem("employeeId");
+    const response = await fetch(`https://internal-website-rho.vercel.app/api/leaves?employeeId=${empId}`);
+    if (response.ok) {
+      const data = await response.json();
+      setRequests(data);
+      setCurrentIndex(data.length - 1); // point to last request
+    }
+  } catch (error) {
+    console.error("Error updating requests:", error);
+  }
 };
 
 useEffect(() => {
-  const storedRequests = JSON.parse(localStorage.getItem("leaveRequests") || "[]");
+  const fetchRequests = async () => {
+    try {
+      const empId = localStorage.getItem("employeeId"); // get employee ID
+      const response = await fetch(`https://internal-website-rho.vercel.app/api/leaves?employeeId=${empId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setRequests(data);
+      } else {
+        console.error("Failed to fetch leave requests");
+      }
+    } catch (error) {
+      console.error("Error fetching leave requests:", error);
+    }
+  };
 
-  const loggedInEmail = localStorage.getItem("employeeEmail"); // or employeeId
-  const isAdmin = localStorage.getItem("employeeRole") === "admin"; // optional if you track roles
-
-  // ✅ Filter only current user's requests (unless admin)
-  const filteredRequests = isAdmin
-    ? storedRequests
-    : storedRequests.filter(req => req.employeeEmail === loggedInEmail);
-
-  setRequests(filteredRequests);
+  fetchRequests();
 }, []);
 
   const insufficientMsg =
@@ -244,8 +260,9 @@ if (
   formData.append("leaveType", leaveType);
   formData.append("reason", finalReason);
   formData.append("status", "Sent");
-  formData.append("employeeId", localStorage.getItem("employeeId") || "TEMP001");
-  formData.append("employeeName", localStorage.getItem("employeeName") || "Default Employee");
+  formData.append("employeeId", localStorage.getItem("employeeId"));
+  formData.append("employeeName", localStorage.getItem("employeeName"));
+  
   formData.append("requestDate", new Date().toISOString());
 
   // Add file only if selected
@@ -271,6 +288,7 @@ if (
         customTypes,
         leaveDetails,
         reason: finalReason,
+        file,
         status: "Sent",
       });
     } else {
@@ -293,8 +311,8 @@ const handleBackendSubmit = async (request) => {
     formData.append("leaveType", request.leaveType);
     formData.append("reason", request.reason);
     formData.append("status", request.status);
-    formData.append("employeeId", localStorage.getItem("employeeId") || "TEMP001");
-    formData.append("employeeName", localStorage.getItem("employeeName") || "Default Employee");
+    formData.append("employeeId", localStorage.getItem("employeeId"));
+    formData.append("employeeName", localStorage.getItem("employeeName"));
     formData.append("requestDate", new Date().toISOString());
     formData.append("customTypes", JSON.stringify(request.customTypes || []));
     formData.append("leaveDetails", JSON.stringify(request.leaveDetails || {}));
@@ -400,8 +418,8 @@ const handleBackendSubmit = async (request) => {
   };
 
   return (
-    <div className="leaves-page">
-      <div className="tabs">
+    <div className="employeeleaves-leaves-page">
+      <div className="employeeleaves-tabs">
         <button
           className={activeTab === "form" ? "tab active" : "tab"}
           onClick={() => setActiveTab("form")}
@@ -417,11 +435,11 @@ const handleBackendSubmit = async (request) => {
       </div>
 
       {activeTab === "form" ? (
-        <div className="form-box">
+        <div className="employeeleaves-form-box">
           <h2>Employee Leave</h2>
 
           <form onSubmit={handleSubmit}>
-            <div className="form-group">
+            <div className="employeeleaves-form-group">
               <label><strong>From Date</strong></label>
              <input
                 type="date"
@@ -441,7 +459,7 @@ const handleBackendSubmit = async (request) => {
               />
             </div>
 
-            <div className="form-group">
+            <div className="employeeleaves-form-group">
               <label><strong>To Date</strong></label>
                 <input
                   type="date"
@@ -461,9 +479,9 @@ const handleBackendSubmit = async (request) => {
                 />
             </div>
 
-            <p>Total Days Applied: <span className="green-text">{daysApplied}</span></p>
+            <p>Total Days Applied: <span className="employeeleaves-green-text">{daysApplied}</span></p>
 
-            <div className="leave-breakdown-box">
+            <div className="employeeleaves-leave-breakdown-box">
               <ul>
                 <li><b>Leaves Left:</b></li>
                 <li>Casual : {leaveBalances.casual}/5</li>
@@ -473,7 +491,7 @@ const handleBackendSubmit = async (request) => {
               </ul>
             </div>
 
-            <div className="form-group">
+            <div className="employeeleaves-form-group">
               <label><strong>Leave Type</strong></label>
               <select
                 value={leaveType}
@@ -495,14 +513,14 @@ const handleBackendSubmit = async (request) => {
               </select>
 
               {insufficientMsg && (
-                <p className="warning-text" style={{ color: "red", marginTop: "5px" }}>
+                <p className="employeeleaves-warning-text" style={{ color: "red", marginTop: "5px" }}>
                   {insufficientMsg}
                 </p>
               )}
             </div>
 
             {leaveType === "sick" && (
-              <div className="form-group">
+              <div className="employeeleaves-form-group">
                 <label><strong>Reason</strong></label>
                 <select value={disease} onChange={(e) => setDisease(e.target.value)} required>
                   <option value="">-- Select Reason --</option>
@@ -524,9 +542,9 @@ const handleBackendSubmit = async (request) => {
             )}
 
             {leaveType === "custom" && (
-  <div className="form-group">
+  <div className="employeeleaves-form-group">
     <label><strong>Select Multiple Leave Types</strong></label>
-    <div className="checkbox-group">
+    <div className="employeeleaves-checkbox-group">
       {leaveOptions.map(opt => {
         const balance = leaveBalances[opt.id] ?? 0;
         const isCheckboxDisabled = mainLeaveTypes.includes(opt.id) && balance === 0;
@@ -539,7 +557,7 @@ const handleBackendSubmit = async (request) => {
               onChange={handleCustomCheckbox}
               disabled={isCheckboxDisabled}
             />
-            {opt.label}{opt.id in leaveBalances ? ` (${balance} left)` : ""}
+            {opt.label}
           </label>
         );
       })}
@@ -547,7 +565,7 @@ const handleBackendSubmit = async (request) => {
 
     {/* Show compoff dates if compoff is selected in customTypes */}
     {customTypes.includes("compoff") && (
-      <div className="form-group">
+      <div className="employeeleaves-form-group">
         <label><strong>Select Worked Days (Sundays)</strong></label>
         {validCompoffDates.length > 0 ? (
           validCompoffDates.map(date => (
@@ -571,7 +589,7 @@ const handleBackendSubmit = async (request) => {
 
 
             {leaveType === "compoff" && (
-              <div className="form-group">
+              <div className="employeeleaves-form-group">
                 <label><strong>Select Worked Days (Sundays)</strong></label>
                 {validCompoffDates.length > 0 ? (
                   validCompoffDates.map(date => (
@@ -585,13 +603,13 @@ const handleBackendSubmit = async (request) => {
             )}
 
             {leaveType !== "sick" && (
-              <div className="form-group">
+              <div className="employeeleaves-form-group">
                 <label><strong>Reason</strong></label>
                 <input type="text" placeholder="Reason for leave" value={reason} onChange={e => setReason(e.target.value)} required />
               </div>
             )}
 
-            <div className="form-group">
+            <div className="employeeleaves-form-group">
               <label><strong>Upload Document</strong></label>
               <input
   type="file"
@@ -602,13 +620,13 @@ const handleBackendSubmit = async (request) => {
 
             </div>
 
-            <button type="submit" className="submit-btn">Submit</button>
+            <button type="submit" className="employeeleaves-submit-btn">Submit</button>
           </form>
 
           {/* {submitted && status === "sent" && (
             <button
               onClick={handleManagerApproval}
-              className="submit-btn"
+              className="employeeleaves-submit-btn"
               style={{ marginTop: "12px", background: "green" }}
             >
               Manager Approve
@@ -616,23 +634,29 @@ const handleBackendSubmit = async (request) => {
           )} */}
         </div>
       ) : (
-        <div className="requests-box">
+        <div className="employeeleaves-form-box">
+        <div className="employeeleaves-requests-box">
           <h2>My Leave Requests</h2>
           {requests.length === 0 ? (
             <p>No leave requests submitted yet.</p>
           ) : (
-            <History requests={requests} onDelete={handleDeleteRequest} />
+            <History 
+  requests={requests.filter(req => req.employeeId === localStorage.getItem("employeeId"))} 
+  onDelete={handleDeleteRequest} 
+/>
+
           )}
+        </div>
         </div>
       )}
 
       {showSubmitPopup && (
-        <div className="popup-overlay">
-          <div className="popup-box">
+        <div className="employeeleaves-popup-overlay">
+          <div className="employeeleaves-popup-box">
             <h3>✅ Leave Submitted!</h3>
             <p>Your leave request has been submitted successfully.</p>
             {Object.keys(customLeaveSummary).length > 0 && (
-  <div className="custom-summary">
+  <div className="employeeleaves-custom-summary">
     <h4>Custom Leave Breakdown:</h4>
     <ul>
       {Object.entries(customLeaveSummary).map(([type, days]) => (
@@ -657,8 +681,8 @@ const handleBackendSubmit = async (request) => {
       )}
 
       {showGrantedPopup && (
-        <div className="popup-overlay">
-          <div className="popup-box">
+        <div className="employeeleaves-popup-overlay">
+          <div className="employeeleaves-popup-box">
             <h3>🎉 Leave Granted!</h3>
             <p>Your leave has been approved.</p>
             <button onClick={() => setShowGrantedPopup(false)}>Close</button>
@@ -667,16 +691,16 @@ const handleBackendSubmit = async (request) => {
       )}
 
       {showCustomConfirmPopup && (
-        <div className="popup-overlay">
-          <div className="popup-box">
+        <div className="employeeleaves-popup-overlay">
+          <div className="employeeleaves-popup-box">
             <h3>⚠️ Insufficient Leave Balance</h3>
             <p>
               The number of days available is less than you applied.
               Do you want to continue with LOP?
             </p>
             <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
-              <button onClick={handleConfirmYes} className="submit-btn">Yes</button>
-              <button onClick={handleConfirmNo} className="delete-btn">No</button>
+              <button onClick={handleConfirmYes} className="employeeleaves-submit-btn">Yes</button>
+              <button onClick={handleConfirmNo} className="employeeleaves-delete-btn">No</button>
             </div>
           </div>
         </div>

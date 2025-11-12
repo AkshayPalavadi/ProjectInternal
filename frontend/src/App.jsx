@@ -23,7 +23,7 @@ import AdminProjects from "./Components/Admin/AdminProjects.jsx";
 import AdminCareer from "./Components/Admin/AdminCareers.jsx";
 import AdminCarrier1 from "./Components/Admin/AdminCarrier1.jsx";
 import AdminJobform from "./Components/Admin/AdminJobform.jsx";
-import AdminJobApplicants from "./Components/Admin/AdminJobapplicants.jsx";
+import AdminJobApplicants from "./Components/Admin/AdminJobApplicants.jsx";
 import MonthJobApplicants from "./Components/Admin/MonthJobApplicants.jsx";
 import AdminJobApplied from "./Components/Admin/AdminJobApplied.jsx";
 import AdminHiredApplicants from "./Components/Admin/AdminHiredApplicants.jsx";

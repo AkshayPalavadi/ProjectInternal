@@ -1,4 +1,4 @@
-// src/pages/LeavesAdmin.jsx
+// src/pages/LeavesEmp.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { FaFilter } from "react-icons/fa";
 import {
@@ -13,13 +13,14 @@ import {
 } from "recharts";
 import "./LeavesEmp.css";
 
-export default function LeavesAdmin() {
+export default function LeavesEmp() {
   const [leaveRequests, setLeaveRequests] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [showFilterPanel, setShowFilterPanel] = useState(false);
   const filterRef = useRef(null);
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
   const [showToDatePicker, setShowToDatePicker] = useState(false);
+  const [pendingChanges, setPendingChanges] = useState({});
 
   const [filters, setFilters] = useState({
     employeeId: "",
@@ -36,15 +37,29 @@ export default function LeavesAdmin() {
   const totalEmployees = 20;
 
 useEffect(() => {
-  const storedRequests =
-    JSON.parse(localStorage.getItem("leaveRequests")) || [];
+  const fetchLeaves = async () => {
+    try {
+      const res = await fetch("https://internal-website-rho.vercel.app/api/leaves");
+      const data = await res.json();
 
-  // Sort by most recent request time (latest first)
-// Show latest *submitted* request first
-const sortedRequests = [...storedRequests].reverse();
+      if (!Array.isArray(data)) {
+        console.error("Unexpected data format:", data);
+        return;
+      }
 
-  setLeaveRequests(sortedRequests);
-  setFilteredData(sortedRequests);
+      // Sort by latest createdAt
+      const sortedRequests = [...data].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setLeaveRequests(sortedRequests);
+      setFilteredData(sortedRequests);
+    } catch (err) {
+      console.error("Error fetching leaves:", err);
+    }
+  };
+
+  fetchLeaves();
 }, []);
 
   // Filter table data only
@@ -101,25 +116,33 @@ const handleFilterReset = () => {
     );
   };
 
-  // File view
-  const openFile = (fileData) => {
-    try {
-      if (!fileData) {
-        alert("No file available");
-        return;
-      }
-      if (typeof fileData === "string" && fileData.startsWith("data:application/pdf")) {
-        const newTab = window.open();
-        newTab.document.write(
-          `<iframe src="${fileData}" width="100%" height="100%"></iframe>`
-        );
-        return;
-      }
-      alert("Unsupported file format.");
-    } catch (err) {
-      console.error("Error opening file:", err);
+// File view
+const openFile = (fileData) => {
+  try {
+    if (!fileData) {
+      alert("No file available");
+      return;
     }
-  };
+
+    // Handle both file URLs and base64 data
+    if (fileData.path) {
+      window.open(fileData.path, "_blank");
+      return;
+    }
+
+    if (typeof fileData === "string" && fileData.startsWith("data:application/pdf")) {
+      const newTab = window.open();
+      newTab.document.write(
+        `<iframe src="${fileData}" width="100%" height="100%"></iframe>`
+      );
+      return;
+    }
+
+    alert("Unsupported file format.");
+  } catch (err) {
+    console.error("Error opening file:", err);
+  }
+};
 
   // Weekly leave data
   const getWeekData = () => {
@@ -134,9 +157,11 @@ const handleFilterReset = () => {
       const dayOfWeek = date.getDay();
       if (dayOfWeek === 0 || dayOfWeek === 6) continue;
       const isoDate = date.toISOString().split("T")[0];
-      const leavesCount = leaveRequests.filter(
-        (l) => l.fromDate <= isoDate && l.toDate >= isoDate
-      ).length;
+const leavesCount = leaveRequests.filter((l) => {
+  const from = new Date(l.fromDate).toISOString().split("T")[0];
+  const to = new Date(l.toDate).toISOString().split("T")[0];
+  return from <= isoDate && to >= isoDate;
+}).length;
       data.push({
         date: isoDate,
         leaves: leavesCount,
@@ -148,36 +173,55 @@ const handleFilterReset = () => {
 
   const weekData = getWeekData();
 
-  // Verify leave
-  const verifyLeave = (leave) => {
-    const updatedRequests = leaveRequests.map((l) =>
-      l.employeeId === leave.employeeId && l.fromDate === leave.fromDate
-        ? { ...l, status: "Approved" }
-        : l
-    );
-    localStorage.setItem("leaveRequests", JSON.stringify(updatedRequests));
-    setLeaveRequests(updatedRequests);
-    setFilteredData(updatedRequests);
-  };
+// Verify leave - binary flag (0 = Unverified, 1 = Verified)
+const verifyLeave = (leave) => {
+  setPendingChanges((prev) => ({
+    ...prev,
+    [leave._id]: {
+      ...(prev[leave._id] || {}),
+      verified: 1,
+      status: "Approved",
+    },
+  }));
 
-  // Submit HR Reason
-  const handleHRReasonSubmit = (leave, hrReason) => {
-    if (!hrReason.trim()) {
-      alert("Please enter a valid reason before submitting.");
-      return;
-    }
+  const updatedRequests = leaveRequests.map((l) =>
+    l._id === leave._id ? { ...l, verified: 1, status: "Approved" } : l
+  );
 
-    const updatedRequests = leaveRequests.map((l) =>
-      l.employeeId === leave.employeeId && l.fromDate === leave.fromDate
-        ? { ...l, hrReason }
-        : l
-    );
+  setLeaveRequests(updatedRequests);
+  setFilteredData(updatedRequests);
+};
+// Submit HR Reason and store in backend
+const handleHRReasonSubmit = (leave, hrReason) => {
+  if (!hrReason.trim()) {
+    alert("Please enter a valid HR reason before submitting.");
+    return;
+  }
 
-    localStorage.setItem("leaveRequests", JSON.stringify(updatedRequests));
-    setLeaveRequests(updatedRequests);
-    setFilteredData(updatedRequests);
-    // alert("HR Reason saved successfully!");
-  };
+  // Save locally
+  setPendingChanges((prev) => ({
+    ...prev,
+    [leave._id]: {
+      ...(prev[leave._id] || {}),
+      hrReason,
+    },
+  }));
+
+  const updatedRequests = leaveRequests.map((l) =>
+    l._id === leave._id ? { ...l, hrReason } : l
+  );
+
+  setLeaveRequests(updatedRequests);
+  setFilteredData(updatedRequests);
+  alert("HR Reason saved locally!");
+};
+
+useEffect(() => {
+  console.log("🔹 All Leave Requests:", leaveRequests);
+  console.log("🔹 Filtered Data (Table Display):", filteredData);
+  console.log("🔹 Pending Local Changes (Not yet sent to backend):", pendingChanges);
+}, [leaveRequests, filteredData, pendingChanges]);
+
 
   return (
     <div className="leavesAdmin-emp">
@@ -442,8 +486,8 @@ const handleFilterReset = () => {
                   <td>{leave.employeeName ?? "—"}</td>
                   <td>{leave.employeeDesignation ?? "—"}</td>
                   <td>{leave.employeeDepartment ?? "—"}</td>
-                  <td>{leave.fromDate ?? "—"}</td>
-                  <td>{leave.toDate ?? "—"}</td>
+                    <td>{new Date(leave.fromDate).toLocaleDateString("en-GB") ?? "—"}</td>
+                    <td>{new Date(leave.toDate).toLocaleDateString("en-GB") ?? "—"}</td>
                   <td>{leave.leaveType ?? "—"}</td>
                   <td className="reason-box">{leave.reason ?? "—"}</td>
                   <td>
@@ -463,7 +507,7 @@ const handleFilterReset = () => {
                       {leave.status ?? "Pending"}
                     </span>
                   </td>
-                <td>
+<td>
   <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
     <textarea
       className="rejection-input"
@@ -495,19 +539,24 @@ const handleFilterReset = () => {
   </div>
 </td>
 
-                  <td>
-                    {leave.status !== "Approved" ? (
-                      <button
-                        className="view-file-btn"
-                        style={{ background: "#10b981" }}
-                        onClick={() => verifyLeave(leave)}
-                      >
-                        Verify
-                      </button>
-                    ) : (
-                      <span className="status approved">Verified</span>
-                    )}
-                  </td>
+<td>
+  {leave.verified === 1 ? (
+    <span className="status approved">Verified</span>
+  ) : (
+    <button
+      className="view-file-btn"
+      style={{
+        background: leave.hrReason ? "#10b981" : "#9ca3af",
+        cursor: leave.hrReason ? "pointer" : "not-allowed",
+      }}
+      onClick={() => leave.hrReason && verifyLeave(leave)}
+      disabled={!leave.hrReason}
+    >
+      Verify
+    </button>
+  )}
+</td>
+
                 </tr>
               ))
             ) : (

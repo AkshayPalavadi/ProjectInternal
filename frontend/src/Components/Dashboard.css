@@ -1,314 +1,337 @@
-/* General Dashboard Layout */
-.dashboard-inner {
-  padding: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f6fa;
-  color: #333;
+/* 🌟 General Dashboard Layout */
+.employeedashboard-dashboard {
+  padding: 30px;
+  font-family: "Poppins", "Segoe UI", sans-serif;
+  background: linear-gradient(180deg, #f6f9fc 0%, #e9eef4 100%);
+  color: #2c3e50;
+  min-height: 100vh;
 }
 
-.dashboard-inner h1 {
+.employeedashboard-dashboard h1 {
   text-align: center;
-  margin-bottom: 30px;
-  font-size: 2rem;
-  color: #2f3640;
+  margin-bottom: 40px;
+  font-size: 2.4rem;
+  color: #1d3557;
+  letter-spacing: 1px;
+  font-weight: 700;
 }
 
-/* Row for Top Cards (Best Employee + Achievements) */
-.top-cards-row {
+/* 🌈 Top Cards Row */
+.employeedashboard-top-cards-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 40px;
+  gap: 50px;
   justify-content: center;
-  margin-bottom: 30px;
+  margin-bottom: 50px;
 }
 
-/* Best Employee Card */
-.best-employee-card {
-  background: #6bdb87;
-  border-radius: 12px;
-  padding: 20px;
-  max-width: 300px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+/* 🧑‍💼 Best Employee Card */
+.employeedashboard-best-employee-card {
+  background: linear-gradient(135deg, #b9fbc0, #8ee3ab);
+  border-radius: 18px;
+  padding: 30px;
+  width: 420px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   text-align: center;
+  position: relative;
+  transition: all 0.3s ease;
 }
 
-.best-employee-card h2 {
-  margin-bottom: 20px;
-  font-size: 1.5rem;
-  color: #2d3436;
+.employeedashboard-best-employee-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
 }
 
-.employee-content {
+.employeedashboard-best-employee-card h2 {
+  margin-bottom: 18px;
+  font-size: 1.8rem;
+  color: #1b4332;
+}
+
+.employeedashboard-employee-content {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 20px;
+  gap: 22px;
   flex-wrap: wrap;
 }
 
-.employee-content img {
-  width: 200px;
-  height: 250px;
-  border-radius: 12px;
+.employeedashboard-employee-content img {
+  width: 190px;
+  height: 230px;
+  border-radius: 14px;
   object-fit: cover;
-  border: 3px solid #d35400;
+  border: 4px solid #1b4332;
+  animation: glowPulse 3s ease-in-out infinite;
 }
 
-.employee-info h3 {
-  margin: 0 0 5px 0;
-  font-size: 1.3rem;
-  color: #2d3436;
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(27, 67, 50, 0.4); }
+  50% { box-shadow: 0 0 16px rgba(27, 67, 50, 0.7); }
 }
 
-.employee-info p {
-  margin: 5px 0;
+.employeedashboard-employee-info p {
+  margin: 6px 0;
   font-size: 1rem;
-  color: #2f3640;
+  color: #1b1b1b;
+  text-align: left;
 }
 
-/* My Achievements Card */
-.my-achievements-card {
-  background: #ffeaa7;
-  border-radius: 12px;
-  padding: 20px;
-  max-width: 450px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  text-align: left;
+.employeedashboard-employee-info b {
+  color: #004d40;
+}
+
+/* 🏆 My Achievements Card */
+.employeedashboard-my-achievements-card {
+  background: linear-gradient(135deg, #fff7cc, #fff1a3);
+  border-radius: 18px;
+  padding: 30px;
+  width: 420px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  min-height: 300px;
+  min-height: 370px;
+  transition: all 0.3s ease;
 }
 
-.my-achievements-card h2 {
-  margin-bottom: 15px;
-  font-size: 1.5rem;
-  color: #2d3436;
+.employeedashboard-my-achievements-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+.employeedashboard-my-achievements-card h2 {
+  margin-bottom: 20px;
+  font-size: 1.8rem;
+  color: #5c3d00;
   text-align: center;
+  font-weight: 700;
 }
 
-/* Tabs */
-.achievement-tabs {
+/* ⚡ New Pill Buttons */
+.employeedashboard-achievement-tabs {
   display: flex;
   justify-content: center;
-  margin-bottom: 15px;
-  gap: 10px;
+  gap: 14px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.achievement-tabs button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  background: #99cde2;
-  cursor: pointer;
+.employeedashboard-achievement-tabs button {
+  padding: 10px 22px;
+  border-radius: 50px;
+  border: 2px solid #ffb703;
+  background: white;
+  color: #5c3d00;
   font-weight: 600;
-  transition: all 0.2s ease-in-out;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
-.achievement-tabs button.active {
-  background: #0059ffcb;
+.employeedashboard-achievement-tabs button:hover {
+  background: #fff3c1;
+  box-shadow: 0 0 8px rgba(255, 183, 3, 0.4);
+}
+
+.employeedashboard-achievement-tabs button.active {
+  background: linear-gradient(135deg, #ffb703, #ffd166);
   color: #fff;
+  border: none;
+  box-shadow: 0 6px 15px rgba(255, 183, 3, 0.5);
 }
 
 /* Tab Content */
-.tab-content {
+.employeedashboard-tab-content {
   flex: 1;
   overflow-y: auto;
-  max-height: 400px;
-  padding-right: 8px;
+  padding: 0 10px;
 }
 
-.tab-content::-webkit-scrollbar {
-  width: 8px;
+.employeedashboard-tab-content ul {
+  list-style: none;
+  padding: 0;
 }
 
-.tab-content::-webkit-scrollbar-thumb {
-  background: #bbb;
-  border-radius: 8px;
+.employeedashboard-tab-content li {
+  background: #fff;
+  padding: 12px 15px;
+  margin-bottom: 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  color: #333;
+  font-weight: 500;
+  transition: all 0.25s ease;
 }
 
-.tab-content::-webkit-scrollbar-thumb:hover {
-  background: #888;
+.employeedashboard-tab-content li:hover {
+  transform: translateX(6px);
+  background: #fffbe0;
 }
 
-.no-data {
-  font-style: italic;
-  text-align: center;
-  color: #636e72;
-  margin-top: 10px;
-}
-
-/* Charts Row */
-.charts-row {
+/* 💼 Navigation Cards */
+.employeedashboard-navigation-cards-row {
   display: flex;
+  gap: 30px;
+  margin: 50px 0;
   flex-wrap: wrap;
-  gap: 20px;
-  margin-bottom: 30px;
   justify-content: center;
 }
 
-/* Chart Cards */
-.chart-card {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  padding: 20px;
-  flex: 1 1 300px;
-  max-width: 350px;
+.employeedashboard-nav-card {
+  width: 420px;
+  text-decoration: none;
+  color: #333;
+  border-radius: 16px;
+  padding: 28px 22px;
   text-align: center;
-  transition: transform 0.2s ease-in-out;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border-top: 5px solid transparent;
+  background: linear-gradient(135deg, #ffffff, #f7f9fc);
+  cursor: pointer;
 }
 
-.chart-card:hover {
+.employeedashboard-nav-card:nth-child(1) {
+  border-top-color: #007bff;
+}
+
+.employeedashboard-nav-card:nth-child(2) {
+  border-top-color: #ff9800;
+}
+
+.employeedashboard-nav-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.employeedashboard-nav-card h2 {
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+  color: #222;
+}
+
+.employeedashboard-nav-card p {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* 📊 Charts Row */
+.employeedashboard-charts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  margin-bottom: 50px;
+  justify-content: center;
+}
+
+.employeedashboard-chart-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  padding: 22px;
+  flex: 1 1 420px;
+  max-width: 460px;
+  text-align: center;
+  transition: transform 0.25s ease-in-out;
+}
+
+.employeedashboard-chart-card:hover {
   transform: translateY(-5px);
 }
 
-.chart-card.wide {
-  flex: 1 1 700px;
+.employeedashboard-chart-card.wide {
+  flex: 1 1 900px;
 }
 
-.chart-card h2 {
+.employeedashboard-chart-card h2 {
   margin-bottom: 15px;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   color: #192a56;
 }
 
-/* Custom Tooltip */
-.custom-tooltip {
-  background: #fff;
-  padding: 10px 15px;
-  border: 1px solid #dcdde1;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.custom-tooltip h4 {
-  margin: 0 0 5px 0;
-  font-size: 1rem;
-}
-
-.custom-tooltip ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.custom-tooltip li {
-  font-size: 0.9rem;
-  margin-bottom: 3px;
-}
-
-/* Projects Table */
-.completed-projects {
-  margin-top: 30px;
+/* 📋 Projects Table */
+.employeedashboard-completed-projects {
+  margin-top: 40px;
   overflow-x: auto;
 }
 
-.completed-projects h2 {
-  margin-bottom: 15px;
+.employeedashboard-completed-projects h2 {
+  margin-bottom: 18px;
   text-align: center;
-  font-size: 1.5rem;
-  color: #2f3640;
+  font-size: 1.7rem;
+  color: #1d3557;
 }
 
-.projects-table {
+.employeedashboard-projects-table {
   width: 100%;
   border-collapse: collapse;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.05);
 }
 
-.projects-table th,
-.projects-table td {
-  padding: 12px 15px;
+.employeedashboard-projects-table th,
+.employeedashboard-projects-table td {
+  padding: 14px 18px;
   text-align: left;
-  font-size: 0.95rem;
+  font-size: 1rem;
 }
 
-.projects-table th {
-  background-color: #00a8ff;
+.employeedashboard-projects-table th {
+  background-color: #457b9d;
   color: #fff;
   font-weight: 600;
 }
 
-.projects-table tr:nth-child(even) {
+.employeedashboard-projects-table tr:nth-child(even) {
   background-color: #f1f2f6;
 }
 
-.projects-table tr:hover {
-  background-color: #dcdde1;
+.employeedashboard-projects-table tr:hover {
+  background-color: #e0e8f0;
   cursor: pointer;
 }
 
-/* Navigation Cards Row */
-.navigation-cards-row {
-  display: flex;
-  gap: 20px;
-  margin: 20px 0;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.nav-card {
-  flex: 1 1 250px;
-  background-color: #ffffff;
+/* ✅ Status Badges */
+.employeedashboard-status-badge {
+  display: inline-block;
+  padding: 6px 14px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  padding: 20px;
-  text-decoration: none;
-  color: #333;
-  transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  text-transform: capitalize;
 }
 
-.nav-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-  background-color: #f5f5f5;
+.employeedashboard-status-completed {
+  background-color: #28a745;
 }
 
-.nav-card h2 {
-  margin: 0 0 10px;
-  font-size: 1.5rem;
+.employeedashboard-status-inprogress {
+  background-color: #ff9800;
 }
 
-.nav-card p {
-  margin: 0;
-  font-size: 1rem;
-  line-height: 1.4;
-  color: #666;
+.employeedashboard-status-future {
+  background-color: #6c757d;
 }
 
-/* Responsive */
+/* 📱 Responsive */
 @media screen and (max-width: 768px) {
-  .top-cards-row,
-  .charts-row,
-  .navigation-cards-row {
+  .employeedashboard-top-cards-row,
+  .employeedashboard-charts-row,
+  .employeedashboard-navigation-cards-row {
     flex-direction: column;
     align-items: center;
   }
 
-  .my-achievements-card {
-    min-height: 250px;
+  .employeedashboard-best-employee-card,
+  .employeedashboard-my-achievements-card,
+  .employeedashboard-nav-card {
+    width: 90%;
   }
 
-  .achievement-tabs {
-    gap: 5px;
-    flex-wrap: wrap;
-  }
-
-  .achievement-tabs button {
-    flex: 1 1 45%;
-  }
-
-  .employee-content {
+  .employeedashboard-employee-content {
     flex-direction: column;
     text-align: center;
-  }
-
-  .employee-content img {
-    width: 150px;
-    height: 200px;
   }
 }

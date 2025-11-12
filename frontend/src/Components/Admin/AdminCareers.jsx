@@ -95,9 +95,9 @@ const AdminCareer = () => {
     <div className="admincareers-carriers-page">
       {showJobForm ? (
         <div className="admincareers-job-form-wrapper">
-          <button className="admincareers-back-btn" onClick={() => setShowJobForm(false)}>
-            ← Back
-          </button>
+          {/* <button className="admincareers-back-btn" onClick={() => setShowJobForm(false)}> */}
+            {/* ← Back */}
+          {/* </button> */}
           <AdminJobform onSubmitJob={handleAddJob} />
         </div>
       ) : (

@@ -88,7 +88,7 @@ const CustomTooltip = ({ active, payload, detailMap }) => {
   if (active && payload && payload.length) {
     const label = payload[0].name;
     return (
-      <div className="custom-tooltip">
+      <div className="employeedashboard-custom-tooltip">
         <h4>{label}</h4>
         <ul>
           {detailMap[label]?.map((d, i) => (
@@ -143,17 +143,17 @@ const [dashboardData] = useState({
 });
 
   return (
-    <div className="dashboard-inner">
+    <div className="employeedashboard-dashboard">
       <h1>My Dashboard</h1>
 
       {/* Top Cards Row */}
-      <div className="top-cards-row">
+      <div className="employeedashboard-top-cards-row">
         {/* Best Employee */}
-        <div className="best-employee-card">
+        <div className="employeedashboard-best-employee-card">
           <h2>Best Employee of the Month</h2>
-          <div className="employee-content">
+          <div className="employeedashboard-employee-content">
             <img src={dashboardData.bestEmployee.photo} alt={dashboardData.bestEmployee.name} />
-            <div className="employee-info">
+            <div className="employeedashboard-employee-info">
               <p>Name: <b>{dashboardData.bestEmployee.name}</b></p>
               <p>Employee ID: <b>{dashboardData.bestEmployee.id}</b></p>
               <p>Role: <b>{dashboardData.bestEmployee.role}</b></p>
@@ -164,11 +164,11 @@ const [dashboardData] = useState({
         </div>
 
         {/* My Achievements */}
-        <div className="my-achievements-card">
+        <div className="employeedashboard-my-achievements-card">
           <h2>My Achievements</h2>
 
           {/* Tabs */}
-          <div className="achievement-tabs">
+          <div className="employeedashboard-achievement-tabs">
             <button
               className={activeTab === "awards" ? "active" : "inactive"}
               onClick={() => setActiveTab("awards")}
@@ -184,13 +184,13 @@ const [dashboardData] = useState({
           </div>
 
           {/* Tab Content */}
-          <div className="tab-content">
+          <div className="employeedashboard-tab-content">
             {activeTab === "awards" ? (
               <ul>
                 {dashboardData.awards.length > 0 ? (
                   dashboardData.awards.map((award, idx) => <li key={idx}>{award}</li>)
                 ) : (
-                  <p className="no-data">No awards yet 🎖️</p>
+                  <p className="employeedashboard-no-data">No awards yet 🎖️</p>
                 )}
               </ul>
             ) : (
@@ -198,7 +198,7 @@ const [dashboardData] = useState({
                 {dashboardData.appreciations.length > 0 ? (
                   dashboardData.appreciations.map((a, idx) => <li key={idx}>{a}</li>)
                 ) : (
-                  <p className="no-data">No appreciations yet 💬</p>
+                  <p className="employeedashboard-no-data">No appreciations yet 💬</p>
                 )}
               </ul>
             )}
@@ -206,13 +206,13 @@ const [dashboardData] = useState({
         </div>
       </div>
 
-      <div className="navigation-cards-row">
-        <Link to="/employee/timesheet" className="nav-card">
+      <div className="employeedashboard-navigation-cards-row">
+        <Link to="/employee/timesheet" className="employeedashboard-nav-card">
           <h2>Timesheet</h2>
           <p>Track your daily work hours and activities.</p>
         </Link>
 
-        <Link to="/employee/performancemanagement" className="nav-card">
+        <Link to="/employee/performancemanagement" className="employeedashboard-nav-card">
           <h2>Performance Management</h2>
           <p>View and manage your assigned projects.</p>
         </Link>
@@ -221,7 +221,7 @@ const [dashboardData] = useState({
       <Outlet />
 
       {/* Current Projects Pie */}
-      <div className="charts-row">
+      <div className="employeedashboard-charts-row">
         {inProgressProjects.length > 0 ? (
           inProgressProjects.map((project, idx) => {
             const start = new Date(project.startDate);
@@ -234,7 +234,7 @@ const [dashboardData] = useState({
             const remainingDays = getDuration(project.startDate, project.endDate) - daysPassed;
 
             return (
-              <div key={idx} className="chart-card">
+              <div key={idx} className="employeedashboard-chart-card">
                 <h2>{project.name} Progress</h2>
                 <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
@@ -270,8 +270,8 @@ const [dashboardData] = useState({
       </div>
 
       {/* All Projects Timeline Pie */}
-      <div className="charts-row">
-        <div className="chart-card wide">
+      <div className="employeedashboard-charts-row">
+        <div className="employeedashboard-chart-card wide">
           <h2>All Projects Timeline</h2>
           <ResponsiveContainer width="100%" height={300}>
             <PieChart>
@@ -295,9 +295,9 @@ const [dashboardData] = useState({
       </div>
 
       {/* Projects Table */}
-      <div className="completed-projects">
+      <div className="employeedashboard-completed-projects">
         <h2>Projects Overview</h2>
-        <table className="projects-table">
+        <table className="employeedashboard-projects-table">
           <thead>
             <tr>
               <th>Project Name</th>
@@ -329,6 +329,3 @@ const [dashboardData] = useState({
 }
 
 export default Dashboard;
-
-/* Dashboard.css */
-

@@ -5,179 +5,102 @@ import "./Task.css";
 export default function Task({ selectedFY, onUpdate }) {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
-  const employeeId = "EMP-101"; // static for now
-  const currentDate = new Date();
-  const fyShort = String(currentDate.getFullYear()).slice(-2);
-  const currentFY = `FY${fyShort}`; // ✅ backend expects FY25 format
-
-  // ✅ Fetch tasks from API
+  // Load tasks from localStorage based on selected FY
   useEffect(() => {
-    const fetchTasks = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch("https://internal-website-rho.vercel.app/api/tasks");
-        const data = await res.json();
-        const filtered = data.filter(
-          (t) => t.fy === selectedFY && t.employeeId === employeeId
-        );
-        setTasks(filtered);
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError("Failed to fetch tasks");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchTasks();
+    const allTasks = JSON.parse(localStorage.getItem("tasks") || "{}");
+    setTasks(allTasks[selectedFY] || []);
+    setNewTask(null);
   }, [selectedFY]);
 
-  // ✅ Correct Save API
-  const saveTaskToAPI = async (taskData) => {
-    try {
-      const payload = {
-        id: taskData.id || `TASK-${Date.now()}`,
-        employeeId: taskData.employeeId || employeeId,
-        fy: taskData.fy || selectedFY || currentFY,
-        text: taskData.text || "",
-        assigned: taskData.assigned || "Sushma",
-        assignedDate:
-          taskData.assignedDate ||
-          new Date().toISOString().split("T")[0],
-        dueDate: taskData.dueDate || new Date().toISOString().split("T")[0],
-        rating: taskData.rating ?? 0,
-        score: taskData.score ?? 0,
-        status: taskData.status || "Open",
-        comments: taskData.comments || [],
-      };
-
-      const res = await fetch("https://internal-website-rho.vercel.app/api/tasks/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const msg = await res.text();
-        throw new Error("Failed to save task: " + msg);
-      }
-
-      const saved = await res.json();
-      return saved;
-    } catch (err) {
-      console.error("Save failed:", err);
-      setError("Save failed. Try again.");
-      return null;
-    }
+  const saveTasks = (updatedTasks) => {
+    setTasks(updatedTasks);
+    const allTasks = JSON.parse(localStorage.getItem("tasks") || "{}");
+    allTasks[selectedFY] = updatedTasks;
+    localStorage.setItem("tasks", JSON.stringify(allTasks));
+    if (onUpdate) onUpdate(updatedTasks);
   };
 
-  // ✅ Add new task
+  // Add new task
   const addTask = () => {
-    if (selectedFY !== currentFY) return; // only for current FY
     setNewTask({
-      id: `TASK-${Date.now()}`,
+      id: Date.now(),
       text: "",
-      assigned: "You",
+      assignedBy: localStorage.getItem("employeeName") || "",
+      assignedTo: localStorage.getItem("employeeId") || "",
       assignedDate: new Date().toISOString().split("T")[0],
+      assignedDateTime: new Date().getTime(), // used for 24-hour check
       dueDate: "",
-      fy: selectedFY,
-      employeeId,
-      rating: 0,
-      score: 0,
-      status: "Open",
-      comments: [],
+      fy: selectedFY, // ✅ store the financial year
     });
   };
 
-  // ✅ Save new task
-  const handleSave = async () => {
+  // Save new task
+  const handleSave = () => {
     if (!newTask.text || !newTask.dueDate) return;
-    const saved = await saveTaskToAPI(newTask);
-    if (saved) {
-      const updated = [...tasks, saved];
-      setTasks(updated);
-      if (onUpdate) onUpdate(updated);
-      setNewTask(null);
-    }
+    const updatedTasks = [...tasks, newTask];
+    saveTasks(updatedTasks);
+    setNewTask(null);
   };
 
-  // ✅ Edit existing task
+  // Edit existing task
   const handleEdit = (id) => {
-    setTasks((prev) =>
-      prev.map((t) => (t._id === id ? { ...t, isEditing: true } : t))
+    const updated = tasks.map((t) =>
+      t.id === id ? { ...t, isEditing: true } : t
     );
+    setTasks(updated);
   };
 
-  // ✅ Update task (within 24h)
-  const handleUpdate = async (id, text, dueDate) => {
-    const target = tasks.find((t) => t._id === id);
-    if (!target) return;
-
-    const canEdit =
-      Date.now() - new Date(target.createdAt).getTime() < 24 * 60 * 60 * 1000;
-    if (!canEdit) return alert("Editing window expired!");
-
-    const updatedTask = { ...target, text, dueDate };
-    const saved = await saveTaskToAPI(updatedTask);
-    if (saved) {
-      const updatedList = tasks.map((t) =>
-        t._id === id ? { ...saved, isEditing: false } : t
-      );
-      setTasks(updatedList);
-      if (onUpdate) onUpdate(updatedList);
-    }
+  // Update edited task
+  const handleUpdate = (id, text, dueDate) => {
+    if (!text || !dueDate) return;
+    const updated = tasks.map((t) =>
+      t.id === id ? { ...t, text, dueDate, isEditing: false } : t
+    );
+    saveTasks(updated);
   };
 
-  // ✅ Soft delete task
-  const handleDelete = async (id) => {
-    const target = tasks.find((t) => t._id === id);
-    if (!target) return;
+  // Delete task
+  const handleDelete = (id) => {
+    const updated = tasks.filter((t) => t.id !== id);
+    saveTasks(updated);
+  };
 
-    const canDelete =
-      Date.now() - new Date(target.createdAt).getTime() < 24 * 60 * 60 * 1000;
-    if (!canDelete) return alert("Delete window expired!");
-
-    const deletedTask = { ...target, status: "Deleted" };
-    const saved = await saveTaskToAPI(deletedTask);
-    if (saved) {
-      const updatedList = tasks.filter((t) => t._id !== id);
-      setTasks(updatedList);
-      if (onUpdate) onUpdate(updatedList);
-    }
+  // Check if a task is editable/deletable within 24 hours
+  const isWithin24Hours = (assignedDateTime) => {
+    if (!assignedDateTime) return false;
+    const now = Date.now();
+    const diffHours = (now - assignedDateTime) / (1000 * 60 * 60);
+    return diffHours <= 24;
   };
 
   return (
-    <div className="tasks-container">
-      <h3 className="tasks-header">Assigned Tasks ({selectedFY})</h3>
-
-      {loading ? (
-        <p className="tasks-loading">Loading tasks...</p>
-      ) : error ? (
-        <p className="tasks-error">{error}</p>
-      ) : (
-        <table className="tasks-table">
-          <thead>
+    <div className="task-container">
+      <h3>Assigned Tasks ({selectedFY})</h3>
+      <table className="task-table">
+        <thead>
+          <tr>
+            <th>Task</th>
+            <th>Assigned By</th>
+            <th>Assigned Date</th>
+            <th>Due Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tasks.length === 0 && !newTask && (
             <tr>
-              <th>Task</th>
-              <th>Assigned By</th>
-              <th>Assigned Date</th>
-              <th>Due Date</th>
-              <th>Actions</th>
+              <td colSpan="5" style={{ textAlign: "center" }}>
+                No tasks added.
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {tasks.length === 0 && !newTask && (
-              <tr>
-                <td colSpan="5" className="tasks-empty">
-                  No tasks assigned.
-                </td>
-              </tr>
-            )}
+          )}
 
-            {tasks.map((task) => (
-              <tr key={task._id}>
+          {tasks.map((task) => {
+            const editable = isWithin24Hours(task.assignedDateTime);
+
+            return (
+              <tr key={task.id}>
                 <td>
                   {task.isEditing ? (
                     <input
@@ -186,7 +109,7 @@ export default function Task({ selectedFY, onUpdate }) {
                       onChange={(e) =>
                         setTasks((prev) =>
                           prev.map((t) =>
-                            t._id === task._id
+                            t.id === task.id
                               ? { ...t, text: e.target.value }
                               : t
                           )
@@ -197,18 +120,18 @@ export default function Task({ selectedFY, onUpdate }) {
                     task.text
                   )}
                 </td>
-                <td>{task.assigned}</td>
-                <td>{new Date(task.assignedDate).toLocaleDateString()}</td>
+                <td>{task.assignedBy}</td>
+                <td>{task.assignedDate}</td>
                 <td>
                   {task.isEditing ? (
                     <input
                       type="date"
-                      value={task.dueDate.split("T")[0]}
+                      value={task.dueDate}
                       min={new Date().toISOString().split("T")[0]}
                       onChange={(e) =>
                         setTasks((prev) =>
                           prev.map((t) =>
-                            t._id === task._id
+                            t.id === task.id
                               ? { ...t, dueDate: e.target.value }
                               : t
                           )
@@ -216,30 +139,43 @@ export default function Task({ selectedFY, onUpdate }) {
                       }
                     />
                   ) : (
-                    new Date(task.dueDate).toLocaleDateString()
+                    task.dueDate
                   )}
                 </td>
                 <td>
                   {task.isEditing ? (
                     <button
-                      className="tasks-btn save"
+                      className="save-btn"
                       onClick={() =>
-                        handleUpdate(task._id, task.text, task.dueDate)
+                        handleUpdate(task.id, task.text, task.dueDate)
                       }
+                      disabled={!task.text || !task.dueDate}
                     >
                       Save
                     </button>
                   ) : (
                     <>
                       <button
-                        className="tasks-btn edit"
-                        onClick={() => handleEdit(task._id)}
+                        className="edit-btn"
+                        onClick={() => handleEdit(task.id)}
+                        disabled={!editable}
+                        title={
+                          editable
+                            ? "Edit Task"
+                            : "Editing disabled after 24 hours"
+                        }
                       >
                         <FaEdit />
                       </button>
                       <button
-                        className="tasks-btn delete"
-                        onClick={() => handleDelete(task._id)}
+                        className="del-btn"
+                        onClick={() => handleDelete(task.id)}
+                        disabled={!editable}
+                        title={
+                          editable
+                            ? "Delete Task"
+                            : "Deletion disabled after 24 hours"
+                        }
                       >
                         <FaTrash />
                       </button>
@@ -247,59 +183,56 @@ export default function Task({ selectedFY, onUpdate }) {
                   )}
                 </td>
               </tr>
-            ))}
+            );
+          })}
 
-            {newTask && (
-              <tr>
-                <td>
-                  <input
-                    type="text"
-                    value={newTask.text}
-                    onChange={(e) =>
-                      setNewTask({ ...newTask, text: e.target.value })
-                    }
-                  />
-                </td>
-                <td>{newTask.assigned}</td>
-                <td>{newTask.assignedDate}</td>
-                <td>
-                  <input
-                    type="date"
-                    value={newTask.dueDate}
-                    min={new Date().toISOString().split("T")[0]}
-                    onChange={(e) =>
-                      setNewTask({ ...newTask, dueDate: e.target.value })
-                    }
-                  />
-                </td>
-                <td>
-                  <button
-                    className="tasks-btn save"
-                    onClick={handleSave}
-                    disabled={!newTask.text || !newTask.dueDate}
-                  >
-                    Save
-                  </button>
-                  <button
-                    className="tasks-btn cancel"
-                    onClick={() => setNewTask(null)}
-                  >
-                    Cancel
-                  </button>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      )}
+          {newTask && (
+            <tr>
+              <td>
+                <input
+                  type="text"
+                  value={newTask.text}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, text: e.target.value })
+                  }
+                />
+              </td>
+              <td>{newTask.assignedBy}</td>
+              <td>{newTask.assignedDate}</td>
+              <td>
+                <input
+                  type="date"
+                  value={newTask.dueDate}
+                  min={new Date().toISOString().split("T")[0]}
+                  onChange={(e) =>
+                    setNewTask({ ...newTask, dueDate: e.target.value })
+                  }
+                />
+              </td>
+              <td>
+                <button
+                  className="save-btn"
+                  onClick={handleSave}
+                  disabled={!newTask.text || !newTask.dueDate}
+                >
+                  Save
+                </button>
+                <button
+                  className="cancel-btn"
+                  onClick={() => setNewTask(null)}
+                  style={{ marginLeft: "5px" }}
+                >
+                  Cancel
+                </button>
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
-      <div className="tasks-footer">
+      <div className="add-task-section">
         {!newTask && (
-          <button
-            className="tasks-add-btn"
-            onClick={addTask}
-            disabled={selectedFY !== currentFY}
-          >
+          <button className="add-task-btn" onClick={addTask}>
             + Add Task
           </button>
         )}

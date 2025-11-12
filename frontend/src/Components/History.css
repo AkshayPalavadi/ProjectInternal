@@ -1,4 +1,4 @@
-.history-container {
+.employeehistory-history-container {
   margin-top: 20px;
   background: #ffffff;
   padding: 20px;
@@ -7,7 +7,7 @@
   overflow-x: auto;
 }
 
-.history-table {
+.employeehistory-history-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 15px;
@@ -15,7 +15,7 @@
   table-layout: fixed;
 }
 
-.history-table th {
+.employeehistory-history-table th {
   background: #2a6592;
   color: white;
   padding: 12px;
@@ -23,18 +23,18 @@
   font-weight: 600;
 }
 
-.history-table td {
+.employeehistory-history-table td {
   padding: 10px;
   border-bottom: 1px solid #ddd;
   word-wrap: break-word; 
 }
 
-.history-table tr:hover {
+.employeehistory-history-table tr:hover {
   background: #f8f9ff;
   transition: 0.2s;
 }
 
-.status-badge {
+.employeehistory-status-badge {
   padding: 6px 12px;
   border-radius: 8px;
   font-size: 13px;
@@ -42,22 +42,22 @@
   display: inline-block;
 }
 
-.status-badge.pending {
+.employeehistory-status-badge.employeehistory-pending {
   background: #fff3cd;
   color: #856404;
 }
-.status-badge.approved {
+.employeehistory-status-badge.employeehistory-approved {
   background: #d4edda;
   color: #155724;
 }
-.status-badge.rejected {
+.employeehistory-status-badge.employeehistory-rejected {
   background: #f8d7da;
   color: #721c24;
 }
 
 /* Delete button */
 
-.delete-btn {
+.employeehistory-delete-btn {
   padding: 6px 12px;
   padding-bottom: 50px;
   border: none;
@@ -68,33 +68,33 @@
   cursor: pointer;
   transition: background 0.3s ease;
 }
-.delete-btn:hover {
+.employeehistory-delete-btn:hover {
   background: #fcfbfb;
 }
-.delete-btn.disabled-btn {
+.employeehistory-delete-btn.employeehistory-disabled-btn {
   background: gray;
   cursor: not-allowed;
 }
 /* Disabled delete button */
-.delete-btn:disabled {
+.employeehistory-delete-btn:disabled {
   /* background: gray; */
   cursor: not-allowed;
 }
 
-.delete-btn:disabled:hover {
+.employeehistory-delete-btn:disabled:hover {
   background: rgb(248, 247, 247); 
 }
 
 
 /* Responsive */
 @media (max-width: 768px) {
-  .history-table th,
-  .history-table td {
+  .employeehistory-history-table th,
+  .employeehistory-history-table td {
     padding: 8px;
     font-size: 13px;
   }
 
-  .status-badge {
+  .employeehistory-status-badge {
     font-size: 11px;
     padding: 4px 8px;
   }
