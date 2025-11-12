@@ -11,7 +11,7 @@
 }
 
 /* Main content beside sidebar */
-.content {
+.content-details {
   flex: 1;
   background-color: #f8f9fb;
   padding: 20px;
@@ -26,7 +26,7 @@
   min-height: 100vh;
   padding: 40px 60px;
   font-family: "Poppins", sans-serif;
-  width: 100%;
+  width: 95%;
 }
 
 /* ---------- Header Card ---------- */

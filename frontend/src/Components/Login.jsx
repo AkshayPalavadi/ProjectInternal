@@ -21,62 +21,71 @@ function Login({ setIsLoggedIn, setUserRole }) {
       setUserRole(storedRole);
       navigate(storedRole === "admin" ? "/admin" : "/employee", { replace: true });
     }
-  }, []);
+  }, [navigate, setIsLoggedIn, setUserRole]);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
+  // ✅ Login Handler
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
 
-  if (!email.endsWith("@dhatvibs.com")) {
-    setError("Only @dhatvibs.com email addresses are allowed.");
-    return;
-  }
-
-  try {
-    // Step 1: Login user
-    const response = await fetch("https://internal-website-rho.vercel.app/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const result = await response.json();
-    console.log("📦 Login API Response:", result);
-
-    if (response.ok && result.token) {
-      // ✅ Save token
-      localStorage.setItem("token", result.token);
-
-      // Step 2: Fetch employee details
-      const empResponse = await fetch("https://internal-website-rho.vercel.app/api/auth");
-      const empResult = await empResponse.json();
-      console.log("📦 Employees API Response:", empResult);
-
-      const user = empResult.employees.find((emp) => emp.email === email);
-
-      if (user) {
-        // ✅ Store user details
-        localStorage.setItem("employeeName", `${user.firstName} ${user.lastName}`);
-        localStorage.setItem("userEmail", user.email);
-        localStorage.setItem("employeeId", user.employeeId);
-        localStorage.setItem("userRole", user.role);
-
-        setIsLoggedIn(true);
-        setUserRole(user.role);
-
-        // ✅ Navigate based on actual role
-        navigate(user.role === "admin" ? "/admin" : "/employee");
-      } else {
-        setError("User data not found.");
-      }
-    } else {
-      setError(result.msg || "Invalid email or password");
+    if (!email.endsWith("@dhatvibs.com")) {
+      setError("Only @dhatvibs.com email addresses are allowed.");
+      return;
     }
-  } catch (err) {
-    console.error("🚨 Error:", err);
-    setError("Server not reachable. Please try again later.");
-  }
-};
+
+    try {
+      // Step 1: Login API
+      const response = await fetch("https://internal-website-rho.vercel.app/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+      console.log("📦 Login API Response:", result);
+
+      if (response.ok && result.token) {
+        // ✅ Save token
+        localStorage.setItem("token", result.token);
+
+        // Step 2: Fetch Employee Details
+        const empResponse = await fetch("https://internal-website-rho.vercel.app/api/auth");
+        const empResult = await empResponse.json();
+        console.log("📦 Employees API Response:", empResult);
+
+        const user = empResult.employees.find((emp) => emp.email === email);
+
+        if (user) {
+          // ✅ Store user details
+          localStorage.setItem("employeeName", `${user.firstName} ${user.lastName}`);
+          localStorage.setItem("userEmail", user.email);
+          localStorage.setItem("userRole", user.role);
+          // localStorage.setItem("employeeId", user.employeeId);
+          setIsLoggedIn(true);
+          setUserRole(user.role);
+
+          // ✅ Manage Application Submitted (per-user)
+          const submissionMap = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
+          const isSubmitted = submissionMap[user.email] === true;
+
+          // Sync to localStorage
+          localStorage.setItem("applicationSubmitted", isSubmitted ? "true" : "false");
+
+          console.log(`📩 Application Submitted for ${user.email}:`, isSubmitted);
+
+          // ✅ Navigate based on role
+          navigate(user.role === "admin" ? "/admin" : "/employee");
+        } else {
+          setError("User data not found in employee list.");
+        }
+      } else {
+        setError(result.msg || "Invalid email or password.");
+      }
+    } catch (err) {
+      console.error("🚨 Error:", err);
+      setError("Server not reachable. Please try again later.");
+    }
+  };
 
   return (
     <div className="loginpage-login-main-container">

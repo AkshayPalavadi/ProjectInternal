@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
+// Components
 import SidebarLayout from "./Components/SidebarLayout.jsx";
 import Home from "./Components/Home.jsx";
 import Dashboard from "./Components/Dashboard.jsx";
@@ -13,6 +15,7 @@ import PersonApp from "./component/PersonApp.jsx";
 import TimeSheet from "./Components/TimeSheet.jsx";
 import CarrierApp from "./carrier/carrierapp.jsx";
 
+// Admin Components
 import AdminSidebarLayout from "./Components/Admin/AdminSidebarLayout.jsx";
 import AdminDashboard from "./Components/Admin/AdminDashboard.jsx";
 import AdminEmployees from "./Components/Admin/AdminEmployees.jsx";
@@ -25,21 +28,28 @@ import MonthJobApplicants from "./Components/Admin/MonthJobApplicants.jsx";
 import AdminJobApplied from "./Components/Admin/AdminJobApplied.jsx";
 import AdminHiredApplicants from "./Components/Admin/AdminHiredApplicants.jsx";
 import AdminOnHold from "./Components/Admin/AdminOnHold.jsx";
-
 import AdminReports from "./Components/Admin/AdminReports.jsx";
 import LeavesAdmin from "./Components/Admin/LeavesAdmin.jsx";
 import AttendanceEmp from "./Components/Admin/AttendanceEmp.jsx";
 import LeavesEmp from "./Components/Admin/LeavesEmp.jsx";
 import EmployeeDetails from "./Components/Admin/employee/EmployeeDetails.jsx";
 
+// -----------------------
+// Helpers
+// -----------------------
+const SUBMIT_MAP_KEY = "submissionStatusByEmail";
+const readSubmitMap = () => JSON.parse(localStorage.getItem(SUBMIT_MAP_KEY) || "{}");
+const getSubmitted = (email) => !!readSubmitMap()[email];
+
 function App() {
   const totalLeaves = 12;
   const totalDays = 30;
 
+  // -------------------------------
+  // Basic Employee Data
+  // -------------------------------
   const [leavesUsed, setLeavesUsed] = useState(4);
   const [absentDays, setAbsentDays] = useState(4);
-
-
   const [employeeData, setEmployeeData] = useState({
     totalLeaves,
     leavesUsed,
@@ -52,30 +62,39 @@ function App() {
   const [userName, setUserName] = useState("User Name");
   const [userPhoto, setUserPhoto] = useState(null);
 
-  // Login & Role
-  const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem("isLoggedIn") === "true");
-  const [userRole, setUserRole] = useState(() => localStorage.getItem("userRole") || "");
-  const [employeeId, setEmployeeId] = useState(() => parseInt(localStorage.getItem("employeeId")) || null);
+  // -------------------------------
+  // Auth State
+  // -------------------------------
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    () => localStorage.getItem("isLoggedIn") === "true"
+  );
+  const [userRole, setUserRole] = useState(
+    () => localStorage.getItem("userRole") || ""
+  );
+  const [employeeId, setEmployeeId] = useState(
+    () => parseInt(localStorage.getItem("employeeId")) || null
+  );
 
-  // Keep login and role synced with localStorage
   useEffect(() => {
     localStorage.setItem("isLoggedIn", isLoggedIn);
   }, [isLoggedIn]);
 
   useEffect(() => {
     localStorage.setItem("userRole", userRole);
+
+  
   }, [userRole]);
 
-  // Admin employees (for assigning projects)
+  // -------------------------------
+  // Admin Data
+  // -------------------------------
   const [adminEmployees] = useState([
     { id: 2, name: "Akshay" },
     { id: 3, name: "Sathvika" },
     { id: 4, name: "Sravani" },
   ]);
 
-  // Admin projects stored in localStorage
   const [adminProjects, setAdminProjects] = useState([]);
-
   useEffect(() => {
     const storedProjects = JSON.parse(localStorage.getItem("projects")) || [];
     setAdminProjects(storedProjects);
@@ -87,60 +106,102 @@ function App() {
       setEmployeeData((prev) => ({ ...prev, projects: assignedProjects }));
     }
   }, [employeeId]);
-const [applicationSubmitted, setApplicationSubmitted] = useState(
-  localStorage.getItem("applicationSubmitted") === "true"
-);
 
+  // -------------------------------
+  // Application Submitted per user
+  // -------------------------------
+  // const [applicationSubmitted, setApplicationSubmitted] = useState(()=>{
+  //   const isApplicationSubmitted = localStorage.getItem("applicationSubmitted");
+
+  //   return isApplicationSubmitted === true
+  // });
+
+  
+
+  // // Sync to localStorage when logged in/out
+  // useEffect(() => {
+  //   const email = localStorage.getItem("userEmail");
+  //   if (email) {
+  //     localStorage.setItem("applicationSubmitted", submitted ? "true" : "false");
+  //     setApplicationSubmitted(submitted);
+  //   }
+
+
+
+
+  //    const isApplicationSubmitted = localStorage.getItem("applicationSubmitted");
+  //    setApplicationSubmitted(isApplicationSubmitted ? true:false)
+  // }, []);
+  // -------------------------------
+// Application Submitted per user
+// -------------------------------
+const [applicationSubmitted, setApplicationSubmitted] = useState(false);
+
+// Run once after login or when userEmail changes
 useEffect(() => {
-  localStorage.setItem("applicationSubmitted", applicationSubmitted);
-}, [applicationSubmitted]);
+  if (!isLoggedIn) return; // Only check if logged in
+
+  const email = localStorage.getItem("userEmail");
+
+  // Check backend/localStorage if this user has already submitted
+  const storedMap = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
+
+  // If found in map (true), mark as submitted
+  if (storedMap[email]) {
+    setApplicationSubmitted(true);
+    localStorage.setItem("applicationSubmitted", "true");
+  } else {
+    setApplicationSubmitted(false);
+    localStorage.setItem("applicationSubmitted", "false");
+  }
+}, [isLoggedIn]);
 
 
-  const userEmail = localStorage.getItem("userEmail") || "";
+  // -------------------------------
+  // Default route helper
+  // -------------------------------
+  const userEmail = localStorage.getItem("loginEmail") || "";
 
-  // ✅ Set default route logic
   const getDefaultRoute = () => {
-  const currentPath = window.location.pathname;
+    const currentPath = window.location.pathname;
 
-  // ✅ If user tries to go to /carrier, send them directly to /carrier/jobs
-  if (currentPath === "/carrier" || currentPath === "/carrier/") {
-    return "/carrier/jobs";
-  }
+    // Carrier route handling
+    if (currentPath === "/carrier" || currentPath === "/carrier/") {
+      return "/carrier/jobs";
+    }
+    if (currentPath.startsWith("/carrier")) {
+      return currentPath;
+    }
 
-  // ✅ Allow all other /carrier routes to load normally (like /carrier/login, etc.)
-  if (currentPath.startsWith("/carrier")) {
-    return currentPath;
-  }
+    // Not logged in
+    if (!isLoggedIn) return "/register";
 
-  // ✅ Not logged in
-  if (!isLoggedIn) return "/register";
+    // Internal employees
+    if (userEmail.endsWith("@dhatvibs.com")) {
+      return "/employee/home";
+    }
 
-  // ✅ Employee internal users
-  if (userEmail.endsWith("@dhatvibs.com")) {
-    return "/employee/home";
-  }
+    // Default external users
+    return "/register";
+  };
 
-  // ✅ Default external users
-  return "/register";
-};
-
-
-
+  // -------------------------------
+  // App Routes
+  // -------------------------------
   return (
     <Router>
       <Routes>
-        {/* Internal Login */}
+        {/* Login */}
         <Route
           path="/login"
           element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />}
         />
 
-        {/* Register */}
+        {/* Reset Password & Register */}
         <Route path="/reset-password" element={<ResetPassword />} />
-
         <Route path="/register" element={<Register />} />
 
-        {/* Internal Employee Routes */}
+        {/* Employee Routes */}
         <Route
           path="/employee"
           element={
@@ -158,66 +219,64 @@ useEffect(() => {
         >
           <Route index element={<Navigate to="home" replace />} />
           <Route path="home" element={<Home />} />
-          <Route path="dashboard" element={<Dashboard projects={employeeData.projects} />} />
-          <Route path="timesheet" element={<TimeSheet />} />
-
-          <Route path="performancemanagement" element={<PerformanceManagement />} />
           <Route
-            path="leaves"
+            path="dashboard"
+            element={<Dashboard projects={employeeData.projects} />}
+          />
+          <Route path="timesheet" element={<TimeSheet />} />
+          <Route
+            path="performancemanagement"
+            element={<PerformanceManagement />}
+          />
+          <Route path="leaves" element={<Leaves />} />
+
+<Route path="profile/:id" element={<EmployeeReview />} />
+
+
+
+          {/* Profile Logic */}
+          <Route
+            path="profile"
             element={
-              <Leaves
-              />
+              applicationSubmitted ? (
+                <EmployeeReview key="review" />
+              ) : (
+                <PersonApp
+                  key="form"
+                  setApplicationSubmitted={setApplicationSubmitted}
+                />
+              )
             }
           />
-
-          
-
-          <Route
-  path="profile"
-  element={
-    applicationSubmitted ? (
-      <EmployeeReview key="review" />
-    ) : (
-      <PersonApp key="form" setApplicationSubmitted={setApplicationSubmitted}/>
-    )
-  }
-/>
         </Route>
 
-        {/* Admin Route */}
+        {/* Admin Routes */}
         <Route
           path="/admin"
           element={
-            isLoggedIn && userRole === "admin" ? <AdminSidebarLayout /> : <Navigate to="/login" replace />
+            isLoggedIn && userRole === "admin" ? (
+              <AdminSidebarLayout />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="add-employee" element={<PersonApp />} />
-
           <Route path="employees" element={<AdminEmployees />} />
           <Route path="employees/:id" element={<EmployeeDetails />} />
-
-          
           <Route path="careers" element={<AdminCareer />} />
-                    <Route path="jobform" element={<AdminJobform />} />
-          
+          <Route path="jobform" element={<AdminJobform />} />
           <Route path="carriers1" element={<AdminCarrier1 />} />
           <Route path="jobapplicants" element={<AdminJobApplicants />} />
-
-        
-        <Route path="monthjobs" element={<MonthJobApplicants />} />
-
-        <Route path="jobapplied" element={<AdminJobApplied />} />
-        <Route path="hired" element={<AdminHiredApplicants />} />
-        <Route path="onhold" element={<AdminOnHold/>} />
+          <Route path="monthjobs" element={<MonthJobApplicants />} />
+          <Route path="jobapplied" element={<AdminJobApplied />} />
+          <Route path="hired" element={<AdminHiredApplicants />} />
+          <Route path="onhold" element={<AdminOnHold />} />
           <Route
             path="projects"
-            element={
-              <AdminProjects
-                employees={adminEmployees}
-              />
-            }
+            element={<AdminProjects employees={adminEmployees} />}
           />
           <Route path="reports" element={<AdminReports />} />
           <Route path="leavesAdmin" element={<LeavesAdmin />} />
@@ -225,10 +284,10 @@ useEffect(() => {
           <Route path="attendance" element={<AttendanceEmp />} />
         </Route>
 
-        {/* Carrier App */}
+        {/* Carrier Routes */}
         <Route path="/carrier/*" element={<CarrierApp />} />
 
-        {/* Default redirect */}
+        {/* Default Redirect */}
         <Route
           path="*"
           element={
@@ -244,7 +303,6 @@ useEffect(() => {
             />
           }
         />
-
       </Routes>
     </Router>
   );
