@@ -33,7 +33,6 @@
   width: 420px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   text-align: center;
-  position: relative;
   transition: all 0.3s ease;
 }
 
@@ -107,7 +106,7 @@
   font-weight: 700;
 }
 
-/* ⚡ New Pill Buttons */
+/* ⚡ Tab Buttons */
 .employeedashboard-achievement-tabs {
   display: flex;
   justify-content: center;
@@ -170,68 +169,66 @@
 /* 💼 Navigation Cards */
 .employeedashboard-navigation-cards-row {
   display: flex;
-  gap: 30px;
-  margin: 50px 0;
+  gap: 40px;
+  margin: 60px 0;
   flex-wrap: wrap;
   justify-content: center;
 }
 
 .employeedashboard-nav-card {
-  width: 420px;
-  text-decoration: none;
-  color: #333;
+  width: 380px;
   border-radius: 16px;
-  padding: 28px 22px;
+  background: linear-gradient(135deg, #ffffff, #f0f4ff);
   text-align: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  padding: 28px 24px;
+  color: #1d3557;
   transition: all 0.3s ease;
   border-top: 5px solid transparent;
-  background: linear-gradient(135deg, #ffffff, #f7f9fc);
-  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 .employeedashboard-nav-card:nth-child(1) {
   border-top-color: #007bff;
 }
-
 .employeedashboard-nav-card:nth-child(2) {
   border-top-color: #ff9800;
 }
 
 .employeedashboard-nav-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
 .employeedashboard-nav-card h2 {
-  margin-bottom: 10px;
   font-size: 1.5rem;
-  color: #222;
+  margin-bottom: 8px;
+  color: #1d3557;
 }
 
 .employeedashboard-nav-card p {
   font-size: 1rem;
-  color: #555;
+  color: #4b5563;
 }
 
-/* 📊 Charts Row */
+/* 📊 Chart Section */
 .employeedashboard-charts-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 30px;
-  margin-bottom: 50px;
   justify-content: center;
+  gap: 40px;
+  margin-bottom: 50px;
 }
 
 .employeedashboard-chart-card {
   background: #fff;
   border-radius: 14px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-  padding: 22px;
+  padding: 25px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
   flex: 1 1 420px;
   max-width: 460px;
+  transition: all 0.3s ease;
   text-align: center;
-  transition: transform 0.25s ease-in-out;
 }
 
 .employeedashboard-chart-card:hover {
@@ -239,7 +236,8 @@
 }
 
 .employeedashboard-chart-card.wide {
-  flex: 1 1 900px;
+  flex: 1 1 100%;
+  max-width: 950px;
 }
 
 .employeedashboard-chart-card h2 {
@@ -251,23 +249,24 @@
 /* 📋 Projects Table */
 .employeedashboard-completed-projects {
   margin-top: 40px;
-  overflow-x: auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.05);
 }
 
 .employeedashboard-completed-projects h2 {
-  margin-bottom: 18px;
   text-align: center;
-  font-size: 1.7rem;
+  font-size: 1.8rem;
   color: #1d3557;
+  margin-bottom: 25px;
+  font-weight: 700;
 }
 
 .employeedashboard-projects-table {
   width: 100%;
   border-collapse: collapse;
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.05);
+  overflow-x: auto;
 }
 
 .employeedashboard-projects-table th,
@@ -278,41 +277,55 @@
 }
 
 .employeedashboard-projects-table th {
-  background-color: #457b9d;
+  background-color: #1d3557;
   color: #fff;
   font-weight: 600;
+  letter-spacing: 0.3px;
 }
 
 .employeedashboard-projects-table tr:nth-child(even) {
-  background-color: #f1f2f6;
+  background-color: #f9fafc;
 }
 
 .employeedashboard-projects-table tr:hover {
-  background-color: #e0e8f0;
+  background-color: #eaf2ff;
   cursor: pointer;
 }
 
 /* ✅ Status Badges */
 .employeedashboard-status-badge {
   display: inline-block;
-  padding: 6px 14px;
-  border-radius: 12px;
+  padding: 6px 12px;
+  border-radius: 10px;
   font-size: 0.9rem;
-  font-weight: 600;
   color: #fff;
+  font-weight: 500;
   text-transform: capitalize;
 }
 
 .employeedashboard-status-completed {
-  background-color: #28a745;
+  background-color: #16a34a;
 }
-
 .employeedashboard-status-inprogress {
-  background-color: #ff9800;
+  background-color: #f59e0b;
+}
+.employeedashboard-status-future {
+  background-color: #6b7280;
 }
 
-.employeedashboard-status-future {
-  background-color: #6c757d;
+/* 🧠 Tooltip */
+.employeedashboard-custom-tooltip {
+  background: #ffffff;
+  padding: 12px 16px;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+  color: #1d3557;
+}
+
+.employeedashboard-custom-tooltip h4 {
+  font-weight: 700;
+  margin-bottom: 6px;
 }
 
 /* 📱 Responsive */
@@ -333,5 +346,11 @@
   .employeedashboard-employee-content {
     flex-direction: column;
     text-align: center;
+  }
+
+  .employeedashboard-projects-table th,
+  .employeedashboard-projects-table td {
+    font-size: 0.9rem;
+    padding: 10px;
   }
 }

@@ -75,9 +75,9 @@ export default function Task({ selectedFY, onUpdate }) {
   };
 
   return (
-    <div className="task-container">
+    <div className="tasks-task-container">
       <h3>Assigned Tasks ({selectedFY})</h3>
-      <table className="task-table">
+      <table className="tasks-task-table">
         <thead>
           <tr>
             <th>Task</th>
@@ -145,7 +145,7 @@ export default function Task({ selectedFY, onUpdate }) {
                 <td>
                   {task.isEditing ? (
                     <button
-                      className="save-btn"
+                      className="tasks-save-btn"
                       onClick={() =>
                         handleUpdate(task.id, task.text, task.dueDate)
                       }
@@ -156,7 +156,7 @@ export default function Task({ selectedFY, onUpdate }) {
                   ) : (
                     <>
                       <button
-                        className="edit-btn"
+                        className="tasks-edit-btn"
                         onClick={() => handleEdit(task.id)}
                         disabled={!editable}
                         title={
@@ -168,7 +168,7 @@ export default function Task({ selectedFY, onUpdate }) {
                         <FaEdit />
                       </button>
                       <button
-                        className="del-btn"
+                        className="tasks-del-btn"
                         onClick={() => handleDelete(task.id)}
                         disabled={!editable}
                         title={
@@ -211,14 +211,14 @@ export default function Task({ selectedFY, onUpdate }) {
               </td>
               <td>
                 <button
-                  className="save-btn"
+                  className="tasks-save-btn"
                   onClick={handleSave}
                   disabled={!newTask.text || !newTask.dueDate}
                 >
                   Save
                 </button>
                 <button
-                  className="cancel-btn"
+                  className="tasks-cancel-btn"
                   onClick={() => setNewTask(null)}
                   style={{ marginLeft: "5px" }}
                 >
@@ -230,9 +230,9 @@ export default function Task({ selectedFY, onUpdate }) {
         </tbody>
       </table>
 
-      <div className="add-task-section">
+      <div className="tasks-add-task-section">
         {!newTask && (
-          <button className="add-task-btn" onClick={addTask}>
+          <button className="tasks-add-task-btn" onClick={addTask}>
             + Add Task
           </button>
         )}

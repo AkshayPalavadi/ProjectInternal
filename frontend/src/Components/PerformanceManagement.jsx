@@ -60,34 +60,6 @@ const PerformanceManagement = () => {
     localStorage.setItem("tasks", JSON.stringify(allTasks));
   };
 
-  // --- Final Reviews State ---
-  // const [finalReviews, setFinalReviews] = useState({
-  //   "FY (25 - 26)": {
-  //     rating: 4.5,
-  //     comments: "Consider participating in public speaking opportunities.",
-  //     bandScore: "A1",
-  //     agree: false,
-  //     disagree: false,
-  //     empComment: "",
-  //   },
-  //   "FY (24 - 25)": {
-  //     rating: 4.2,
-  //     comments: "Good progress shown in UI optimization tasks.",
-  //     bandScore: "B2",
-  //     agree: false,
-  //     disagree: false,
-  //     empComment: "",
-  //   },
-  //   "FY (23 - 24)": {
-  //     rating: 3.9,
-  //     comments: "Steady improvement, focus on timelines.",
-  //     bandScore: "C1",
-  //     agree: false,
-  //     disagree: false,
-  //     empComment: "",
-  //   },
-  // });
-
   const [finalReviews, setFinalReviews] = useState(() => {
     const stored = JSON.parse(localStorage.getItem("finalReviews") || "{}");
     return stored;
@@ -105,29 +77,49 @@ const PerformanceManagement = () => {
 
   // --- Handlers ---
   const handleAgree = () => {
-    setFinalReviews((prev) => ({
-      ...prev,
-      [selectedYear]: { ...prev[selectedYear], agree: true, disagree: false },
-    }));
+    setFinalReviews((prev) => {
+      const current = prev[selectedYear] || {};
+      const newAgree = !current.agree; // toggle
+      const updated = {
+        ...current,
+        agree: newAgree,
+        disagree: newAgree ? false : current.disagree,
+      };
+      const updatedAll = { ...prev, [selectedYear]: updated };
+      localStorage.setItem("finalReviews", JSON.stringify(updatedAll));
+      return updatedAll;
+    });
   };
 
   const handleDisagree = () => {
-    setFinalReviews((prev) => ({
-      ...prev,
-      [selectedYear]: { ...prev[selectedYear], agree: false, disagree: true },
-    }));
+    setFinalReviews((prev) => {
+      const current = prev[selectedYear] || {};
+      const newDisagree = !current.disagree; // toggle
+      const updated = {
+        ...current,
+        disagree: newDisagree,
+        agree: newDisagree ? false : current.agree,
+      };
+      const updatedAll = { ...prev, [selectedYear]: updated };
+      localStorage.setItem("finalReviews", JSON.stringify(updatedAll));
+      return updatedAll;
+    });
   };
 
   const handleEmpCommentChange = (e) => {
-    setFinalReviews((prev) => ({
-      ...prev,
-      [selectedYear]: { ...prev[selectedYear], empComment: e.target.value },
-    }));
+    const newComment = e.target.value;
+    setFinalReviews((prev) => {
+      const updated = {
+        ...prev,
+        [selectedYear]: { ...prev[selectedYear], empComment: newComment },
+      };
+      localStorage.setItem("finalReviews", JSON.stringify(updated));
+      return updated;
+    });
   };
 
   const handleFinalize = () => {
     const finalizedOn = new Date().toISOString();
-
     const updatedReview = {
       fy: selectedYear,
       employeeId: user.id,
@@ -140,31 +132,34 @@ const PerformanceManagement = () => {
       finalizedOn,
     };
 
-    // Store locally for now (later send to backend)
-    setFinalReviews((prev) => ({
-      ...prev,
-      [selectedYear]: updatedReview,
-    }));
-
-    localStorage.setItem("finalReviews", JSON.stringify({
-      ...finalReviews,
-      [selectedYear]: updatedReview,
-    }));
+    const all = { ...finalReviews, [selectedYear]: updatedReview };
+    setFinalReviews(all);
+    localStorage.setItem("finalReviews", JSON.stringify(all));
 
     console.log("✅ Final Review submitted:", updatedReview);
     alert("Final review submitted successfully!");
   };
 
   const handleReport = () => {
-    console.log("⚠️ Report sent to TL:", {
+    const finalizedOn = new Date().toISOString();
+    const updatedReview = {
       fy: selectedYear,
-      bandScore: reviewData.bandScore,
+      employeeId: user.id,
       avgRating,
+      bandScore: reviewData.bandScore,
+      managerComments: reviewData.comments,
+      empComment: reviewData.empComment,
       agree: reviewData.agree,
       disagree: reviewData.disagree,
-      empComment: reviewData.empComment,
-      managerComments: reviewData.comments,
-    });
+      finalizedOn,
+      reported: true,
+    };
+
+    const all = { ...finalReviews, [selectedYear]: updatedReview };
+    setFinalReviews(all);
+    localStorage.setItem("finalReviews", JSON.stringify(all));
+
+    console.log("⚠️ Report sent to TL:", updatedReview);
     alert("Reported to TL successfully!");
   };
 
@@ -258,74 +253,73 @@ const PerformanceManagement = () => {
               </tr>
             </thead>
             <tbody>
-{tasks.map((task) => {
-  // --- progress based on dates ---
-  const assigned = new Date(task.assignedDate);
-  const due = new Date(task.dueDate);
-  const now = new Date();
+              {tasks.map((task) => {
+                // --- progress based on dates ---
+                const assigned = new Date(task.assignedDate);
+                const due = new Date(task.dueDate);
+                const now = new Date();
 
-  const totalDuration = due - assigned;
-  const elapsed = now - assigned;
+                const totalDuration = due - assigned;
+                const elapsed = now - assigned;
 
-  const progress =
-    totalDuration > 0 ? Math.min((elapsed / totalDuration) * 100, 100) : 0;
+                const progress =
+                  totalDuration > 0 ? Math.min((elapsed / totalDuration) * 100, 100) : 0;
 
-  // --- color logic ---
-  let progressColor = "#f44336"; // red
-  if (progress >= 50 && progress < 85) progressColor = "#ffeb3b"; // yellow
-  if (progress >= 85) progressColor = "#4caf50"; // green
+                // --- color logic ---
+                let progressColor = "#f44336"; // red
+                if (progress >= 50 && progress < 85) progressColor = "#ffeb3b"; // yellow
+                if (progress >= 85) progressColor = "#4caf50"; // green
 
-  return (
-    <React.Fragment key={task.id}>
-      <tr
-        className="performancemanagement-task-row"
-        onClick={() =>
-          setOpenTaskReview(task.id === openTaskReview ? null : task.id)
-        }
-      >
-        <td>{task.text}</td>
-        <td>{task.assignedBy}</td>
-        <td>{task.assignedDate}</td>
-        <td>{task.dueDate}</td>
-        <td>
-          {[...Array(5)].map((_, i) => (
-            <FaStar
-              key={i}
-              style={{
-                color: i < (task.rating || 0) ? "#ffb400" : "#ccc",
-              }}
-            />
-          ))}
-        </td>
-        <td>
-          <div className="performancemanagement-progress-wrapper">
-            <div className="performancemanagement-progress-bar">
-              <div
-                className="performancemanagement-progress-fill"
-                style={{
-                  width: `${progress}%`,
-                  backgroundColor: progressColor,
-                }}
-              ></div>
-            </div>
-            <span className="performancemanagement-progress-label">
-              {Math.round(progress)}%
-            </span>
-          </div>
-        </td>
-      </tr>
+                return (
+                  <React.Fragment key={task.id}>
+                    <tr
+                      className="performancemanagement-task-row"
+                      onClick={() =>
+                        setOpenTaskReview(task.id === openTaskReview ? null : task.id)
+                      }
+                    >
+                      <td>{task.text}</td>
+                      <td>{task.assignedBy}</td>
+                      <td>{task.assignedDate}</td>
+                      <td>{task.dueDate}</td>
+                      <td>
+                        {[...Array(5)].map((_, i) => (
+                          <FaStar
+                            key={i}
+                            style={{
+                              color: i < (task.rating || 0) ? "#ffb400" : "#ccc",
+                            }}
+                          />
+                        ))}
+                      </td>
+                      <td>
+                        <div className="performancemanagement-progress-wrapper">
+                          <div className="performancemanagement-progress-bar">
+                            <div
+                              className="performancemanagement-progress-fill"
+                              style={{
+                                width: `${progress}%`,
+                                backgroundColor: progressColor,
+                              }}
+                            ></div>
+                          </div>
+                          <span className="performancemanagement-progress-label">
+                            {Math.round(progress)}%
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
 
-      {openTaskReview === task.id && (
-        <tr>
-          <td colSpan="6" className="performancemanagement-task-review-section">
-            <Reviews task={task} tasks={tasks} setTasks={updateTasks} />
-          </td>
-        </tr>
-      )}
-    </React.Fragment>
-  );
-})}
-
+                    {openTaskReview === task.id && (
+                      <tr>
+                        <td colSpan="6" className="performancemanagement-task-review-section">
+                          <Reviews task={task} tasks={tasks} setTasks={updateTasks} />
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
+                );
+              })}
               {/* ✅ Overall Rating Row */}
               {tasks.length > 0 && (
                 <tr className="performancemanagement-overall-row">
@@ -384,6 +378,7 @@ const PerformanceManagement = () => {
 
         {showReviewBox && (
           <div className="performancemanagement-final-review fade-in">
+            {/* LEFT: Rating, Band Score, Manager Comments */}
             <div className="performancemanagement-final-left">
               <p className="performancemanagement-emp-name">{user.name}</p>
 
@@ -403,6 +398,12 @@ const PerformanceManagement = () => {
                 Band Score: {reviewData.bandScore || "-"}
               </div>
 
+              <h4>Manager Comments</h4>
+              <textarea value={reviewData.comments} readOnly />
+            </div>
+
+            {/* RIGHT: Employee Actions */}
+            <div className="performancemanagement-final-right">
               <div className="performancemanagement-agree-disagree">
                 <label>
                   <input
@@ -434,7 +435,6 @@ const PerformanceManagement = () => {
                   className="performancemanagement-finalize-btn"
                   onClick={handleFinalize}
                   disabled={!canFinalize}
-                  title={!canFinalize ? "Waiting for manager to assign band score & comments" : ""}
                 >
                   Finalize Review
                 </button>
@@ -444,34 +444,30 @@ const PerformanceManagement = () => {
                   className="performancemanagement-report-btn"
                   onClick={handleReport}
                   disabled={!canFinalize}
-                  title={!canFinalize ? "Waiting for manager to assign band score & comments" : ""}
                 >
                   Report to TL
                 </button>
               )}
 
               <button
-  className="simulate-btn"
-  style={{ marginTop: "10px", backgroundColor: "#6c63ff", color: "#fff" }}
-  onClick={() => {
-    const updated = {
-      ...reviewData,
-      bandScore: "A1",
-      comments: "Excellent performance. Consistent delivery and leadership.",
-    };
-    setFinalReviews((prev) => ({ ...prev, [selectedYear]: updated }));
-    localStorage.setItem("finalReviews", JSON.stringify({ ...finalReviews, [selectedYear]: updated }));
-    alert("Simulated manager input added!");
-  }}
->
-  Simulate Manager Input
-</button>
-
-            </div>
-
-            <div className="performancemanagement-final-right">
-              <h4>Manager Comments</h4>
-              <textarea value={reviewData.comments} readOnly />
+                className="simulate-btn"
+                onClick={() => {
+                  const updated = {
+                    ...reviewData,
+                    bandScore: "A1",
+                    comments:
+                      "Excellent performance. Consistent delivery and leadership.",
+                  };
+                  setFinalReviews((prev) => ({ ...prev, [selectedYear]: updated }));
+                  localStorage.setItem(
+                    "finalReviews",
+                    JSON.stringify({ ...finalReviews, [selectedYear]: updated })
+                  );
+                  alert("Simulated manager input added!");
+                }}
+              >
+                Simulate Manager Input
+              </button>
             </div>
           </div>
         )}
