@@ -99,10 +99,9 @@ function Login({ setIsLoggedIn, setUserRole }) {
         </div>
       </div>
       <hr />
-
-      <div className="login-container-employee">
-        <form className="login-form-employee" onSubmit={handleSubmit}>
-          <h1 className="heading-employee">Login</h1>
+      <div className="loginpage-login-container-employee">
+        <form className="loginpage-login-form-employee" onSubmit={handleSubmit}>
+          <h1 className="loginpage-heading-employee">Login</h1>
 
           <label>Select Role:</label>
           <select value={role} onChange={(e) => setRole(e.target.value)}>
@@ -111,14 +110,16 @@ function Login({ setIsLoggedIn, setUserRole }) {
           </select>
 
           <label>Email Id :</label>
-          <input
-            type="email"
-            placeholder="Mail ID"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete="off"
-          />
+          <div className="loginpage-email-input">
+            <input
+              type="email"
+              placeholder="Mail ID"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="off"
+            />
+          </div>
 
           <label>Password :</label>
           <div className="loginpage-password-input">

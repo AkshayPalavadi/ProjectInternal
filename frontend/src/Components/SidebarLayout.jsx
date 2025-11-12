@@ -51,38 +51,38 @@ function SidebarLayout({ userName, setUserName, userPhoto, setUserPhoto }) {
   };
 
   return (
-    <div className="layout">
+    <div className="sidebarlayout-layout">
       {/* Sidebar */}
-      <aside className="sidebar-inner">
-        <div className="profile-section">
-          <div className="photo-name-container">
-            <div className="photo-wrapper" onClick={handlePhotoClick}>
+      <aside className="sidebarlayout-sidebar-inner">
+        <div className="sidebarlayout-profile-section">
+          <div className="sidebarlayout-photo-name-container">
+            <div className="sidebarlayout-photo-wrapper" onClick={handlePhotoClick}>
               <img src={userPhoto || defaultAvatar} alt="Profile" />
               {showMenu && (
-                <div className="photo-menu">
+                <div className="sidebarlayout-photo-menu">
                   <button onClick={handleAddPhoto}>Add Photo</button>
                   {userPhoto && <button onClick={handleRemovePhoto}>Remove Photo</button>}
                 </div>
               )}
             </div>
 
-            <div className="username-section">
+            <div className="sidebarlayout-username-section">
               {editingName ? (
-                <div className="edit-name-box">
+                <div className="sidebarlayout-edit-name-box">
                   <input
                     type="text"
                     value={tempName}
                     onChange={(e) => setTempName(e.target.value)}
                   />
-                  <div className="name-buttons">
+                  <div className="sidebarlayout-name-buttons">
                     <button onClick={handleSaveName}>Save</button>
                     <button onClick={handleCancelEdit}>Cancel</button>
                   </div>
                 </div>
               ) : (
-                <div className="name-display">
+                <div className="sidebarlayout-name-display">
                   <p>{userName}</p>
-                  <button className="edit-name-btn" onClick={handleEditName}>
+                  <button className="sidebarlayout-edit-name-btn" onClick={handleEditName}>
                     Edit
                   </button>
                 </div>
@@ -100,37 +100,72 @@ function SidebarLayout({ userName, setUserName, userPhoto, setUserPhoto }) {
         </div>
 
         {/* Sidebar Links */}
-        <ul className="sidebar-links">
+        <ul className="sidebarlayout-sidebar-links">
           <li>
-            <Link to="home" className={pathname === "/employee/home" ? "homeActive" : "homeInactive"}>
+            <Link
+              to="home"
+              className={pathname === "/employee/home" ? "sidebarlayout-homeActive" : "sidebarlayout-homeInactive"}
+            >
               Home
             </Link>
           </li>
+
           <li>
-            <Link to="dashboard" className={pathname === "/employee/dashboard" ? "dashboardActive" : "dashboardInactive"}>
+            <Link
+              to="dashboard"
+              className={pathname === "/employee/dashboard" ? "sidebarlayout-dashboardActive" : "sidebarlayout-dashboardInactive"}
+            >
               My Dashboard
             </Link>
           </li>
+
           <li>
-            <Link to="profile" className={pathname === "/employee/profile" ? "profileActive" : "profileInactive"}>
+            <Link
+              to="profile"
+              className={pathname === "/employee/profile" ? "sidebarlayout-profileActive" : "sidebarlayout-profileInactive"}
+            >
               Profile
             </Link>
           </li>
+
           <li>
-            <Link to="leaves" className={pathname === "/employee/leaves" ? "leaveActive" : "leaveInactive"}>
+            <Link
+              to="leaves"
+              className={pathname === "/employee/leaves" ? "sidebarlayout-leaveActive" : "sidebarlayout-leaveInactive"}
+            >
               Leaves
             </Link>
           </li>
+
+          {/* ✅ Added Timesheet */}
+          <li>
+            <Link
+              to="timesheet"
+              className={pathname === "/employee/timesheet" ? "sidebarlayout-timesheetActive" : "sidebarlayout-timesheetInactive"}
+            >
+              Timesheet
+            </Link>
+          </li>
+
+          {/* ✅ Added Performance */}
+          <li>
+            <Link
+              to="performancemanagement"
+              className={pathname === "/employee/performancemanagement" ? "sidebarlayout-performanceActive" : "sidebarlayout-performanceInactive"}
+            >
+              Performance
+            </Link>
+          </li>
         </ul>
-        
+
         {/* Logout Button */}
-        <div className="logout-button">
+        <div className="sidebarlayout-logout-button">
           <button onClick={handleLogout}>Logout</button>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="content">
+      <main className="sidebarlayout-content">
         <Outlet />
       </main>
     </div>
