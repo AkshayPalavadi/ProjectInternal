@@ -11,6 +11,19 @@ export default function TimeSheet() {
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
   const [entries, setEntries] = useState({});
+
+  // --- Persist entries in localStorage ---
+useEffect(() => {
+  const savedEntries = localStorage.getItem("timesheetEntries");
+  if (savedEntries) {
+    setEntries(JSON.parse(savedEntries));
+  }
+}, []);
+
+useEffect(() => {
+  localStorage.setItem("timesheetEntries", JSON.stringify(entries));
+}, [entries]);
+
   const [category, setCategory] = useState("");
   const [projectName, setProjectName] = useState(null);
   const [projectCode, setProjectCode] = useState(null);
@@ -22,7 +35,6 @@ export default function TimeSheet() {
     const [toDate, setToDate] = useState("");
     const [error, setError] = useState("");
 
-// Structure: [{ date: '2025-11-10', status: 'pending' }]
 
   // 🟢 Holidays from API
   const [holidays, setHolidays] = useState([]);
@@ -59,6 +71,46 @@ useEffect(() => {
   };
   fetchHolidays();
 }, []);
+
+// ✅ Fetch existing timesheet entries from backend when component mounts or month/year changes
+useEffect(() => {
+  const fetchTimesheetEntries = async () => {
+    try {
+      const res = await fetch(
+        `https://internal-website-rho.vercel.app/api/timesheet?month=${month + 1}&year=${year}`
+      );
+      if (!res.ok) throw new Error("Failed to fetch timesheet entries");
+
+      const data = await res.json();
+
+      // ✅ Convert backend entries (with ISO date) into your local entries state
+      const formattedEntries = {};
+      if (Array.isArray(data)) {
+        data.forEach((entry) => {
+          const dateObj = new Date(entry.date);
+          const key = dateObj.toISOString().split("T")[0]; // e.g. "2025-11-04"
+
+          formattedEntries[key] = {
+            category: entry.category,
+            projectName: entry.projectName,
+            projectCode: entry.projectCode,
+            projectType: entry.projectType,
+            hours: entry.hours,
+            date: key,
+          };
+        });
+      }
+
+      setEntries(formattedEntries);
+      console.log("✅ Loaded timesheet entries:", formattedEntries);
+    } catch (err) {
+      console.error("❌ Error loading timesheet entries:", err);
+    }
+  };
+
+  fetchTimesheetEntries();
+}, [month, year]);
+
 
 
     const holidaysSet = useMemo(() => new Set(holidays.map((h) => h.date)), [holidays]);
@@ -169,22 +221,43 @@ const isOverdue = (dateObj) => {
     return diffDays >= 0 && diffDays <= 2;
   };
 
-    const buildWeeks = () => {
-    const weeks = [];
-    const firstOfMonth = new Date(year, month, 1);
-    const start = new Date(firstOfMonth);
-    start.setDate(firstOfMonth.getDate() - firstOfMonth.getDay());
-    const cells = [];
-    for (let i = 0; i < 42; i++) {
-      const d = new Date(start);
-      d.setDate(start.getDate() + i);
-      cells.push(d);
+  const buildWeeks = () => {
+  const firstOfMonth = new Date(year, month, 1);
+  const lastOfMonth = new Date(year, month + 1, 0);
+  const totalDays = lastOfMonth.getDate();
+
+  const weeks = [];
+  let currentWeek = [];
+
+  // --- Fill empty slots before the 1st day ---
+  for (let i = 0; i < firstOfMonth.getDay(); i++) {
+    currentWeek.push(null); // placeholder
+  }
+
+  // --- Fill actual days ---
+  for (let day = 1; day <= totalDays; day++) {
+    const dateObj = new Date(year, month, day);
+    currentWeek.push(dateObj);
+
+    // When week is full (7 days), push it
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek);
+      currentWeek = [];
     }
-    for (let w = 0; w < 6; w++) {
-      weeks.push(cells.slice(w * 7, w * 7 + 7));
+  }
+
+  // --- Fill empty slots after last day ---
+  if (currentWeek.length > 0) {
+    while (currentWeek.length < 7) {
+      currentWeek.push(null); // placeholder
     }
-    return weeks;
-  };
+    weeks.push(currentWeek);
+  }
+
+  return weeks;
+};
+
+
 
   const weeks = buildWeeks();
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -324,74 +397,74 @@ const handleSubmit = async (e) => {
 
         <div className="weeks-wrapper">
           {weeks.map((week, wi) => {
-            const weekTotal = week.reduce((sum, dateObj) => {
-              const key = fmtKey(dateObj);
-              return sum + ((entries[key] && entries[key].hours) || 0);
-            }, 0);
+             const weekTotal = week.reduce((sum, dateObj) => {
+                if (!dateObj) return sum; // ✅ prevents error
+                const key = fmtKey(dateObj);
+                return sum + ((entries[key] && entries[key].hours) || 0);
+              }, 0);
 
             return (
               <div className="week-row" key={wi}>
-                {week.map((dateObj, ci) => {
-                  const key = fmtKey(dateObj);
-                  const entry = entries[key];
-                  const currentMonth = dateObj.getMonth() === month && dateObj.getFullYear() === year;
-                  const editable = isDateEditable(dateObj);
-                  const isSunday = dateObj.getDay() === 0;
-const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
-                  const holiday = holidays.find((h) => h.date === dateStr);
+              {week.map((dateObj, ci) => {
+                // handle placeholder (null) cells for alignment
+                if (!dateObj) {
+                  return <div key={ci} className="cell empty"></div>;
+                }
 
-                  const hoursValue = entry?.hours ?? null;
+                const key = fmtKey(dateObj);
+                const entry = entries[key];
+                const currentMonth = dateObj.getMonth() === month && dateObj.getFullYear() === year;
+                const editable = isDateEditable(dateObj);
+                const isSunday = dateObj.getDay() === 0;
+                const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
+                const holiday = holidays.find((h) => h.date === dateStr);
+                const hoursValue = entry?.hours ?? null;
 
-                  let cellClass = "cell";
-                  if (!currentMonth) cellClass += " other-month";
-                 if (holiday) cellClass += " holiday";
-                  if (hoursValue >= 9) cellClass += " cell-green";
-                  else if (hoursValue > 0) cellClass += " cell-yellow";
-                  else if (hoursValue === 0) cellClass += " cell-red";
-                  if (dateObj.getDay() === 6) cellClass += " weekend";
-                  if (isSunday) cellClass += " sunday-cell";
-                  if (!editable) cellClass += " not-editable";
-                  if (sameDay(selectedDate, dateObj)) cellClass += " selected-day";
+                let cellClass = "cell";
+                if (!currentMonth) cellClass += " other-month";
+                if (holiday) cellClass += " holiday";
+                if (hoursValue >= 9) cellClass += " cell-green";
+                else if (hoursValue > 0) cellClass += " cell-yellow";
+                else if (hoursValue === 0) cellClass += " cell-red";
+                if (dateObj.getDay() === 6) cellClass += " weekend";
+                if (isSunday) cellClass += " sunday-cell";
+                if (!editable) cellClass += " not-editable";
+                if (sameDay(selectedDate, dateObj)) cellClass += " selected-day";
 
-                  return (
-                    <div
-                        key={ci}
-                        className={cellClass}
-                             title={
-                        holiday
-                          ? `Public Holiday: ${holiday.name}`
-                          : dateObj > new Date()
-                          ? "Future date (not allowed)"
-                          : ""
+                return (
+                  <div
+                    key={ci}
+                    className={cellClass}
+                    title={
+                      holiday
+                        ? `Public Holiday: ${holiday.name}`
+                        : dateObj > new Date()
+                        ? "Future date (not allowed)"
+                        : ""
+                    }
+                    onClick={() => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      if (dateObj > today) return;
+
+                      if (!currentMonth) {
+                        setMonth(dateObj.getMonth());
+                        setYear(dateObj.getFullYear());
                       }
-                        onClick={() => {
-                          const today = new Date();
-                          today.setHours(0, 0, 0, 0);
 
-                          // 🚫 Prevent selecting future dates
-                          if (dateObj > today) {
-                            // alert("You cannot select future dates!");
-                            return;
-                          }
+                      setSelectedDate(new Date(dateObj));
+                      if (entries[key]) setShowPopup(true);
+                      if (formRef.current)
+                        formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }}
+                  >
+                    <div className="day">{dateObj.getDate()}</div>
+                    {holiday && <div className="holiday-dot"></div>}
+                    {entry && <div className="hours">{entry.hours}h</div>}
+                  </div>
+                );
+              })}
 
-                          if (!currentMonth) {
-                            setMonth(dateObj.getMonth());
-                            setYear(dateObj.getFullYear());
-                          }
-
-                          setSelectedDate(new Date(dateObj));
-                          if (entries[key]) setShowPopup(true);
-                          if (formRef.current)
-                            formRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-                        }}
-                      >
-
-                      <div className="day">{dateObj.getDate()}</div>
-                      {holiday && <div className="holiday-dot"></div>}
-                      {entry && <div className="hours">{entry.hours}h</div>}
-                    </div>
-                  );
-                })}
                 <div className="week-total-cell">{weekTotal.toFixed(1)}h</div>
               </div>
             );
@@ -503,40 +576,6 @@ const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padSt
     >
       Export Timesheet to Excel
     </button>
-
-    {/* Manager Request Button */}
-    {/* {isOverdue(selectedDate) &&
-     selectedDate <= new Date() && (
-      <button
-        style={{
-          fontSize: '0.8rem',
-          marginTop: '4px',
-          background: '#ff7043',
-          color: '#fff',
-          border: 'none',
-          borderRadius: '5px',
-          padding: '4px 6px',
-          cursor: 'pointer',
-          marginLeft: '25px',
-        }}
-        onClick={(e) => {
-          e.stopPropagation();
-          const key = fmtKey(selectedDate);
-
-          // Check if request already exists
-          const existingRequest = pendingRequests.find(r => r.date === key);
-          if (existingRequest) {
-            alert("You have already requested manager approval for this date!");
-            return;
-          }
-
-          setPendingRequests([...pendingRequests, { date: key, status: 'pending' }]);
-          alert(`Request sent for ${selectedDate.toDateString()}`);
-        }}
-      >
-        Request Manager Approval
-      </button>
-    )} */}
   </div>
 )}
 
