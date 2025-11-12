@@ -22,7 +22,8 @@ const isValidPDF = (file) =>
 export const simpleValidatePersonal = (data) => {
   const errs = {};
 
-
+   if (!data.employeeId || data.employeeId.trim() === "")
+    errs.employeeId = "Employee ID is required";
   // First Name
   if (isEmpty(data.firstName)) errs.firstName = "First name is required";
   else if (!namePattern.test(data.firstName))
@@ -110,6 +111,8 @@ export const simpleValidateEducation = (data) => {
   const namePattern = /^[A-Za-z\s]+$/; // ✅ Only letters and spaces
 
   // --- 10th ---
+  if (!data.employeeId || data.employeeId.trim() === "")
+    errs.employeeId = "Employee ID is required";
   if (!data.schoolName10) errs.schoolName10 = "School name required";
   else if (!namePattern.test(data.schoolName10))
     errs.schoolName10 = "School name should contain only letters";

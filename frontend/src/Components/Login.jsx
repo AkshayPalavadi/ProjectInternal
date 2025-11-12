@@ -22,42 +22,76 @@ function Login({ setIsLoggedIn, setUserRole }) {
       navigate(storedRole === "admin" ? "/admin" : "/employee/home", { replace: true });
     }
   }, []);
+  const checkIfUserExists = async (email) => {
+  try {
+    const res = await fetch(`https://internal-website-rho.vercel.app/api/auth/email/${email}`);
+    const data = await res.json();
+    console.log("✅ Check user API:", data);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+    const exists = !!data.employee;
 
-    if (!email.endsWith("@dhatvibs.com")) {
-      setError("Only @dhatvibs.com email addresses are allowed.");
-      return;
+    // Preserve local truth of applicationSubmitted if we already have it
+    const localSubmitted = localStorage.getItem("applicationSubmitted") === "true";
+    const applicationSubmitted = data.employee?.applicationSubmitted || localSubmitted;
+
+    return { exists, applicationSubmitted };
+  } catch (err) {
+    console.error("Error checking user existence:", err);
+    return { exists: false, applicationSubmitted: false };
+  }
+};
+
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+
+  if (!email.endsWith("@dhatvibs.com")) {
+    setError("Only @dhatvibs.com email addresses are allowed.");
+    return;
+  }
+
+  // ✅ Step 1: Check user existence
+  const { exists, applicationSubmitted } = await checkIfUserExists(email);
+
+  if (!exists) {
+    alert("New user detected! Please fill out your profile form.");
+    localStorage.setItem("applicationSubmitted", "false");
+    navigate("/employee/profile");
+    return;
+  }
+
+  // ✅ Step 2: Store application status for existing user
+  localStorage.setItem("applicationSubmitted", applicationSubmitted ? "true" : "false");
+
+  // ✅ Step 3: Proceed with login
+  try {
+    const response = await fetch("https://internal-website-rho.vercel.app/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const result = await response.json();
+    console.log("📦 API Login Response:", result);
+
+    if (response.ok) {
+      setIsLoggedIn(true);
+      setUserRole(role);
+      if (result.token) localStorage.setItem("token", result.token);
+      localStorage.setItem("userRole", role);
+      localStorage.setItem("loginEmail", email);
+
+      navigate(role === "admin" ? "/admin" : "/employee/home");
+    } else {
+      setError(result.msg || "Invalid email or password");
     }
+  } catch (err) {
+    console.error("🚨 API Error:", err);
+    setError("Server not reachable. Please try again later.");
+  }
+};
 
-    try {
-      const response = await fetch("https://internal-website-rho.vercel.app/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const result = await response.json();
-      console.log("📦 API Login Response:", result);
-
-      if (response.ok) {
-        // ✅ Store auth info
-        setIsLoggedIn(true);
-        setUserRole(role);
-        if (result.token) localStorage.setItem("token", result.token);
-        localStorage.setItem("userRole", role);
-
-        navigate(role === "admin" ? "/admin" : "/employee/home");
-      } else {
-        setError(result.msg || "Invalid email or password");
-      }
-    } catch (err) {
-      console.error("🚨 API Error:", err);
-      setError("Server not reachable. Please try again later.");
-    }
-  };
 
   return (
     <div className="login-main-container">

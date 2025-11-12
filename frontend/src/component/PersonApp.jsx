@@ -43,17 +43,28 @@ function PersonApp({ setApplicationSubmitted }) {
 
   const active = getStepName();
 
-  const handleSuccess = () => {
+  const SUBMIT_MAP_KEY = "submissionStatusByEmail";
+const readSubmitMap = () => JSON.parse(localStorage.getItem(SUBMIT_MAP_KEY) || "{}");
+const setSubmitted = (email, val) => {
+  const map = readSubmitMap();
+  map[email] = !!val;
+  localStorage.setItem(SUBMIT_MAP_KEY, JSON.stringify(map));
+};
+
+const handleSuccess = () => {
   setApplicationSubmitted(true);
-    localStorage.setItem("applicationSubmitted", "true");
+  localStorage.setItem("applicationSubmitted", "true");
 
-    navigate("/employee/profile");
+  const email = localStorage.getItem("loginEmail");
+  if (email) setSubmitted(email, true);
 
-     
-  };
+  navigate(`/employee/profile/${personal.employeeId}`);
+};
+
 
   // -------------------- FORM STATES --------------------
   const [personal, setPersonal] = useState({
+    employeeId:"",
     firstName: "",
     middleName: "",
     lastName: "",
@@ -86,6 +97,7 @@ function PersonApp({ setApplicationSubmitted }) {
   });
 
   const [education, setEducation] = useState({
+    employeeId:"",
     schoolName10: "",
     year10: "",
     cgpa10: "",
@@ -155,6 +167,7 @@ function PersonApp({ setApplicationSubmitted }) {
   const savePersonal = async () => {
   try {
     const formData = new FormData();
+    
     for (const key in personal) {
       if (personal[key] instanceof File)
         formData.append(key, personal[key]);
