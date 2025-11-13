@@ -11,29 +11,16 @@ export default function TimeSheet() {
   const [month, setMonth] = useState(new Date().getMonth());
   const [year, setYear] = useState(new Date().getFullYear());
   const [entries, setEntries] = useState({});
-
-  // --- Persist entries in localStorage ---
-useEffect(() => {
-  const savedEntries = localStorage.getItem("timesheetEntries");
-  if (savedEntries) {
-    setEntries(JSON.parse(savedEntries));
-  }
-}, []);
-
-useEffect(() => {
-  localStorage.setItem("timesheetEntries", JSON.stringify(entries));
-}, [entries]);
-
   const [category, setCategory] = useState("");
   const [projectName, setProjectName] = useState(null);
   const [projectCode, setProjectCode] = useState(null);
   const [projectType, setProjectType] = useState("billable");
   const [hours, setHours] = useState("");
   const [showPopup, setShowPopup] = useState(false);
-    const [pendingRequests, setPendingRequests] = useState([]);
-    const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
-    const [error, setError] = useState("");
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [error, setError] = useState("");
 
 
   // 🟢 Holidays from API
@@ -75,41 +62,60 @@ useEffect(() => {
 // ✅ Fetch existing timesheet entries from backend when component mounts or month/year changes
 useEffect(() => {
   const fetchTimesheetEntries = async () => {
-    try {
-      const res = await fetch(
-        `https://internal-website-rho.vercel.app/api/timesheet?month=${month + 1}&year=${year}`
-      );
-      if (!res.ok) throw new Error("Failed to fetch timesheet entries");
+  try {
+    // ✅ Get token inside the function
+    const token = localStorage.getItem("token");
+    const userEmail = localStorage.getItem("userEmail");
 
-      const data = await res.json();
 
-      // ✅ Convert backend entries (with ISO date) into your local entries state
-      const formattedEntries = {};
-      if (Array.isArray(data)) {
-        data.forEach((entry) => {
-          const dateObj = new Date(entry.date);
-          const key = dateObj.toISOString().split("T")[0]; // e.g. "2025-11-04"
-
-          formattedEntries[key] = {
-            category: entry.category,
-            projectName: entry.projectName,
-            projectCode: entry.projectCode,
-            projectType: entry.projectType,
-            hours: entry.hours,
-            date: key,
-          };
-        });
-      }
-
-      setEntries(formattedEntries);
-      console.log("✅ Loaded timesheet entries:", formattedEntries);
-    } catch (err) {
-      console.error("❌ Error loading timesheet entries:", err);
+    if (!token) {
+      console.error("❌ No token found. Please log in again.");
+      return;
     }
-  };
+
+    const res = await fetch(
+      `https://internal-website-rho.vercel.app/api/timesheet?month=${month + 1}&year=${year}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // ✅ now defined
+        },
+      }
+    );
+
+    if (!res.ok) throw new Error("Failed to fetch timesheet entries");
+
+    const data = await res.json();
+    console.log("✅ Timesheet API Response:", data);
+
+    const formattedEntries = {};
+    if (Array.isArray(data.entries)) {
+    data.entries.forEach((entry) => {
+    const dateObj = new Date(entry.date);
+    const key = dateObj.toISOString().split("T")[0];
+    formattedEntries[key] = {
+      category: entry.category,
+      projectName: entry.projectName,
+      projectCode: entry.projectCode,
+      projectType: entry.projectType,
+      hours: entry.hours,
+      date: key,
+    };
+  });
+}
+
+    setEntries(formattedEntries);
+    console.log("✅ Loaded timesheet entries from backend:", formattedEntries);
+
+  } catch (err) {
+    console.error("❌ Error loading timesheet entries:", err);
+  }
+};
+
 
   fetchTimesheetEntries();
 }, [month, year]);
+
 
 
 
@@ -272,7 +278,10 @@ const handleSubmit = async (e) => {
   const h = parseFloat(hours || 0);
   if (isNaN(h) || h < 0 || h > 24) return alert("Enter valid hours (0 - 24).");
 
-  // Update local state first
+  const month = new Date(selectedDate).getMonth() + 1;
+  const year = new Date(selectedDate).getFullYear();
+  const userEmail = localStorage.getItem("userEmail");
+
   const newEntry = {
     category,
     projectName: projectName.value,
@@ -280,33 +289,63 @@ const handleSubmit = async (e) => {
     projectType,
     hours: h,
     date: key,
+    month,
+    year,
+    userEmail,
   };
 
   setEntries({
-    ...entries,
-    [key]: newEntry,
+  ...entries,
+  [key]: newEntry,
+});
+
+try {
+  // ✅ Get token and user info fresh from localStorage
+  const token = localStorage.getItem("token");
+  const userEmail = localStorage.getItem("userEmail");
+  const employeeId = localStorage.getItem("employeeId");
+
+  if (!token) {
+    alert("No token found. Please log in again.");
+    return;
+  }
+
+  // ✅ Merge user info into the payload (if not already included)
+  const payload = {
+    ...newEntry,
+    userEmail,
+    employeeId,
+  };
+
+  console.log("📤 Sending Timesheet Data:", payload);
+
+  const response = await fetch("https://internal-website-rho.vercel.app/api/timesheet", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
   });
 
-  try {
-    // 🔹 Send to backend API
-    const response = await fetch("https://internal-website-rho.vercel.app/api/timesheet/save", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(newEntry),
-    });
+  // ✅ Log response for debugging
+  const result = await response.json();
+  console.log("📦 Backend Response:", response.status, result);
 
-    if (!response.ok) throw new Error("Failed to save timesheet entry");
-
-    const result = await response.json();
-    console.log("✅ Timesheet saved successfully:", result);
-    alert("Timesheet saved successfully!");
-
-  } catch (err) {
-    console.error("❌ Error saving timesheet:", err);
-    alert("Failed to save timesheet. Please try again later.");
+  if (!response.ok) {
+    throw new Error(result.msg || "Failed to save timesheet entry");
   }
+
+  alert("✅ Timesheet saved successfully!");
+
+}
+ catch (err) {
+  console.error("❌ Error saving timesheet:", err);
+  alert("Failed to save timesheet. Please try again later.");
+}
+
+  
+
 
   // reset form
   setCategory("");
@@ -371,7 +410,7 @@ const handleSubmit = async (e) => {
     });
 
     saveAs(blob, `Timesheet_${year}_${month + 1}.xlsx`);
-  };
+      };
 
 
   return (
@@ -504,24 +543,6 @@ const handleSubmit = async (e) => {
     <span>📅 Selected Date:</span>
     <strong>{selectedDate.toDateString()}</strong>
 
-    {/* 🟢 Export to Excel Button */}
-    {/* <button
-      style={{
-        fontSize: "0.8rem",
-        background: "#1976d2",
-        color: "#fff",
-        border: "none",
-        borderRadius: "5px",
-        padding: "4px 8px",
-        cursor: "pointer",
-      }}
-      onClick={(e) => {
-        e.stopPropagation();
-        exportToExcel();
-      }}
-    >
-      Export Timesheet to Excel
-    </button> */}
 
     {/* Manager Request Button */}
     {isOverdue(selectedDate) && selectedDate <= new Date() && (

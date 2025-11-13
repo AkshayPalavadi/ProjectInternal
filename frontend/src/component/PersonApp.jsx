@@ -23,7 +23,7 @@ function PersonApp({ setApplicationSubmitted }) {
     "Professional Details",
     "Review & Submit",
   ];
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(3);
   const [errors, setErrors] = useState({});
 
   const getStepName = () => {
