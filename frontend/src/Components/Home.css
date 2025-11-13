@@ -12,20 +12,26 @@
 .scrolling-text {
   width: 100%;
   overflow: hidden;
-  background-color: #2c3e50;
+  background-color: #1f2937;
   color: white;
   padding: 10px 0;
   font-size: 28px;
   font-weight: bold;
   white-space: nowrap;
   box-sizing: border-box;
+  margin-top:-30px;
+  /* margin-bottom: 1px; */
 }
 .scroll-logo{
   padding-left: 10px;
   padding-right: 10px;
   border-radius: 50%;
   width: 60px;
-  height: 40px;
+  height: 60px;
+  margin-left: 10px;
+  /* margin-right: 10px; */
+  margin-top:20px;
+  margin-bottom: 15px;
 }
 .scrolling-content {
   display: inline-flex;
@@ -52,12 +58,14 @@
 /* Carousel */
 .images {
   position: relative;
-  width: 90%;
-  height: 500px;   /* max container height */
+  width: 98%;
+  height: calc(100%-115px);   /* max container height */
   overflow: hidden;
-  margin-top: 30px;
+  margin-top: 5px;
   /* margin-left: 40px; */
   background-color: #f0f0f0;
+  /* background-color: tomato; */
+/* flex: 1; */
 }
 
 .image-track {

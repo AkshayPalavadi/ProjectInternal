@@ -65,7 +65,7 @@
   border: 1px solid #ccc;
   outline: none;
   transition: 0.3s ease;
-  width: 100%;
+  /* width: 100%; */
   font-size: 14px; /* slightly smaller */
 }
 
@@ -80,13 +80,14 @@
   display: flex;
   gap: 8px;
   width: 100%;
+  align-items: center;
 }
 
 .registerpage-emp-countrycode {
   max-width: 90px;
   height: 40px; /* matches phone input height */
   padding: 8px 30px 8px 10px; /* room for arrow on right */
-  margin-top: 5px;
+  /* margin-top: 5px; */
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 14px;
@@ -137,7 +138,7 @@
 }
 
 .registerpage-emp-password-input {
-  width: 100%;
+  width: 93%;
   padding-right: 35px;
 }
 
@@ -234,4 +235,10 @@
   .registerpage-emp-content {
     font-size: 15px;
   }
+}
+
+.Date-of-Birth
+{
+  margin-bottom: 0px;
+  font-weight: 700;
 }

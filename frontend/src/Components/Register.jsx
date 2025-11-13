@@ -169,7 +169,7 @@ const Register = () => {
             required
           />
 
-          <p>Date of Birth:</p>
+          <p className="Date-of-Birth">Date of Birth:</p>
           <input
             type="date"
             name="dob"
@@ -228,7 +228,7 @@ const Register = () => {
               className="registerpage-emp-eye-icon"
               onClick={() => setShowPassword((prev) => !prev)}
             >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
+              {showPassword ? <FaEye /> : <FaEyeSlash />}
             </span>
           </div>
           {errors.password && <p className="registerpage-emp-error">{errors.password}</p>}
@@ -247,7 +247,7 @@ const Register = () => {
               className="registerpage-emp-eye-icon"
               onClick={() => setShowConfirmPassword((prev) => !prev)}
             >
-              {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+              {showConfirmPassword ? <FaEye /> : <FaEyeSlash />}
             </span>
           </div>
           {errors.confirmPassword && (

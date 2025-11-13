@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
-import img1 from "../assets/girlsGroup.jpeg";
-import img2 from "../assets/boysGroup.jpeg";
-import img3 from "../assets/img1.jpeg";
-import img4 from "../assets/girlsGroup1.jpg";
+import img1 from "../assets/Dhatvi.png";
+import img2 from "../assets/Dhatvi1.jpeg";
+import img3 from "../assets/Dhatvi2.jpg";
+import img4 from "../assets/Dhatvi4.png";
 import logo from "../assets/logo.jpg"
 
 import "./Home.css";
 
 // Images array with individual width and height
 const images = [
-  { src: img1, width: 900, height: 500 },
-  { src: img2, width: 900, height: 500 },
-  { src: img3, width: 900, height: 500 },
-  { src: img4, width: 900, height: 500 },
+  { src: img1, width: 1000, height: 500 },
+  { src: img2, width: 1000, height: 500 },
+  { src: img3, width: 1000, height: 500 },
+  // { src: img4, width: 900, height: 500 },
 ];
 
 export default function Home() {
@@ -41,13 +41,13 @@ export default function Home() {
             <p className="tagline"><i>Driving Technology, Delivering Trust</i></p>
           </div>
         </div>
-      </div>
+      </div> 
 
       {/* Carousel */}
       <div className="images">
         {/* Arrows */}
-        <span className="arrow arrow-left" onClick={prevSlide}>&#10094;</span>
-        <span className="arrow arrow-right" onClick={nextSlide}>&#10095;</span>
+        {/* <span className="arrow arrow-left" onClick={prevSlide}>&#10094;</span>
+        <span className="arrow arrow-right" onClick={nextSlide}>&#10095;</span> */}
 
         <div className="image-track" style={{ transform: `translateX(-${current * 100}%)` }}>
           {images.map((img, index) => (
@@ -55,7 +55,7 @@ export default function Home() {
               <img
                 src={img.src}
                 alt={`slide-${index}`}
-                style={{ width: `${img.width}px`, height: `${img.height}px`, objectFit: "contain" }}
+                style={{ width: `${img.width}px`, height: `${img.height}px`, objectFit: "cover" }}
               />
             </div>
           ))}

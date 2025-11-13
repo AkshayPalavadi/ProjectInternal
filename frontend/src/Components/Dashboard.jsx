@@ -220,7 +220,7 @@ const [dashboardData] = useState({
         </div>
       </div>
 
-      <div className="employeedashboard-navigation-cards-row">
+      {/* <div className="employeedashboard-navigation-cards-row">
         <Link to="/employee/timesheet" className="employeedashboard-nav-card">
           <h2>Timesheet</h2>
           <p>Track your daily work hours and activities.</p>
@@ -230,7 +230,7 @@ const [dashboardData] = useState({
           <h2>Performance Management</h2>
           <p>View and manage your assigned projects.</p>
         </Link>
-      </div>
+      </div> */}
 
       <Outlet />
 
