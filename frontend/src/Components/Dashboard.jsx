@@ -54,18 +54,18 @@ const getAllProjectDays = (projects) => {
 
     if (today < start) {
       futureDays += getDuration(p.startDate, p.endDate);
-      details["Future days"].push({ range: `${start.toDateString()} → ${end.toDateString()}`, label: `${p.name}: ${getDuration(p.startDate, p.endDate)} days` });
+      details["Future days"].push({ range: `${start.toDateString()} → ${end.toDateString()}`, label: `${p.projectName}: ${getDuration(p.startDate, p.endDate)} days` });
     } else if (today >= start && today <= end) {
       const daysPassed = Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1;
       const remaining = getDuration(p.startDate, p.endDate) - daysPassed;
       completedDays += daysPassed;
       inProgressDays += remaining;
 
-      details["Completed days"].push({ range: `${start.toDateString()} → ${today.toDateString()}`, label: `${p.name}: ${daysPassed} days` });
-      if (remaining > 0) details["In Progress days"].push({ range: `${new Date(today.getTime() + 86400000).toDateString()} → ${end.toDateString()}`, label: `${p.name}: ${remaining} days` });
+      details["Completed days"].push({ range: `${start.toDateString()} → ${today.toDateString()}`, label: `${p.projectName}: ${daysPassed} days` });
+      if (remaining > 0) details["In Progress days"].push({ range: `${new Date(today.getTime() + 86400000).toDateString()} → ${end.toDateString()}`, label: `${p.projectName}: ${remaining} days` });
     } else {
       completedDays += getDuration(p.startDate, p.endDate);
-      details["Completed days"].push({ range: `${start.toDateString()} → ${end.toDateString()}`, label: `${p.name}: ${getDuration(p.startDate, p.endDate)} days` });
+      details["Completed days"].push({ range: `${start.toDateString()} → ${end.toDateString()}`, label: `${p.projectName}: ${getDuration(p.startDate, p.endDate)} days` });
     }
 
     lastEnd = new Date(end);
@@ -103,14 +103,31 @@ const CustomTooltip = ({ active, payload, detailMap }) => {
 
 function Dashboard() {
   // ✅ Get employee ID from login
-  const employeeId = parseInt(localStorage.getItem("employeeId"));
+  // const employeeId = parseInt(localStorage.getItem("employeeId"));
+  const employeeId = "EMP001";
 
-  // ✅ Read all projects from localStorage
-  const allProjects = JSON.parse(localStorage.getItem("projects")) || [];
+  const [projects, setProjects] = useState([]);
 
-  // ✅ Filter projects assigned to this employee
-  const projects = allProjects.filter(p => p.assignedEmployees.includes(employeeId));
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const res = await fetch("https://internal-website-rho.vercel.app/api/projects");
+        const data = await res.json();
 
+        if (data.projects && Array.isArray(data.projects)) {
+          // ✅ Filter only the projects assigned to the logged-in employee
+          const assignedProjects = data.projects.filter((p) =>
+            p.assignedTo?.includes(employeeId)
+          );
+          setProjects(assignedProjects);
+        }
+      } catch (err) {
+        console.error("Error fetching projects:", err);
+      }
+    };
+
+    fetchProjects();
+  }, [employeeId]);
 
   const COLORS = { "Completed days": "#00C49F", "In Progress days": "#FF8042", "Idle days": "#FF9999", "Future days": "#757575" };
   const { chartData: timelineData, detailMap } = getAllProjectDays(projects);
@@ -232,7 +249,7 @@ const [dashboardData] = useState({
 
             return (
               <div key={idx} className="employeedashboard-chart-card">
-                <h2>{project.projectname} Progress</h2>
+                <h2>{project.projectName} Progress</h2>
                 <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
@@ -253,8 +270,8 @@ const [dashboardData] = useState({
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
-                <p><strong>Start Date:</strong> {project.startDate}</p>
-                <p><strong>End Date:</strong> {project.endDate}</p>
+                <p><strong>Start Date:</strong> {project.startDate?.split("T")[0]}</p>
+                <p><strong>End Date:</strong> {project.endDate?.split("T")[0]}</p>
                 <p><strong>Duration:</strong> {getDuration(project.startDate, project.endDate)} days</p>
               </div>
             );
@@ -297,7 +314,7 @@ const [dashboardData] = useState({
         <table className="employeedashboard-projects-table">
           <thead>
             <tr>
-              <th>Project Id</th>
+              <th>Project ID</th>
               <th>Project Name</th>
               <th>Assigned By</th>
               <th>Start Date</th>
@@ -307,21 +324,40 @@ const [dashboardData] = useState({
             </tr>
           </thead>
           <tbody>
-            {projects.map((p, idx) => {
-              const status = calculateStatus(p.startDate, p.endDate);
-              const duration = getDuration(p.startDate, p.endDate);
-              return (
-                <tr key={idx}>
-                  <td>{p.projectid}</td>
-                  <td>{p.projectname}</td>
-                  <td>{p.assignedBy || "N/A"}</td>
-                  <td>{p.startDate}</td>
-                  <td>{p.endDate}</td>
-                  <td>{duration} days</td>
-                  <td>{status}</td>
-                </tr>
-              );
-            })}
+            {projects.length > 0 ? (
+              projects.map((p, idx) => {
+                const status = calculateStatus(p.startDate, p.endDate);
+                const duration = getDuration(p.startDate, p.endDate);
+
+                // 🧩 Handle various data shapes safely
+                const start = new Date(p.startDate);
+                const end = new Date(p.endDate);
+                const formatDate = (d) => {
+                  if (!d) return "N/A";
+                  const dateObj = new Date(d);
+                  if (isNaN(dateObj)) return "N/A";
+                  return dateObj.toISOString().split("T")[0]; // outputs only YYYY-MM-DD
+                };
+
+                return (
+                  <tr key={idx}>
+                    <td>{p.projectId || p._id || "N/A"}</td>
+                    <td>{p.projectName || "Unnamed Project"}</td>
+                    <td>{p.assignedBy || "N/A"}</td>
+                    <td>{formatDate(start)}</td>
+                    <td>{formatDate(end)}</td>
+                    <td>{duration} days</td>
+                    <td>{status}</td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan="7" style={{ textAlign: "center", color: "#888" }}>
+                  No projects found
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

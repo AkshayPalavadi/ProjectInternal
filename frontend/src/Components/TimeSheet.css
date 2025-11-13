@@ -432,7 +432,7 @@
 }
 
 /* Popup Modal */
-.popup-overlay {
+.popup-overlay-timesheet {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(20, 20, 20, 0.6);
@@ -450,7 +450,7 @@
   max-width: 420px;
   width: 90%;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  animation: fadeInUp 0.4s ease;
+  /* animation: fadeInUp 0.4s ease; */
 }
 
 .popup-content h3 {
@@ -474,7 +474,7 @@
   margin-top: 10px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
+  /* transition: 0.3s; */
 }
 
 .popup-content button:hover {
@@ -574,4 +574,29 @@
 
 .cell.holiday.not-editable {
   opacity: 0.8;
+}
+
+
+
+/* Leave day styling */
+.leave-cell {
+  background-color: #ffe6e6; /* light red/pink background */
+  color: #d32f2f; /* red text */
+  font-weight: 900;
+  cursor: not-allowed; /* shows that it’s not clickable/editable */
+}
+
+/* Optional: hover effect for other cells */
+.cell:not(.leave-cell):hover {
+  background-color: #f0f0f0;
+}
+
+/* Ensure hours are also red if showing */
+.leave-cell .hours {
+  color: #d32f2f;
+}
+
+/* Prevent pointer events if you want to block clicks entirely */
+.leave-cell {
+  pointer-events: none;
 }
