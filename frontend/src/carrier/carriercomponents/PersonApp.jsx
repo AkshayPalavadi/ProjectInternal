@@ -126,7 +126,7 @@ function PersonApp() {
           <h2 className="topbar-job">Job Application Form</h2>
         </header>
 
-        <section className="content-card">
+        <section className="content-card-job">
           {active === 'personal' && (
             <PersonalDetails
               data={personal}
