@@ -82,19 +82,7 @@ const EducationDetails = ({
 
       <div className="form-grid">
         {/* ---------- 10th Class ---------- */}
-        <div className="field">
-          <label>
-            employeeId <span className="required-star">*</span>
-          </label>
-          <input
-            name="employeeId"
-            value={data.employeeId}
-            onChange={handleChange}
-          />
-          {errors.employeeId && (
-            <small employeeId="err">{errors.employeeId}</small>
-          )}
-        </div>
+      
         <div className="field full">
           <h4>10th Class</h4>
         </div>

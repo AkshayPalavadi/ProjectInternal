@@ -7,7 +7,7 @@ export default function EmployeeReview() {
   const { email } = useParams();
 
   // get email from URL or fallback to logged-in user
-  const employeeEmail = email || localStorage.getItem("userEmail");
+  const employeeEmail = email || localStorage.getItem("user Email");
   console.log(employeeEmail);
   const token = localStorage.getItem("token");
 
