@@ -21,6 +21,25 @@ export default function TimeSheet() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [error, setError] = useState("");
+  const [leaveDays, setLeaveDays] = useState([]);
+
+  useEffect(() => {
+  // Example: static leaves for current month/year
+  const leaves = [
+    "2025-10-15",
+    "2025-11-04",
+  ];
+
+  // Optionally, filter leaves for current month/year
+  const filteredLeaves = leaves.filter((dateStr) => {
+    const d = new Date(dateStr);
+    return d.getMonth() === month && d.getFullYear() === year;
+  });
+
+  setLeaveDays(filteredLeaves);
+}, [month, year]); // rerun if month/year changes
+
+
 
 
   // 🟢 Holidays from API
@@ -217,15 +236,15 @@ const isOverdue = (dateObj) => {
   }, 0);
 
   const isDateEditable = (dateObj) => {
-    const key = fmtKey(dateObj);
-    if (holidaysSet.has(key)) return false; // disable editing on holidays
-    const entryDate = new Date(dateObj);
-    entryDate.setHours(0, 0, 0, 0);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const diffDays = Math.round((today - entryDate) / (1000 * 60 * 60 * 24));
-    return diffDays >= 0 && diffDays <= 2;
-  };
+  const key = fmtKey(dateObj);
+  if (holidaysSet.has(key) || leaveDays.includes(key)) return false;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((today - dateObj) / (1000 * 60 * 60 * 24));
+  return diffDays >= 0 && diffDays <= 2;
+};
+
 
   const buildWeeks = () => {
   const firstOfMonth = new Date(year, month, 1);
@@ -267,6 +286,7 @@ const isOverdue = (dateObj) => {
 
   const weeks = buildWeeks();
   const weekDays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
 const handleSubmit = async (e) => {
   e.preventDefault();
   if (!selectedDate) return alert("Select a date first!");
@@ -281,6 +301,7 @@ const handleSubmit = async (e) => {
   const month = new Date(selectedDate).getMonth() + 1;
   const year = new Date(selectedDate).getFullYear();
   const userEmail = localStorage.getItem("userEmail");
+  const employeeId = localStorage.getItem("employeeId");
 
   const newEntry = {
     category,
@@ -292,60 +313,57 @@ const handleSubmit = async (e) => {
     month,
     year,
     userEmail,
-  };
-
-  setEntries({
-  ...entries,
-  [key]: newEntry,
-});
-
-try {
-  // ✅ Get token and user info fresh from localStorage
-  const token = localStorage.getItem("token");
-  const userEmail = localStorage.getItem("userEmail");
-  const employeeId = localStorage.getItem("employeeId");
-
-  if (!token) {
-    alert("No token found. Please log in again.");
-    return;
-  }
-
-  // ✅ Merge user info into the payload (if not already included)
-  const payload = {
-    ...newEntry,
-    userEmail,
     employeeId,
   };
 
-  console.log("📤 Sending Timesheet Data:", payload);
-
-  const response = await fetch("https://internal-website-rho.vercel.app/api/timesheet", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(payload),
+  // Update local state immediately
+  setEntries({
+    ...entries,
+    [key]: newEntry,
   });
 
-  // ✅ Log response for debugging
-  const result = await response.json();
-  console.log("📦 Backend Response:", response.status, result);
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("No token found. Please log in again.");
+      return;
+    }
 
-  if (!response.ok) {
-    throw new Error(result.msg || "Failed to save timesheet entry");
+    let response, result;
+
+    if (entries[key]) {
+      // ✅ Update existing entry via PUT
+      response = await fetch("https://internal-website-rho.vercel.app/api/timesheet/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newEntry),
+      });
+      result = await response.json();
+      console.log("📦 PUT Response:", response.status, result);
+      if (!response.ok) throw new Error(result.msg || "Failed to update timesheet entry");
+      alert("✅ Timesheet updated successfully!");
+    } else {
+      // ✅ New entry via POST
+      response = await fetch("https://internal-website-rho.vercel.app/api/timesheet", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newEntry),
+      });
+      result = await response.json();
+      console.log("📦 POST Response:", response.status, result);
+      if (!response.ok) throw new Error(result.msg || "Failed to save timesheet entry");
+      alert("✅ Timesheet saved successfully!");
+    }
+  } catch (err) {
+    console.error("❌ Error saving/updating timesheet:", err);
+    alert("Failed to save/update timesheet. Please try again later.");
   }
-
-  alert("✅ Timesheet saved successfully!");
-
-}
- catch (err) {
-  console.error("❌ Error saving timesheet:", err);
-  alert("Failed to save timesheet. Please try again later.");
-}
-
-  
-
 
   // reset form
   setCategory("");
@@ -458,10 +476,13 @@ try {
                 const dateStr = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}-${String(dateObj.getDate()).padStart(2, "0")}`;
                 const holiday = holidays.find((h) => h.date === dateStr);
                 const hoursValue = entry?.hours ?? null;
+                const leave = leaveDays.includes(key);
+
 
                 let cellClass = "cell";
                 if (!currentMonth) cellClass += " other-month";
                 if (holiday) cellClass += " holiday";
+                if (leave) cellClass += " leave-cell";
                 if (hoursValue >= 9) cellClass += " cell-green";
                 else if (hoursValue > 0) cellClass += " cell-yellow";
                 else if (hoursValue === 0) cellClass += " cell-red";

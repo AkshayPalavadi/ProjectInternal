@@ -575,3 +575,28 @@
 .cell.holiday.not-editable {
   opacity: 0.8;
 }
+
+
+
+/* Leave day styling */
+.leave-cell {
+  background-color: #ffe6e6; /* light red/pink background */
+  color: #d32f2f; /* red text */
+  font-weight: 900;
+  cursor: not-allowed; /* shows that it’s not clickable/editable */
+}
+
+/* Optional: hover effect for other cells */
+.cell:not(.leave-cell):hover {
+  background-color: #f0f0f0;
+}
+
+/* Ensure hours are also red if showing */
+.leave-cell .hours {
+  color: #d32f2f;
+}
+
+/* Prevent pointer events if you want to block clicks entirely */
+.leave-cell {
+  pointer-events: none;
+}
