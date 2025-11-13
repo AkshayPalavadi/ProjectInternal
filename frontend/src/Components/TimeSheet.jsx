@@ -745,7 +745,7 @@ const handleSubmit = async (e) => {
 
       {/* Popup */}
       {showPopup && selectedDate && (
-        <div className="popup-overlay" onClick={() => setShowPopup(false)}>
+        <div className="popup-overlay-timesheet" onClick={() => setShowPopup(false)}>
           <div className="popup-content" onClick={(e) => e.stopPropagation()}>
             <h3>{selectedDate.toDateString()} - Project Details</h3>
             <hr />

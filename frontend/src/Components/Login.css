@@ -111,11 +111,7 @@ hr {
   position: relative;
   display: flex;
   align-items: center;
- 
-}
-
-.loginpage-email-input input {
-  flex: 1;
+  width: 100%;
 }
 
 /* 🔐 Password Input */

@@ -432,7 +432,7 @@
 }
 
 /* Popup Modal */
-.popup-overlay {
+.popup-overlay-timesheet {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(20, 20, 20, 0.6);
@@ -450,7 +450,7 @@
   max-width: 420px;
   width: 90%;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-  animation: fadeInUp 0.4s ease;
+  /* animation: fadeInUp 0.4s ease; */
 }
 
 .popup-content h3 {
@@ -474,7 +474,7 @@
   margin-top: 10px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.3s;
+  /* transition: 0.3s; */
 }
 
 .popup-content button:hover {

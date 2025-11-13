@@ -15,6 +15,8 @@ import {
 
 function PersonApp({ setApplicationSubmitted }) {
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
 
   // -------------------- STEP MANAGEMENT --------------------
   const steps = [
@@ -23,7 +25,7 @@ function PersonApp({ setApplicationSubmitted }) {
     "Professional Details",
     "Review & Submit",
   ];
-  const [currentStep, setCurrentStep] = useState(3);
+  const [currentStep, setCurrentStep] = useState(0);
   const [errors, setErrors] = useState({});
 
   const getStepName = () => {
@@ -51,30 +53,28 @@ const setSubmitted = (email, val) => {
   localStorage.setItem(SUBMIT_MAP_KEY, JSON.stringify(map));
 };
 const handleSuccess = () => {
-  // ✅ Get current logged-in user
-  const email = localStorage.getItem("userEmail");
+  const officialEmail = localStorage.getItem("userEmail");
 
-  // ✅ Update applicationSubmitted for current user
+  // Mark application submitted
   setApplicationSubmitted(true);
   localStorage.setItem("applicationSubmitted", "true");
 
-  // ✅ Update global submission map (per user)
-  if (email) {
-    const map = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
-    map[email] = true;
-    localStorage.setItem("submissionStatusByEmail", JSON.stringify(map));
-  }
+  // Save per-user submission map
+  const map = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
+  map[officialEmail] = true;
+  localStorage.setItem("submissionStatusByEmail", JSON.stringify(map));
 
-  // ✅ Save employeeId for next routes (profile)
+  // Save employeeId if backend provided it
   if (personal.employeeId) {
     localStorage.setItem("employeeId", personal.employeeId);
   }
 
-  console.log(`✅ Application marked submitted for: ${email}`);
+  console.log(`✅ Application marked submitted for: ${officialEmail}`);
 
-  // ✅ Redirect user to their profile page
-  navigate(`/employee/profile/${personal.employeeId}`);
+  // Redirect to review page
+  navigate(`/employee/profile/${officialEmail}`);
 };
+
  
 
 
@@ -194,9 +194,17 @@ const handleSuccess = () => {
     console.log("📤 Sending data to: /api/personal/save");
     console.log(formData);
 
-    const res = await axios.post("https://internal-website-rho.vercel.app/api/personal/save", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    const res = await axios.post(
+"/api/personal/save",
+  formData,
+  {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
 
     // ✅ check if backend responded properly
     console.log("✅ Personal data saved:", res);
@@ -220,9 +228,17 @@ const handleSuccess = () => {
       }
 
       console.log("📤 Sending data to: /api/education/save");
-      const res = await axios.post("/api/education/save", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.post(
+"/api/education/save",
+  formData,
+  {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
       console.log("✅ Education data saved:", res.data);
       return true;
     } catch (err) {
@@ -246,9 +262,17 @@ const handleSuccess = () => {
       }
 
       console.log("📤 Sending data to: /api/professional/save");
-      const res = await axios.post("/api/professional/save", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const res = await axios.post(
+"/api/professional/save",
+  formData,
+  {
+    headers: {
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${token}`,
+    },
+  }
+);
+
       console.log("✅ Professional data saved:", res.data);
       return true;
     } catch (err) {
