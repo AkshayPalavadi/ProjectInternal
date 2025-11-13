@@ -43,17 +43,45 @@ function PersonApp({ setApplicationSubmitted }) {
 
   const active = getStepName();
 
-  const handleSuccess = () => {
+  const SUBMIT_MAP_KEY = "submissionStatusByEmail";
+const readSubmitMap = () => JSON.parse(localStorage.getItem(SUBMIT_MAP_KEY) || "{}");
+const setSubmitted = (email, val) => {
+  const map = readSubmitMap();
+  map[email] = !!val;
+  localStorage.setItem(SUBMIT_MAP_KEY, JSON.stringify(map));
+};
+const handleSuccess = () => {
+  // ✅ Get current logged-in user
+  const email = localStorage.getItem("userEmail");
+
+  // ✅ Update applicationSubmitted for current user
   setApplicationSubmitted(true);
-    localStorage.setItem("applicationSubmitted", "true");
+  localStorage.setItem("applicationSubmitted", "true");
 
-    navigate("/employee/profile");
+  // ✅ Update global submission map (per user)
+  if (email) {
+    const map = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
+    map[email] = true;
+    localStorage.setItem("submissionStatusByEmail", JSON.stringify(map));
+  }
 
-     
-  };
+  // ✅ Save employeeId for next routes (profile)
+  if (personal.employeeId) {
+    localStorage.setItem("employeeId", personal.employeeId);
+  }
+
+  console.log(`✅ Application marked submitted for: ${email}`);
+
+  // ✅ Redirect user to their profile page
+  navigate(`/employee/profile/${personal.employeeId}`);
+};
+ 
+
+
 
   // -------------------- FORM STATES --------------------
   const [personal, setPersonal] = useState({
+    employeeId:"",
     firstName: "",
     middleName: "",
     lastName: "",
@@ -86,6 +114,7 @@ function PersonApp({ setApplicationSubmitted }) {
   });
 
   const [education, setEducation] = useState({
+    employeeId:"",
     schoolName10: "",
     year10: "",
     cgpa10: "",
@@ -155,6 +184,7 @@ function PersonApp({ setApplicationSubmitted }) {
   const savePersonal = async () => {
   try {
     const formData = new FormData();
+    
     for (const key in personal) {
       if (personal[key] instanceof File)
         formData.append(key, personal[key]);

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import Img from "../assets/logo.jpg";
@@ -110,9 +110,6 @@ function Dashboard() {
 
   // ✅ Filter projects assigned to this employee
   const projects = allProjects.filter(p => p.assignedEmployees.includes(employeeId));
-//   const employeeId = parseInt(localStorage.getItem("employeeId"));
-// const validEmployeeId = isNaN(employeeId) ? 0 : employeeId;
-// const projects = allProjects.filter(p => p.assignedEmployees.includes(validEmployeeId));
 
 
   const COLORS = { "Completed days": "#00C49F", "In Progress days": "#FF8042", "Idle days": "#FF9999", "Future days": "#757575" };
@@ -235,7 +232,7 @@ const [dashboardData] = useState({
 
             return (
               <div key={idx} className="employeedashboard-chart-card">
-                <h2>{project.name} Progress</h2>
+                <h2>{project.projectname} Progress</h2>
                 <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
@@ -300,7 +297,9 @@ const [dashboardData] = useState({
         <table className="employeedashboard-projects-table">
           <thead>
             <tr>
+              <th>Project Id</th>
               <th>Project Name</th>
+              <th>Assigned By</th>
               <th>Start Date</th>
               <th>End Date</th>
               <th>Duration</th>
@@ -313,7 +312,9 @@ const [dashboardData] = useState({
               const duration = getDuration(p.startDate, p.endDate);
               return (
                 <tr key={idx}>
-                  <td>{p.name}</td>
+                  <td>{p.projectid}</td>
+                  <td>{p.projectname}</td>
+                  <td>{p.assignedBy || "N/A"}</td>
                   <td>{p.startDate}</td>
                   <td>{p.endDate}</td>
                   <td>{duration} days</td>

@@ -1,12 +1,12 @@
 /* Layout */
-.layout {
+.sidebarlayout-layout {
   display: flex;
   font-family: Arial, sans-serif;
   margin-top: 0px;
 }
 
 /* Sidebar */
-.sidebar-inner {
+.sidebarlayout-sidebar-inner {
   width: 250px;
   background-color: #1f2937;
   color: #fff;
@@ -19,13 +19,13 @@
   
 }
 
-.profile-section {
+.sidebarlayout-profile-section {
   text-align: center;
   padding: 20px 10px;
   border-bottom: 1px solid #444;
 }
 
-.profile-section img {
+.sidebarlayout-profile-section img {
   width: 80px;
   height: 80px;
   border-radius: 50%;
@@ -34,7 +34,7 @@
   cursor: pointer;
 }
 
-.photo-menu {
+.sidebarlayout-photo-menu {
   position: absolute;
   top: 90px;
   left: 50%;
@@ -47,7 +47,7 @@
   gap: 5px;
 }
 
-.photo-menu button {
+.sidebarlayout-photo-menu button {
   font-size: 12px;
   padding: 3px 5px;
   background-color: #ff4d4d;
@@ -57,14 +57,14 @@
   cursor: pointer;
 }
 
-.sidebar-links {
+.sidebarlayout-sidebar-links {
   list-style: none;
   padding: 0;
   margin: 0;
   flex-grow: 1;
 }
 
-.sidebar-links li a {
+.sidebarlayout-sidebar-links li a {
   display: block;
   padding: 10px 15px;
   color: #fff;
@@ -73,58 +73,79 @@
   transition: background 0.3s;
 }
 
-.sidebar-links li a:hover {
+.sidebarlayout-sidebar-links li a:hover {
   background-color: #007bff;
 }
 
-.sidebar-links li a:active {
+.sidebarlayout-sidebar-links li a:active {
   background-color: #007bff;
 }
 
-.homeActive {
-  background-color: #007bff;
-  margin: 10px 20px;
-}
-
-.dashboardActive {
+.sidebarlayout-homeActive {
   background-color: #007bff;
   margin: 10px 20px;
 }
 
-.profileActive {
+.sidebarlayout-dashboardActive {
+  background-color: #007bff;
+  margin: 10px 20px;
+}
+
+.sidebarlayout-profileActive {
   background-color: #007bff;
   margin: 10px 20px;
 
 }
 
-.leaveActive {
+.sidebarlayout-leaveActive {
   background-color: #007bff;
   margin: 10px 20px;
 }
 
-.homeInactive {
+.sidebarlayout-homeInactive {
   margin: 10px 20px;
 }
 
-.dashboardInactive {
+.sidebarlayout-dashboardInactive {
   margin: 10px 20px;
 }
 
-.profileInactive {
+.sidebarlayout-profileInactive {
   margin: 10px 20px;
 }
 
-.leaveInactive {
+.sidebarlayout-leaveInactive {
   margin: 10px 20px;
+}
+
+/* ---------- Timesheet and Performance Tabs ---------- */
+.sidebarlayout-timesheetActive,
+.sidebarlayout-performanceActive {
+  background-color: #007bff;
+  margin: 10px 20px;
+  color: #fff;
+}
+
+.sidebarlayout-timesheetInactive,
+.sidebarlayout-performanceInactive {
+  margin: 10px 20px;
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Hover effect matches others */
+.sidebarlayout-timesheetInactive:hover,
+.sidebarlayout-performanceInactive:hover {
+  background-color: #007bff;
 }
 
 /* Logout button */
-.logout-button {
+.sidebarlayout-logout-button {
   padding: 20px;
   margin-top: auto;
 }
 
-.logout-button button {
+.sidebarlayout-logout-button button {
   width: 100%;
   padding: 10px;
   border-radius: 5px;
@@ -136,7 +157,7 @@
 }
 
 /* Main content */
-.content {
+.sidebarlayout-content {
   margin-left: 220px;  /* space for sidebar */
   padding: 20px;
   width: calc(100% - 220px);
@@ -145,7 +166,7 @@
 }
 
 /* ---------- Username Edit Styling ---------- */
-.username-section {
+.sidebarlayout-username-section {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -154,21 +175,21 @@
 }
 
 /* Name display with Edit button */
-.name-display {
+.sidebarlayout-name-display {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.name-display button{
+.sidebarlayout-name-display button{
   margin: 0%;
 }
 
-.name-display p {
+.sidebarlayout-name-display p {
   padding-left: 40px;
 }
 
-.edit-name-btn {
+.sidebarlayout-edit-name-btn {
   font-size: 12px;
   padding: 3px 6px;
   background-color: #007bff;
@@ -179,14 +200,14 @@
 }
 
 /* Edit name input + buttons */
-.edit-name-box {
+.sidebarlayout-edit-name-box {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
 }
 
-.edit-name-box input {
+.sidebarlayout-edit-name-box input {
   width: 30%;
   padding: 5px 8px;
   border-radius: 4px;
@@ -197,7 +218,7 @@
 }
 
 /* ---------- Photo + Name Container ---------- */
-.photo-name-container {
+.sidebarlayout-photo-name-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -205,12 +226,12 @@
 }
 
 /* Photo wrapper for menu positioning */
-.photo-wrapper {
+.sidebarlayout-photo-wrapper {
   position: relative;
 }
 
 /* Photo menu buttons alignment */
-.photo-menu button {
+.sidebarlayout-photo-menu button {
   width: 100px; 
   padding: 5px;
   text-align: center;
@@ -218,13 +239,13 @@
 }
 
 /* Username edit buttons in one row */
-.name-buttons {
+.sidebarlayout-name-buttons {
   display: flex;
   gap: 5px;
   justify-content: center;
 }
 
-.name-buttons button {
+.sidebarlayout-name-buttons button {
   padding: 5px 10px;
   font-size: 12px;
   border-radius: 4px;
@@ -232,31 +253,31 @@
   cursor: pointer;
 }
 
-.name-buttons button:first-child {
+.sidebarlayout-name-buttons button:first-child {
   background-color: #007bff;
   color: #fff;
 }
 
-.name-buttons button:last-child {
+.sidebarlayout-name-buttons button:last-child {
   background-color: #ff4d4d;
   color: #fff;
 }
 
 /* Input field width fixed */
-.edit-name-box input {
+.sidebarlayout-edit-name-box input {
   width: 100px;
 }
 
 
 /* Responsive */
 @media (max-width: 768px) {
-  .sidebar {
+  .sidebarlayout-sidebar {
     position: relative;
     width: 100%;
     height: auto;
   }
 
-  .content {
+  .sidebarlayout-content {
     margin-left: 0;
     width: 100%;
   }

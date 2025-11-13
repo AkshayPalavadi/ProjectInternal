@@ -143,6 +143,19 @@ const PersonalDetails = ({
         {/* ---- Basic Info ---- */}
         <div className="field">
           <label>
+            employeeId <span className="required-star">*</span>
+          </label>
+          <input
+            name="employeeId"
+            value={data.employeeId}
+            onChange={handleChange}
+          />
+          {errors.employeeId && (
+            <small className="err">{errors.employeeId}</small>
+          )}
+        </div>
+        <div className="field">
+          <label>
             First Name <span className="required-star">*</span>
           </label>
           <input
@@ -320,7 +333,7 @@ onChange={(e) => {
           {errors.photo && <small className="err">{errors.photo}</small>}
         </div>
 
-        {/* ---- Address Fields ---- */}
+        {/* ---- Address field-employees ---- */}
         <div className="field full">
           <label>
             Current Address <span className="required-star">*</span>
