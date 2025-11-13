@@ -82,7 +82,7 @@ body {
 
 .content-card{
   background:linear-gradient(180deg,#fff,#fbfbfb);
-   padding:28px; border-radius:6px; box-shadow:0 6px 20px rgba(0,0,0,0.06);
+   padding:60px 0px 0px 0px; border-radius:6px; box-shadow:0 6px 20px rgba(0,0,0,0.06);
   flex:1; overflow:auto;
 }
 
