@@ -230,7 +230,7 @@ useEffect(() => {
           />
           <Route path="leaves" element={<Leaves />} />
 
-<Route path="profile/:id" element={<EmployeeReview />} />
+<Route path="profile/:email" element={<EmployeeReview />} />
 
 
 

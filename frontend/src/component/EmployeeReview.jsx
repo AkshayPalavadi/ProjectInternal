@@ -4,11 +4,12 @@ import "./EmployeeReview.css";
 import { useParams } from "react-router-dom";
 
 export default function EmployeeReview() {
-  const employeeId=localStorage.getItem("employeeId");
-  console.log(employeeId);
-  const { id } = useParams(); // expecting route like /employee/:id
-  console.log("🧭 useParams() output:", useParams());
-  console.log("🆔 Employee ID:", id);
+  const { email } = useParams();
+
+  // get email from URL or fallback to logged-in user
+  const employeeEmail = email || localStorage.getItem("userEmail");
+  console.log(employeeEmail);
+  const token = localStorage.getItem("token");
 
   const [personal, setPersonal] = useState({});
   const [education, setEducation] = useState({});
@@ -22,44 +23,76 @@ export default function EmployeeReview() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  // ============================================
+  // 🚀 FETCH EMPLOYEE DETAILS
+  // ============================================
   useEffect(() => {
     const fetchEmployeeDetails = async () => {
       try {
         setLoading(true);
 
-        const apiUrl = `https://internal-website-rho.vercel.app/api/employee/details/${employeeId}`;
-        console.log("🔗 Fetching employee details for:", apiUrl);
+        if (!employeeEmail) {
+          setError("❌ Employee email missing.");
+          return;
+        }
 
-        const res = await axios.get(apiUrl, { timeout: 10000 });
+        if (!token) {
+          setError("❌ No token found. Please log in again.");
+          return;
+        }
 
-        if (res.data?.data?.length > 0) {
-          const emp = res.data.data[0];
-          setPersonal(emp.personal || {});
-          setEducation(emp.education || {});
-          setProfessional(emp.professional || {});
+        // Using Vite proxy → /api maps to your backend
+        const apiUrl = `/api/employee/${employeeEmail}`;
+        console.log("🔗 Fetching employee details:", apiUrl);
+
+        const res = await axios.get(apiUrl, {
+          timeout: 10000,
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // ===============================
+        // ✅ BACKEND RETURNS THIS FORMAT:
+        // {
+        //   msg,
+        //   officialEmail,
+        //   personal: {...},
+        //   education: {...},
+        //   professional: {...}
+        // }
+        // ===============================
+
+        if (res.data?.personal) {
+          setPersonal(res.data.personal);
+          setEducation(res.data.education);
+          setProfessional(res.data.professional);
         } else {
           setError("❌ No employee data found.");
         }
       } catch (err) {
-        if (err.response?.status === 404)
+        if (err.response?.status === 401)
+          setError("❌ Unauthorized – Token expired or invalid.");
+        else if (err.response?.status === 404)
           setError("❌ Employee not found.");
         else if (err.code === "ECONNABORTED")
           setError("⏳ Request timed out. Please try again.");
-        else
-          setError("⚠️ Failed to fetch employee details.");
+        else setError("⚠️ Failed to fetch employee details.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchEmployeeDetails();
-  }, [id]);
+  }, [employeeEmail, token]);
 
-  // 🔹 Toggle edit mode
+  // ============================================
+  // ✏️ Toggle Edit Mode
+  // ============================================
   const handleEditToggle = (section) =>
     setEditMode((prev) => ({ ...prev, [section]: !prev[section] }));
 
-  // 🔹 Handle input change dynamically
+  // ============================================
+  // ✏️ Handle Input Change
+  // ============================================
   const handleInputChange = (section, field, value) => {
     if (section === "personal")
       setPersonal((prev) => ({ ...prev, [field]: value }));
@@ -71,18 +104,22 @@ export default function EmployeeReview() {
 
   const handleSave = (section) => {
     setEditMode((prev) => ({ ...prev, [section]: false }));
-    alert(`✅ ${section} details saved successfully!`);
+    alert(`✅ ${section} updated successfully!`);
   };
 
-  // 🔹 Conditional Rendering
+  // ============================================
+  // ⏳ Loading UI
+  // ============================================
   if (loading)
     return (
       <div style={{ textAlign: "center", marginTop: "2rem" }}>
         <p>⏳ Loading employee details...</p>
-        <small>Fetching from server...</small>
       </div>
     );
 
+  // ============================================
+  // ❌ Error UI
+  // ============================================
   if (error)
     return (
       <div style={{ textAlign: "center", marginTop: "2rem", color: "red" }}>
@@ -90,15 +127,14 @@ export default function EmployeeReview() {
       </div>
     );
 
-  // 🔹 UI Section Renderer
+  // ============================================
+  // 🧩 Render Section Fields
+  // ============================================
   const renderSection = (sectionData, sectionName) => (
     <div className="education-info">
       <div className="info-header">
-        <h3>{sectionName.charAt(0).toUpperCase() + sectionName.slice(1)} Information</h3>
-        <span
-          className="edit-icon"
-          onClick={() => handleEditToggle(sectionName)}
-        >
+        <h3>{sectionName.charAt(0).toUpperCase() + sectionName.slice(1)} Info</h3>
+        <span className="edit-icon" onClick={() => handleEditToggle(sectionName)}>
           ✎
         </span>
       </div>
@@ -131,16 +167,15 @@ export default function EmployeeReview() {
     </div>
   );
 
-  // 🔹 MAIN RETURN
+  // ============================================
+  // 🖼️ MAIN UI
+  // ============================================
   return (
     <div className="employee-details-container">
-      {/* ===== HEADER ===== */}
+      {/* HEADER */}
       <div className="employee-header">
         <img
-          src={
-            personal.photo ||
-            "https://i.ibb.co/5Y8N8tL/avatar.png"
-          }
+          src={personal.photo || "https://i.ibb.co/5Y8N8tL/avatar.png"}
           alt={personal.firstName || "Employee"}
           className="emp-photo"
         />
@@ -161,7 +196,7 @@ export default function EmployeeReview() {
         </div>
       </div>
 
-      {/* ===== TABS ===== */}
+      {/* TABS */}
       <div className="tabs-employee">
         {["personal", "education", "professional"].map((tab) => (
           <span
@@ -174,7 +209,7 @@ export default function EmployeeReview() {
         ))}
       </div>
 
-      {/* ===== SECTION RENDERING ===== */}
+      {/* CONTENT */}
       {activeTab === "personal" && renderSection(personal, "personal")}
       {activeTab === "education" && renderSection(education, "education")}
       {activeTab === "professional" && renderSection(professional, "professional")}

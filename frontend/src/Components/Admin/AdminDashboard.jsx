@@ -148,7 +148,6 @@ export default function AdminDashboard() {
     if (attendanceMonth > current) {
       setAttendanceMonth(current);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ---------- COMPANY MONTHLY ATTENDANCE (derived) ----------
