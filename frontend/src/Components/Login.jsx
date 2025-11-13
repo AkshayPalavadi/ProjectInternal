@@ -66,7 +66,7 @@ function Login({ setIsLoggedIn, setUserRole }) {
 
           // ✅ Manage Application Submitted (per-user)
           const submissionMap = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
-          const isSubmitted = submissionMap[user.userEmail] === true;
+          const isSubmitted = submissionMap[user.email] === true;
 
           // Sync to localStorage
           localStorage.setItem("applicationSubmitted", isSubmitted ? "true" : "false");

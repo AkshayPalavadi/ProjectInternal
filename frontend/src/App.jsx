@@ -238,7 +238,9 @@ useEffect(() => {
           <Route
             path="profile"
             element={
-              applicationSubmitted ? (
+                  getSubmitted(localStorage.getItem("userEmail"))
+? (
+                
                 <EmployeeReview key="review" />
               ) : (
                 <PersonApp
