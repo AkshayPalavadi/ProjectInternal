@@ -60,7 +60,7 @@ const handleSubmit = async (e) => {
         localStorage.setItem("userEmail", user.email);
         localStorage.setItem("employeeId", user.employeeId);
         localStorage.setItem("userRole", user.role);
-
+        
         setIsLoggedIn(true);
         setUserRole(user.role);
 
