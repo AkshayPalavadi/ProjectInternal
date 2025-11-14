@@ -66,9 +66,8 @@
 .tasks-task-table td:nth-child(5) { width: 20%; text-align:center; }
 
 /* --- Input Fields --- */
-.tasks-task-table input[type="text"],
-
-.tasks-task-table input[type="date"] {
+input[type="text"],
+input[type="date"] {
   width: 90%;
   padding: 6px 10px;
   border-radius: 8px;

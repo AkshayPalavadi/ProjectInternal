@@ -6,119 +6,92 @@ import "./Reviews.css";
 export default function Reviews({ task, tasks, setTasks }) {
   const role = localStorage.getItem("userRole") || "Employee";
   const isManager = role === "Manager";
+  const BASE_URL = "https://internal-website-rho.vercel.app";
 
-  // Local UI state for rating & comments input/editing
   const [rating, setRating] = useState(task.rating || 0);
   const [newComment, setNewComment] = useState("");
-  const [editState, setEditState] = useState(null); // { cIndex }
+  const [editState, setEditState] = useState(null);
   const [editText, setEditText] = useState("");
 
   useEffect(() => {
     setRating(task.rating || 0);
   }, [task]);
 
-  // Helper to persist updated tasks via setTasks (parent will save to localStorage)
   const persistTasks = (updatedTasks) => {
-    if (typeof setTasks === "function") {
-      setTasks(updatedTasks);
+    if (typeof setTasks === "function") setTasks(updatedTasks);
+  };
+
+  // ✅ Update rating both locally & backend
+  const handleRatingClick = async (value) => {
+    if (!isManager && task.managerEdited) return;
+    const taskId = task._id || task._id;
+    setRating(value);
+
+    // Optimistic UI
+    const updatedTasks = tasks.map((t) =>
+      t._id === task._id
+        ? { ...t, rating: value, managerEdited: isManager ? true : t.managerEdited || false }
+        : t
+    );
+    persistTasks(updatedTasks);
+
+    // Backend update
+    try {
+      await fetch(`${BASE_URL}/api/tasks/${taskId}/rating`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating: value }),
+      });
+    } catch (err) {
+      console.error("Failed to update rating:", err);
     }
   };
 
-  // Update rating logic: employee allowed only if manager hasn't edited; manager always allowed and sets managerEdited=true
-  const handleRatingClick = (value) => {
-    if (!isManager && task.managerEdited) return; // prevent employee editing after manager edited
+  // Helper for safe comments array
+  const ensureCommentsArray = (t) => (t.comments ? t.comments : []);
 
-    const updatedTasks = tasks.map((t) => {
-      if (t.id !== task.id) return t;
-      return {
-        ...t,
-        rating: value,
-        managerEdited: isManager ? true : t.managerEdited || false,
-      };
-    });
+  // ✅ Add new comment (POST)
+  const addComment = async () => {
+    if (!newComment.trim()) return;
+    const taskId = task._id || task._id;
 
-    setRating(value);
-    persistTasks(updatedTasks);
-  };
-
-  // Comments logic: comments stored on task.comments (array)
-  const ensureCommentsArray = (t) => {
-    if (!t.comments) return [];
-    return t.comments;
-  };
-
-  const addComment = () => {
-    if (!newComment || !newComment.trim()) return;
     const commentObj = {
       text: newComment.trim(),
       author: isManager ? "Manager" : "Employee",
       timestamp: new Date().toISOString(),
-      edited: false,
-      id: Date.now() + Math.random().toString(36).slice(2, 7),
     };
 
+    // Optimistic update first
     const updatedTasks = tasks.map((t) =>
-      t.id === task.id ? { ...t, comments: [...ensureCommentsArray(t), commentObj] } : t
+      t._id === task._id
+        ? { ...t, comments: [...ensureCommentsArray(t), commentObj] }
+        : t
     );
+    persistTasks(updatedTasks);
     setNewComment("");
-    persistTasks(updatedTasks);
-  };
 
-  // Edit comment: only author can edit and within 24 hours (optional)
-  const canModifyComment = (c) => {
-    const roleLabel = isManager ? "Manager" : "Employee";
-    if (c.author !== roleLabel) return false;
-
-    // allow edit/delete within 24 hours since timestamp
-    const diff = Date.now() - new Date(c.timestamp).getTime();
-    return diff <= 24 * 60 * 60 * 1000;
-  };
-
-  const startEdit = (cIndex) => {
-    const c = (task.comments || [])[cIndex];
-    if (!c || !canModifyComment(c)) return;
-    setEditState({ cIndex });
-    setEditText(c.text);
-  };
-
-  const saveEdit = () => {
-    if (!editState) return;
-    const { cIndex } = editState;
-    const updatedTasks = tasks.map((t) => {
-      if (t.id !== task.id) return t;
-      const updatedComments = [...(t.comments || [])];
-      if (!updatedComments[cIndex]) return t;
-      updatedComments[cIndex] = {
-        ...updatedComments[cIndex],
-        text: editText,
-        edited: true,
-        timestamp: updatedComments[cIndex].timestamp, // keep original timestamp (or could update)
-      };
-      return { ...t, comments: updatedComments };
-    });
-    setEditState(null);
-    setEditText("");
-    persistTasks(updatedTasks);
-  };
-
-  const deleteComment = (cIndex) => {
-    const c = (task.comments || [])[cIndex];
-    if (!c || !canModifyComment(c)) return;
-    const updatedTasks = tasks.map((t) => {
-      if (t.id !== task.id) return t;
-      const updatedComments = [...(t.comments || [])];
-      updatedComments.splice(cIndex, 1);
-      return { ...t, comments: updatedComments };
-    });
-    persistTasks(updatedTasks);
+    try {
+      const res = await fetch(`${BASE_URL}/api/tasks/${taskId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(commentObj),
+      });
+      const data = await res.json();
+      if (!res.ok) console.error("Error posting comment:", data);
+    } catch (err) {
+      console.error("Failed to post comment:", err);
+    }
   };
 
   return (
     <div className={`reviews-container ${!isManager && task.managerEdited ? "locked" : ""}`}>
       <h4>{task.text}</h4>
 
-      {/* Rating stars */}
-      <div className={`reviews-rating-stars ${!isManager && task.managerEdited ? "locked" : ""}`} style={{ marginTop: 8 }}>
+      {/* ⭐ Rating */}
+      <div
+        className={`reviews-rating-stars ${!isManager && task.managerEdited ? "locked" : ""}`}
+        style={{ marginTop: 8 }}
+      >
         {[1, 2, 3, 4, 5].map((n) => (
           <span
             key={n}
@@ -140,21 +113,20 @@ export default function Reviews({ task, tasks, setTasks }) {
         ))}
       </div>
 
-      {(!isManager && task.managerEdited) && (
+      {!isManager && task.managerEdited && (
         <p style={{ color: "#999", marginTop: 8 }}>
           (Rating locked — Manager has finalized this task's rating)
         </p>
       )}
 
-      {/* Comments / Chat */}
+      {/* 💬 Comments */}
       <div style={{ marginTop: 12 }}>
         {(task.comments || []).map((c, idx) => {
-          const disabled = !canModifyComment(c);
           const isEditing = editState && editState.cIndex === idx;
 
           return (
             <div
-              key={c.id || `${idx}`}
+              key={c._id || `${idx}`}
               className={`reviews-comment-chat-bubble ${c.author === "Manager" ? "left" : "right"}`}
               style={{ marginBottom: 8 }}
             >
@@ -172,18 +144,18 @@ export default function Reviews({ task, tasks, setTasks }) {
                 </div>
               ) : (
                 <>
-                  <div className="reviews-chat-text" style={{ marginBottom: 6 }}>{c.text}</div>
+                  <div className="reviews-chat-text">{c.text}</div>
                   <div className="reviews-comment-chat-footer">
                     <span className="reviews-comment-chat-time">
                       {new Date(c.timestamp).toLocaleString()}
                       {c.edited && " (edited)"}
                     </span>
-                    {canModifyComment(c) && (
+                    {/* {canModifyComment(c) && (
                       <div className="reviews-comment-chat-buttons">
                         <button onClick={() => startEdit(idx)} title="Edit"><BiEdit /></button>
                         <button onClick={() => deleteComment(idx)} title="Delete"><RiDeleteBinLine /></button>
                       </div>
-                    )}
+                    )} */}
                   </div>
                 </>
               )}
@@ -197,9 +169,7 @@ export default function Reviews({ task, tasks, setTasks }) {
             placeholder="Type your message..."
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") addComment();
-            }}
+            onKeyDown={(e) => e.key === "Enter" && addComment()}
           />
           <button onClick={addComment}>💬</button>
         </div>
