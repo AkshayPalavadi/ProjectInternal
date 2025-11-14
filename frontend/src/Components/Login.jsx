@@ -49,11 +49,11 @@ function Login({ setIsLoggedIn, setUserRole }) {
         localStorage.setItem("token", result.token);
 
         // Step 2: Fetch Employee Details
-        const empResponse = await fetch("https://internal-website-rho.vercel.app/api/auth");
-        const empResult = await empResponse.json();
-        console.log("📦 Employees API Response:", empResult);
+        // const empResponse = await fetch("https://internal-website-rho.vercel.app/api/auth");
+        // const empResult = await empResponse.json();
+        // console.log("📦 Employees API Response:", empResult);
 
-        const user = empResult.employees.find((emp) => emp.email === email);
+        const user = result.employee;
 
         if (user) {
           // ✅ Store user details
@@ -66,10 +66,11 @@ function Login({ setIsLoggedIn, setUserRole }) {
 
           // ✅ Manage Application Submitted (per-user)
           const submissionMap = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
-          const isSubmitted = submissionMap[user.email] === true;
+          const isSubmitted = submissionMap[user.email] === "true";
 
           // Sync to localStorage
           localStorage.setItem("applicationSubmitted", isSubmitted ? "true" : "false");
+          localStorage.setItem("submissionStatusByEmail",JSON.stringify({[user.email]:`${isSubmitted ? "true":"false"}`}));
 
           console.log(`📩 Application Submitted for ${user.email}:`, isSubmitted);
 
