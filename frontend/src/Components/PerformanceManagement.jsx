@@ -8,7 +8,7 @@ const PerformanceManagement = () => {
   const [user] = useState({
     name: localStorage.getItem("employeeName") || "",
     id: localStorage.getItem("employeeId") || "",
-    designation: localStorage.getItem("employeeDesignation") || "",
+    department: localStorage.getItem("employeeDepartment") || "",
     experience: localStorage.getItem("employeeExperience") || "",
   });
 
@@ -55,20 +55,38 @@ const PerformanceManagement = () => {
         }
 
         const r = data.review;
+
+        // Extract latest manager update from history
+        let latestManagerEntry = null;
+
+        if (r.history && Array.isArray(r.history)) {
+          const managerUpdates = r.history.filter((h) => h.by === "Manager");
+          if (managerUpdates.length > 0) {
+            latestManagerEntry = managerUpdates[managerUpdates.length - 1];
+          }
+        }
+
+        const bandScore =
+          latestManagerEntry?.payload?.bandScore || "-";
+
+        const managerComments =
+          latestManagerEntry?.payload?.managerComments || "";
+
         setFinalReviews((prev) => ({
           ...prev,
           [selectedYear]: {
             fy: r.fy || selectedYear,
             employeeId: r.employeeId,
             rating: r.avgRating || 0,
-            bandScore: r.bandScore || "-",
-            comments: r.managerComments || "",
+            bandScore,
+            comments: managerComments, // <<< read-only manager comments
             empComment: r.empComment || "",
             agree: r.agree || false,
             disagree: r.disagree || false,
             managerFinalizedOn: r.managerFinalizedOn || "",
           },
         }));
+
       } catch (err) {
         console.error("❌ Error fetching final review:", err);
       } finally {
@@ -171,111 +189,59 @@ const PerformanceManagement = () => {
   };
 
     // --- Submit review to backend ---
-  const handleFinalize = async () => {
-    const finalizedOn = new Date().toISOString();
-    const updatedReview = {
-      fy: selectedYear,
-      employeeId: user.id,
-      avgRating: Number(avgRating),
-      bandScore: reviewData.bandScore,
-      managerComments: reviewData.comments,
-      empComment: reviewData.empComment,
-      agree: reviewData.agree,
-      disagree: reviewData.disagree,
-      managerFinalizedOn: finalizedOn,
-    };
-
-    try {
-      const res = await fetch(
-        `${BASE_URL}/api/tasks/final-review?fy=${encodeURIComponent(selectedYear)}&employeeId=${encodeURIComponent(user.id)}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedReview),
-        }
-      );
-
-      const data = await res.json();
-      if (res.ok) {
-        const r = data.review || updatedReview;
-        setFinalReviews((prev) => ({
-          ...prev,
-          [selectedYear]: {
-            fy: r.fy,
-            employeeId: r.employeeId,
-            rating: r.avgRating,
-            bandScore: r.bandScore,
-            comments: r.managerComments,
-            empComment: r.empComment,
-            agree: r.agree,
-            disagree: r.disagree,
-            managerFinalizedOn: r.managerFinalizedOn,
-          },
-        }));
-        alert("✅ Final review updated successfully!");
-      } else {
-        console.error("❌ Failed:", data);
-        alert("❌ Failed to update review. Please try again.");
-      }
-    } catch (err) {
-      console.error("Error updating review:", err);
-      alert("Error updating review");
-    }
+const handleFinalize = async () => {
+  const updatedReview = {
+    empComment: reviewData.empComment,
+    agree: true,
+    disagree: false,
   };
 
-  const handleReport = async () => {
-    const reportedOn = new Date().toISOString();
-    const updatedReview = {
-      fy: selectedYear,
-      employeeId: user.id,
-      avgRating: Number(avgRating),
-      bandScore: reviewData.bandScore,
-      managerComments: reviewData.comments,
-      empComment: reviewData.empComment,
-      agree: reviewData.agree,
-      disagree: reviewData.disagree,
-      managerFinalizedOn: reviewData.managerFinalizedOn || null,
-      employeeReportedOn: reportedOn,
-    };
-
-    try {
-      const res = await fetch(
-        `${BASE_URL}/api/tasks/final-review?fy=${encodeURIComponent(selectedYear)}&employeeId=${encodeURIComponent(user.id)}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedReview),
-        }
-      );
-
-      const data = await res.json();
-      if (res.ok) {
-        const r = data.review || updatedReview;
-        setFinalReviews((prev) => ({
-          ...prev,
-          [selectedYear]: {
-            fy: r.fy,
-            employeeId: r.employeeId,
-            rating: r.avgRating,
-            bandScore: r.bandScore,
-            comments: r.managerComments,
-            empComment: r.empComment,
-            agree: r.agree,
-            disagree: r.disagree,
-            managerFinalizedOn: r.managerFinalizedOn,
-            employeeReportedOn: r.employeeReportedOn,
-          },
-        }));
-        alert("✅ Report updated successfully!");
-      } else {
-        console.error("❌ Report update failed:", data);
-        alert("❌ Failed to update report. Please try again.");
+  try {
+    const res = await fetch(
+      `${BASE_URL}/api/tasks/final-review?fy=${encodeURIComponent(selectedYear)}&employeeId=${encodeURIComponent(user.id)}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedReview),
       }
-    } catch (err) {
-      console.error("Error updating report:", err);
-      alert("Error updating report");
+    );
+
+    if (res.ok) {
+      alert("Final review submitted!");
+    } else {
+      alert("Failed to submit review");
     }
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+const handleReport = async () => {
+  const updatedReview = {
+    empComment: reviewData.empComment,
+    agree: false,
+    disagree: true,
   };
+
+  try {
+    const res = await fetch(
+      `${BASE_URL}/api/tasks/final-review?fy=${encodeURIComponent(selectedYear)}&employeeId=${encodeURIComponent(user.id)}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedReview),
+      }
+    );
+
+    if (res.ok) {
+      alert("Submitted successfully!");
+    } else {
+      alert("Failed to update review");
+    }
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   // --- Rating ---
   const totalRating = tasks.reduce((sum, t) => sum + (t.rating || 0), 0);
@@ -293,8 +259,8 @@ const PerformanceManagement = () => {
         <div className="performancemanagement-emp-info">
           <div><strong>Employee Name:</strong> {user.name}</div>
           <div><strong>Employee ID:</strong> {user.id}</div>
-          <div><strong>Designation:</strong> {user.designation}</div>
-          <div><strong>Experience:</strong> {user.experience}</div>
+          <div><strong>Department:</strong> {user.department}</div>
+          <div><strong>Experience:</strong> {user.experience} years</div>
         </div>
       </div>
 

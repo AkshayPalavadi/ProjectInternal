@@ -103,15 +103,14 @@ const CustomTooltip = ({ active, payload, detailMap }) => {
 
 function Dashboard() {
   // ✅ Get employee ID from login
-  // const employeeId = parseInt(localStorage.getItem("employeeId"));
-  const employeeId = "EMP001";
+  const employeeId = localStorage.getItem("employeeId");
 
   const [projects, setProjects] = useState([]);
 
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const res = await fetch("https://internal-website-rho.vercel.app/api/projects");
+        const res = await fetch(`https://internal-website-rho.vercel.app/api/projects/employee/${employeeId}`);
         const data = await res.json();
 
         if (data.projects && Array.isArray(data.projects)) {
