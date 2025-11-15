@@ -344,7 +344,7 @@ const handleSubmit = async (e) => {
       result = await response.json();
       console.log("📦 PUT Response:", response.status, result);
       if (!response.ok) throw new Error(result.msg || "Failed to update timesheet entry");
-      alert("✅ Timesheet updated successfully!");
+      // alert("✅ Timesheet updated successfully!");
     } else {
       // ✅ New entry via POST
       response = await fetch("https://internal-website-rho.vercel.app/api/timesheet", {
