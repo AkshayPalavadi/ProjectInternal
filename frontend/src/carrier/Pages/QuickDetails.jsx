@@ -13,6 +13,7 @@ const QuickDetails = () => {
     phone: "",
     alternatePhone: "",
     course: "",
+    department: "",
     yearOfPassing: "",
     college: "",
     university: "",
@@ -159,7 +160,7 @@ localStorage.setItem("quickDetailsData", JSON.stringify(formData));
           />
         </div>
 
-        <label>Highest Qualification (B-Tech/Degree)</label>
+        <label>Highest Qualification </label>
         <div className="highest-qualification-course-row">
           <input
             type="text"
@@ -169,6 +170,17 @@ localStorage.setItem("quickDetailsData", JSON.stringify(formData));
             onChange={handleChange}
             required
           />
+        <div className="Department-QD">
+          <input
+           type="text" 
+           name="department" 
+           placeholder="Department"
+           value={formData.department}
+           onChange={handleChange}
+           required
+           />
+
+        </div>
           <div className="year-of-passing">
             <select
               name="yearOfPassing"
