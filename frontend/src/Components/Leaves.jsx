@@ -1,6 +1,6 @@
 
 // src/pages/Leaves.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef } from "react";
 import "./Leaves.css";
 import History from "./History.jsx";
 
@@ -9,6 +9,8 @@ import History from "./History.jsx";
 
 export default function Leaves() {
   const [activeTab, setActiveTab] = useState("form");
+  const diseaseDropdownRef = useRef(null);
+
 
   // Form states
   const [fromDate, setFromDate] = useState("");
@@ -55,6 +57,22 @@ const diseaseOptions = [
     earned: 0,
     optional: 0,
   });
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (
+      diseaseDropdownRef.current &&
+      !diseaseDropdownRef.current.contains(event.target)
+    ) {
+      setDiseaseDropdownOpen(false);  // close dropdown
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
 
   // Calculate days excluding Saturdays and Sundays
   useEffect(() => {
@@ -685,8 +703,8 @@ const handleBackendSubmit = async (request) => {
   </div>
 )}
 
-            {leaveType === "sick" && (
-  <div className="employeeleaves-form-group">
+{leaveType === "sick" && (
+  <div className="employeeleaves-form-group" ref={diseaseDropdownRef}>
     <label><strong>Reason</strong></label>
 
     <div
@@ -705,6 +723,7 @@ const handleBackendSubmit = async (request) => {
           onChange={(e) => setDiseaseSearch(e.target.value)}
           className="custom-dropdown-search"
         />
+
         <div className="custom-dropdown-options">
           {diseaseOptions
             .filter(opt =>
@@ -714,17 +733,16 @@ const handleBackendSubmit = async (request) => {
               <div
                 key={opt}
                 className={`custom-dropdown-option ${disease === opt ? "selected" : ""}`}
-              onClick={() => {
-  if (opt === "--None--") {
-    setDisease("");
-    setCustomDisease("");
-  } else {
-    setDisease(opt);
-  }
-  setDiseaseDropdownOpen(false);
-  setDiseaseSearch("");
-}}
-
+                onClick={() => {
+                  if (opt === "-- None --") {
+                    setDisease("");
+                    setCustomDisease("");
+                  } else {
+                    setDisease(opt);
+                  }
+                  setDiseaseDropdownOpen(false);
+                  setDiseaseSearch("");
+                }}
               >
                 {opt}
               </div>
@@ -743,7 +761,8 @@ const handleBackendSubmit = async (request) => {
       />
     )}
   </div>
-            )}
+)}
+
 {/* Custom Leave Checkbox Selection */}
 {leaveType === "custom" && (
   <div className="employeeleaves-form-group">
