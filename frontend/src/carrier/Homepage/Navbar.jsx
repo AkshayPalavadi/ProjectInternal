@@ -114,7 +114,7 @@ const Navbar = ({ scrollToAbout, scrollToJobs, scrollToSubscribe }) => {
 
         <li ref={dropdownRef}>
           {!isLoggedIn ? (
-            <button className="login-btn-nav" onClick={() => navigate("/login")}>
+            <button className="login-btn-nav" onClick={() => navigate("/carrier/login")}>
               Login →
             </button>
           ) : (

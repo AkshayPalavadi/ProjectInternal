@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   FaSuitcase,
   FaBriefcase,
@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa";
 import { useParams, useNavigate } from "react-router-dom";
 import "./JobDetail.css";
+import Header from "../carriercomponents/Header";
 
 const jobs = [
   {
@@ -146,6 +147,8 @@ const JobDetail = () => {
   };
 
   return (
+    <>
+    <Header />
     <div className="job-detail-container">
       {/* Sidebar */}
       <aside className="sidebar-jd">
@@ -235,6 +238,7 @@ const JobDetail = () => {
         </section>
       </main>
     </div>
+    </>
   );
 };
 
