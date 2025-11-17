@@ -654,59 +654,64 @@ const handleBackendSubmit = async (request) => {
     <label><strong>Select Multiple Leave Types</strong></label>
     <div className="employeeleaves-checkbox-group">
       {leaveOptions.map(opt => {
-        const balance = leaveBalances[opt.id] ?? 0;
-        const maternitySelected = customTypes.includes("maternity");
-        const paternitySelected = customTypes.includes("paternity");
+  const balance = leaveBalances[opt.id] ?? 0;
+  const maternitySelected = customTypes.includes("maternity");
+  const paternitySelected = customTypes.includes("paternity");
 
-        const isOtherDisabled =
-          (maternitySelected && opt.id !== "maternity") ||
-          (paternitySelected && opt.id !== "paternity");
+  const isOtherDisabled =
+    (maternitySelected && opt.id !== "maternity") ||
+    (paternitySelected && opt.id !== "paternity");
 
-        const isCheckboxDisabled =
-          (mainLeaveTypes.includes(opt.id) && balance <= 0) || isOtherDisabled;
+  const isCheckboxDisabled =
+    (mainLeaveTypes.includes(opt.id) && balance <= 0) || isOtherDisabled;
 
-        return (
-          <label
-            key={opt.id}
-            style={{
-              opacity: isCheckboxDisabled ? 0.5 : 1,
-              pointerEvents: isCheckboxDisabled ? "none" : "auto"
-            }}
-          >
-            <input
-              type="checkbox"
-              value={opt.id}
-              checked={customTypes.includes(opt.id)}
-              onChange={handleCustomCheckbox}
-              disabled={isCheckboxDisabled}
-            />
-            {opt.label} ({balance} day{balance !== 1 ? "s" : ""})
-          </label>
-        );
-      })}
+  return (
+    <label
+      key={opt.id}
+      style={{
+        opacity: isCheckboxDisabled ? 0.5 : 1,
+        pointerEvents: isCheckboxDisabled ? "none" : "auto"
+      }}
+    >
+      <input
+        type="checkbox"
+        value={opt.id}
+        checked={customTypes.includes(opt.id)}
+        onChange={handleCustomCheckbox}
+        disabled={isCheckboxDisabled}
+      />
+       {opt.label}
+    </label>
+  );
+})}
     </div>
 
     {/* Show compoff dates if compoff selected */}
-    {customTypes.includes("compoff") && (
-      <div className="employeeleaves-form-group">
-        <label><strong>Select Worked Days (Sundays)</strong></label>
-        {validCompoffDates.length > 0 ? (
-          validCompoffDates.map(date => (
-            <label key={date}>
-              <input
-                type="checkbox"
-                value={date}
-                checked={compoffDates.includes(date)}
-                onChange={handleCompoffCheckbox}
-              />
-              {new Date(date).toDateString()}
-            </label>
-          ))
-        ) : (
-          <p>No available Sundays this month.</p>
-        )}
-      </div>
-    )}
+   {leaveType === "custom" && customTypes.includes("compoff") && (
+  <div className="employeeleaves-form-group">
+    <label><strong>Select Worked Days (Sundays)</strong></label>
+
+    <div className="compoff-inline">
+      {validCompoffDates.length > 0 ? (
+        validCompoffDates.map((date) => (
+          <label key={date} className="compoff-item">
+            <input
+              type="checkbox"
+              value={date}
+              checked={compoffDates.includes(date)}
+              onChange={handleCompoffCheckbox}
+            />
+            <span>  </span>
+            {new Date(date).toDateString()}
+          </label>
+        ))
+      ) : (
+        <p>No available Sundays this month.</p>
+      )}
+    </div>
+  </div>
+)}
+
   </div>
 )}
 
@@ -770,82 +775,23 @@ const handleBackendSubmit = async (request) => {
   </div>
 )}
 
-{/* Custom Leave Checkbox Selection */}
-{leaveType === "custom" && (
-  <div className="employeeleaves-form-group">
-    <label><strong>Select Multiple Leave Types</strong></label>
-    <div className="employeeleaves-checkbox-group">
-      {leaveOptions.map(opt => {
-        const balance = leaveBalances[opt.id] ?? 0;
-        const maternitySelected = customTypes.includes("maternity");
-        const paternitySelected = customTypes.includes("paternity");
+           {(leaveType === "compoff" || (leaveType === "custom" && reason === "compoff")) && (
+<div className="compoff-inline">
+  {validCompoffDates.map((d) => (
+    <label key={d} className="compoff-item">
+      <input
+        type="checkbox"
+        value={d}
+        checked={compoffDates.includes(d)}
+        onChange={handleCompoffCheckbox}
+      />
+      <span> </span>
+      {new Date(d).toDateString()}
+    </label>
+  ))}
+</div>
 
-        const isOtherDisabled =
-          (maternitySelected && opt.id !== "maternity") ||
-          (paternitySelected && opt.id !== "paternity");
-
-        const isCheckboxDisabled =
-          (mainLeaveTypes.includes(opt.id) && balance <= 0) || isOtherDisabled;
-
-        return (
-          <label
-            key={opt.id}
-            style={{
-              opacity: isCheckboxDisabled ? 0.5 : 1,
-              pointerEvents: isCheckboxDisabled ? "none" : "auto"
-            }}
-          >
-            <input
-              type="checkbox"
-              value={opt.id}
-              checked={customTypes.includes(opt.id)}
-              onChange={handleCustomCheckbox}
-              disabled={isCheckboxDisabled}
-            />
-            {opt.label} ({balance} day{balance !== 1 ? "s" : ""})
-          </label>
-        );
-      })}
-    </div>
-
-    {/* Show compoff dates if compoff selected */}
-    {customTypes.includes("compoff") && (
-      <div className="employeeleaves-form-group">
-        <label><strong>Select Worked Days (Sundays)</strong></label>
-        {validCompoffDates.length > 0 ? (
-          validCompoffDates.map(date => (
-            <label key={date}>
-              <input
-                type="checkbox"
-                value={date}
-                checked={compoffDates.includes(date)}
-                onChange={handleCompoffCheckbox}
-              />
-              {new Date(date).toDateString()}
-            </label>
-          ))
-        ) : (
-          <p>No available Sundays this month.</p>
-        )}
-      </div>
-    )}
-  </div>
 )}
-
-            {leaveType === "compoff" && (
-              <div className="employeeleaves-form-group">
-                <label><strong>Select Worked Days (Sundays)</strong></label>
-                {validCompoffDates.length > 0 ? (
-                  validCompoffDates.map(date => (
-                    <label key={date}>
-                      <input type="checkbox" value={date} checked={compoffDates.includes(date)} onChange={handleCompoffCheckbox} />
-                      {new Date(date).toDateString()}
-                    </label>
-                  ))
-                ) : <p>No available Sundays this month.</p>}
-              </div>
-            )}
-
             {leaveType !== "sick" && (
               <div className="employeeleaves-form-group">
                 <label><strong>Reason</strong></label>
