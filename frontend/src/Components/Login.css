@@ -162,7 +162,7 @@ hr {
 }
 
 /* 🚀 Login Button */
-button {
+.loginpage-login-form-employee button {
   padding: 12px;
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: #fff;

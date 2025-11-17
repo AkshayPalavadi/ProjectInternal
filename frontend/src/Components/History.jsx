@@ -24,7 +24,11 @@ export default function History({ requests = [], onDelete }) {
           </thead>
           <tbody>
             {[...requests]
-              .sort((a, b) => new Date(b.fromDate) - new Date(a.fromDate))
+              .sort(
+  (a, b) =>
+    new Date(b.createdAt || b.fromDate) - new Date(a.createdAt || a.fromDate)
+)
+
               .map((req, idx) => (
                 <tr key={idx}>
                   <td>{new Date(req.fromDate).toLocaleDateString()}</td>

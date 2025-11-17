@@ -19,6 +19,36 @@
   margin-bottom: 25px;
   flex-wrap: wrap;
 }
+/* ==============================
+   UPDATED COMPOFF INLINE STYLING
+============================== */
+
+.compoff-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.compoff-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: #f1f6ff;
+  border: 1px solid #cdd8f7;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #333;
+  cursor: pointer;
+}
+
+.compoff-item input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
+  accent-color: #007bff;
+  margin: 0;
+}
 
 .employeeleaves-tabs .tab {
   padding: 10px 25px;
