@@ -6,10 +6,18 @@ import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const navigate = useNavigate();
+  
+   const goHome = () => {
+    navigate("/carrier"); // go to Home page first
+  
+    // delay scrolling to ensure page renders
+    setTimeout(() => {
+      const jobsSection = document.getElementById("jobs-section");
+      jobsSection?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+  };
 
-  const goHome = () => {
-    navigate("/");
-  };  return (
+    return (
     <nav className="navbar">
         <div className="logo">
             <img src={Logo} alt="Logo" className="logo" />
