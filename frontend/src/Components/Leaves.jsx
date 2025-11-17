@@ -174,13 +174,15 @@ const finalizeSubmit = async (request) => {
 
   // Refetch requests from backend
   try {
-    const empId = 127
+    const empId = localStorage.getItem("employeeId")
 
     const response = await fetch(`https://internal-website-rho.vercel.app/api/leaves/summary/${empId}`);
     if (response.ok) {
       const data = await response.json();
-      setRequests(data);
-      setCurrentIndex(data.length - 1); // point to last request
+      const list = Array.isArray(data.data) ? data.data : [];
+
+      setRequests(list);
+      setCurrentIndex(list.length > 0 ? list.length - 1 : null);
       fetchRequests()
     }
   } catch (error) {
@@ -189,29 +191,34 @@ const finalizeSubmit = async (request) => {
 };
 
 const fetchRequests = async () => {
- try {
-   const empId = 127 || localStorage.getItem("employeeId");
+  try {
+    const empId = localStorage.getItem("employeeId");
 
-   const response = await fetch(
-     `https://internal-website-rho.vercel.app/api/leaves/${empId}`
-   );
+    const response = await fetch(
+      `https://internal-website-rho.vercel.app/api/leaves/${empId}`
+    );
 
-   if (!response.ok) {
-     console.error("Failed to fetch leave requests");
-     return;
-   }
+    if (!response.ok) {
+      console.error("Failed to fetch leave requests");
+      return;
+    }
 
-   const data = await response.json();
-   console.log("requests", data)
+    const data = await response.json();
+    console.log("API Response:", data);
 
-   setRequests(data.data); // latest one entry
-   // if (data.leaveDetails) {
-   // } else {
-   //   setRequests([]);
-   // }
- } catch (error) {
-   console.error("Error fetching leave", error);
- }
+    // data.data is an ARRAY of leave entries
+    const list = Array.isArray(data.data) ? data.data : [];
+
+    const filtered = list.filter(
+      (leave) => String(leave.employeeId) === String(empId)
+    );
+
+    setRequests(filtered);
+    console.log("Filtered Requests:", filtered);
+
+  } catch (error) {
+    console.error("Error fetching leave", error);
+  }
 };
 
 useEffect(() => {
@@ -222,7 +229,7 @@ useEffect(() => {
 useEffect(() => {
   const fetchLeaveSummary = async () => {
     try {
-      const empId = 127 || localStorage.getItem("employeeId");
+      const empId = localStorage.getItem("employeeId");
 
       const response = await fetch(
         `https://internal-website-rho.vercel.app/api/leaves/summary/${empId}`
@@ -874,7 +881,7 @@ const handleBackendSubmit = async (request) => {
         <div className="employeeleaves-form-box">
         <div className="employeeleaves-requests-box">
           <h2>My Leave Requests</h2>
-          {requests.length === 0 ? (
+          {(requests?.length ?? 0) === 0 ? (
             <p>No leave requests submitted yet.</p>
           ) : (
             <History
