@@ -141,6 +141,16 @@ export default function EmployeeReview() {
 
       {Object.entries(sectionData).map(([key, value]) => {
         if (typeof value === "object" || key.startsWith("_")) return null;
+        const hiddenFields = [
+        "photo",
+        "createdAt",
+        "updatedAt",
+        "__v",
+        "_id",
+         // remove from personal section
+      ];
+            if (hiddenFields.includes(key)) return null;
+
         return (
           <p key={key}>
             <b>{key.replace(/([A-Z])/g, " $1")}:</b>{" "}

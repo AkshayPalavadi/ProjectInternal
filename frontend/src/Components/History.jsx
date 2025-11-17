@@ -45,9 +45,9 @@ export default function History({ requests = [], onDelete }) {
                   </td>
                   <td>{req.reason}</td>
                   <td>
-                    {req.file && req.file.name ? (
+                    {req.file ? (
                       <a
-                        href={req.file.url || "#"}
+                        href={`https://internal-website-rho.vercel.app/api/leaves/file/${req._id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="employeehistory-file-emoji"
@@ -55,7 +55,7 @@ export default function History({ requests = [], onDelete }) {
                         📄
                       </a>
                     ) : (
-                      "—"
+                      "_"
                     )}
                   </td>
                   <td>
