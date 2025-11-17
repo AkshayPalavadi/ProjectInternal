@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 const QuickDetails = () => {
   const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
+  const [skillInput, setSkillInput] = useState("");
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -13,83 +15,280 @@ const QuickDetails = () => {
     phone: "",
     alternatePhone: "",
     course: "",
+    otherCourse: "",
+    department: "",
     yearOfPassing: "",
     college: "",
-    university: "",
     cgpa: "",
-    employeeType: "Fresher",
+    gradeType: "",
+    employeeType: "",
     companyName: "",
     experienceYears: "",
     resume: null,
-    skills: "",
+    skills: [],
   });
 
-  const [emailError, setEmailError] = useState("");
+  const refs = {
+  firstName: React.useRef(null),
+  lastName: React.useRef(null),
+  email: React.useRef(null),
+  phone: React.useRef(null),
+  course: React.useRef(null),
+  otherCourse: React.useRef(null),
+  department: React.useRef(null),
+  college: React.useRef(null),
+  gradeType: React.useRef(null),
+  cgpa: React.useRef(null),
+  employeeType: React.useRef(null),
+  companyName: React.useRef(null),
+  experienceYears: React.useRef(null),
+  skills: React.useRef(null),
+  resume: React.useRef(null),
+};
 
+
+  // Validators
+const isEmailValid = (email) =>
+  /^(?=.*[A-Za-z])[A-Za-z0-9._%+-]+@gmail\.com$/.test(email);
+
+  const isPhoneValid = (phone) => /^[0-9]{10}$/.test(phone);
+
+  // Main handleChange
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+  const { name, value, files } = e.target;
 
-    // ✅ Restrict alphabets only
-    const alphaOnly = /^[A-Za-z\s]*$/;
-    // ✅ Restrict numbers only
-    const numericOnly = /^[0-9]*$/;
-    // ✅ Restrict CGPA to digits + one decimal
-    const cgpaPattern = /^[0-9]*\.?[0-9]*$/;
+  // Clear error immediately when typing/selecting
+  setErrors(prev => ({ ...prev, [name]: "" }));
 
-    // ✅ For file upload
-    if (name === "resume") {
-      setFormData({ ...formData, resume: files[0] });
+  let newValue = value;
+
+  // Alphabet-only fields
+  if (["firstName", "lastName", "college", "department", "companyName"].includes(name)) {
+    newValue = value.replace(/[^A-Za-z\s]/g, "");
+  }
+
+  // COURSE
+  if (name === "course") {
+    setErrors(prev => ({ ...prev, course: "", otherCourse: "" }));
+    if (value !== "Other") {
+      setFormData(prev => ({ ...prev, course: value, otherCourse: "" }));
+    } else {
+      setFormData(prev => ({ ...prev, course: value }));
+    }
+    return;
+  }
+
+  // OTHER COURSE
+  if (name === "otherCourse") {
+    newValue = value.replace(/[^A-Za-z\s]/g, "");
+    setErrors(prev => ({ ...prev, otherCourse: "" }));
+  }
+
+  // EMAIL VALIDATION LIVE
+if (name === "email") {
+  if (!newValue) {
+    setErrors(prev => ({ ...prev, email: "Email is required" }));
+  } else if (!/^[A-Za-z0-9._%+-]*$/.test(newValue.split("@")[0])) {
+    setErrors(prev => ({ ...prev, email: "Invalid characters" }));
+  } else if (/^[0-9]+@?.*/.test(newValue)) {
+    setErrors(prev => ({ ...prev, email: "Email must contain letters" }));
+  } else if (!isEmailValid(newValue)) {
+    setErrors(prev => ({ ...prev, email: "Enter valid Gmail address" }));
+  } else {
+    setErrors(prev => ({ ...prev, email: "" }));
+  }
+}
+
+  // PHONE VALIDATION LIVE
+  if (["phone"].includes(name)) {
+    newValue = value.replace(/[^0-9]/g, "").slice(0, 10);
+    setErrors(prev => ({
+      ...prev,
+      phone: newValue.length === 10 ? "" : prev.phone
+    }));
+  }
+
+  // EMPLOYEE TYPE
+  if (name === "employeeType") {
+    setErrors(prev => ({
+      ...prev,
+      employeeType: "",
+      companyName: "",
+      experienceYears: ""
+    }));
+  }
+
+  // EXPERIENCE YEARS
+  if (name === "experienceYears") {
+    setErrors(prev => ({ ...prev, experienceYears: "" }));
+  }
+
+  // RESUME
+  if (name === "resume" && files) {
+    const file = files[0];
+    const MAX_SIZE = 2 * 1024 * 1024;
+
+    if (file.type !== "application/pdf") {
+      setErrors(prev => ({ ...prev, resume: "Only PDF allowed" }));
+      e.target.value = "";
       return;
     }
 
-    // ✅ For email validation
-    if (name === "email") {
-      if (value && !value.endsWith("@gmail.com")) {
-        setEmailError("Please enter a valid Gmail address (e.g., example@gmail.com)");
+    if (file.size > MAX_SIZE) {
+      setErrors(prev => ({ ...prev, resume: "File must be under 2MB" }));
+      e.target.value = "";
+      return;
+    }
+
+    setFormData(prev => ({ ...prev, resume: file }));
+    setErrors(prev => ({ ...prev, resume: "" }));
+    return;
+  }
+
+  // UPDATE FORM DATA
+  setFormData(prev => ({ ...prev, [name]: newValue }));
+};
+
+
+  // CGPA / Percentage Validation
+const handleCgpaOrPercentage = (e) => {
+  let value = e.target.value;
+
+  // clear error immediately
+  setErrors(prev => ({ ...prev, cgpa: "" }));
+
+  let newErrors = { ...errors };
+
+  if (!value) {
+    setFormData({ ...formData, cgpa: "" });
+    newErrors.cgpa = "";
+    setErrors(newErrors);
+    return;
+  }
+  
+
+    if (formData.gradeType === "cgpa") {
+      const pattern = /^([0-9]{1,2})(\.[0-9]{0,2})?$/;
+      if (!pattern.test(value)) return;
+      const num = Number(value);
+
+      newErrors.cgpa = num < 4 || num > 10 ? "CGPA must be 4 - 10" : "";
+    }
+
+    if (formData.gradeType === "percentage") {
+      const pattern = /^[0-9]{1,3}(\.[0-9]{0,2})?%?$/;
+      if (!pattern.test(value)) return;
+
+      if (!value.endsWith("%")) {
+        newErrors.cgpa = "Add % at end";
       } else {
-        setEmailError("");
+        const num = Number(value.replace("%", ""));
+        newErrors.cgpa = num < 35 || num > 100 ? "Percentage must be 35% - 100%" : "";
       }
-      setFormData({ ...formData, email: value });
-      return;
     }
 
-    // ✅ Validation by field
-    if (["firstName", "lastName", "college", "course", "companyName", "skills"].includes(name)) {
-      if (!alphaOnly.test(value)) return; // block non-alphabets
-    }
-
-    if (["phone", "alternatePhone"].includes(name)) {
-      if (!numericOnly.test(value)) return; // block non-numbers
-      if (value.length > 10) return; // restrict to 10 digits
-    }
-
-    if (name === "cgpa") {
-      if (!cgpaPattern.test(value)) return; // block invalid CGPA formats
-    }
-
-    // ✅ Update state
-    setFormData({ ...formData, [name]: value });
+    setErrors(newErrors);
+    setFormData({ ...formData, cgpa: value });
   };
 
+  // Add Skill
+ const addSkill = () => {
+  const skill = skillInput.trim();
+  if (skill && !formData.skills.includes(skill)) {
+    setFormData({ ...formData, skills: [...formData.skills, skill] });
+    setErrors(prev => ({ ...prev, skills: "" })); // ← FIX
+  }
+  setSkillInput("");
+};
+
+
+  const removeSkill = (skill) => {
+    setFormData({
+      ...formData,
+      skills: formData.skills.filter((s) => s !== skill),
+    });
+  };
+
+  // Final Validation
+ const validateAll = () => {
+  let newErrors = {};
+
+  // NAME
+  if (!formData.firstName) newErrors.firstName = "First name is required";
+  if (!formData.lastName) newErrors.lastName = "Last name is required";
+
+  // EMAIL
+  if (!formData.email) newErrors.email = "Email is required";
+  else if (!isEmailValid(formData.email)) newErrors.email = "Invalid Gmail address";
+
+  // PHONE
+  if (!formData.phone) newErrors.phone = "Phone number is required";
+  else if (!isPhoneValid(formData.phone)) newErrors.phone = "Must be 10 digits";
+
+  // COURSE
+  if (!formData.course) newErrors.course = "Course is required";
+  if (formData.course === "Other" && !formData.otherCourse)
+    newErrors.otherCourse = "Enter your course";
+
+  // DEPARTMENT
+  if (!formData.department) newErrors.department = "Department is required";
+
+  // COLLEGE
+  if (!formData.college) newErrors.college = "College name is required";
+
+  // GRADE TYPE
+  if (!formData.gradeType) newErrors.gradeType = "Select grade type";
+
+  // CGPA / PERCENTAGE
+  if (!formData.cgpa) newErrors.cgpa = "Enter CGPA / Percentage";
+
+  // EMPLOYEE TYPE
+  if (!formData.employeeType)
+    newErrors.employeeType = "Select employee type";
+
+  // EXPERIENCE DETAILS
+  if (formData.employeeType === "Experience") {
+    if (!formData.companyName) newErrors.companyName = "Company name required";
+    if (!formData.experienceYears) newErrors.experienceYears = "Select experience";
+  }
+
+  // SKILLS
+  if (formData.skills.length === 0)
+    newErrors.skills = "Add at least one skill";
+
+  // RESUME
+  if (!formData.resume) newErrors.resume = "Upload resume";
+
+  setErrors(newErrors);
+
+  setErrors(newErrors);
+
+// scroll to first error
+const firstErrorKey = Object.keys(newErrors)[0];
+if (firstErrorKey && refs[firstErrorKey]?.current) {
+  refs[firstErrorKey].current.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+  refs[firstErrorKey].current.focus();
+}
+
+return Object.keys(newErrors).length === 0;
+
+
+  return Object.keys(newErrors).length === 0;
+};
+
+  // Submit
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (emailError) {
-      alert("Please fix the email error before submitting.");
-      return;
-    }
+   if (!validateAll()) {
+  return; // no alert, just show inline errors
+}
 
-    console.log("Form Data:", formData);
 
-    // ✅ Save user's submission status
-    const userEmail = localStorage.getItem("userEmail");
-    if (userEmail) {
-      localStorage.setItem(`detailsSubmitted_${userEmail}`, "true");
-    }
-    // ✅ Save user form data for autofill
-localStorage.setItem("quickDetailsData", JSON.stringify(formData));
-
-    // ✅ Navigate to main page
+    localStorage.setItem("quickDetailsData", JSON.stringify(formData));
     navigate("/carrier");
   };
 
@@ -107,191 +306,199 @@ localStorage.setItem("quickDetailsData", JSON.stringify(formData));
       <h2 className="quick-details-title">Basic Details</h2>
 
       <form className="details-form" onSubmit={handleSubmit}>
-        <label>Full name</label>
+        {/* NAME */}
+<label className="required-label">Full Name</label>
         <div className="name-row">
-          <input
-            type="text"
-            name="firstName"
-            placeholder="First Name"
-            value={formData.firstName}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="text"
-            name="lastName"
-            placeholder="Last Name"
-            value={formData.lastName}
-            onChange={handleChange}
-            required
-          />
+          <input   ref={refs.firstName} name="firstName" value={formData.firstName} onChange={handleChange} placeholder="First Name" />
+          
+          <input name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Last Name" />
         </div>
+        {(errors.firstName || errors.lastName) && <p className="error">{errors.firstName || errors.lastName}</p>}
 
-        <label>Email ID *</label>
-        <div className="email-row">
-          <input
-            type="email"
-            name="email"
-            placeholder="Enter your Gmail ID"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          {emailError && <p className="email-error">{emailError}</p>}
-        </div>
+        {/* EMAIL */}
+<label className="required-label">Email</label>
+        <input  ref={refs.email} name="email" value={formData.email} onChange={handleChange} placeholder="Enter Gmail" />
+        {errors.email && <p className="error">{errors.email}</p>}
 
-        <label>Phone Number *</label>
+        {/* PHONE */}
+<label className="required-label">Phone</label>
         <div className="phone-row">
-          <input
-            type="tel"
-            name="phone"
-            placeholder="Phone Number"
-            value={formData.phone}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="tel"
-            name="alternatePhone"
-            placeholder="Alternate Number"
-            value={formData.alternatePhone}
-            onChange={handleChange}
-          />
+          <input ref={refs.phone} name="phone" value={formData.phone} onChange={handleChange} placeholder="Phone" />
+          <input name="alternatePhone" value={formData.alternatePhone} onChange={handleChange} placeholder="Alternate" />
         </div>
+        {errors.phone && <p className="error">{errors.phone}</p>}
 
-        <label>Highest Qualification (B-Tech/Degree)</label>
-        <div className="highest-qualification-course-row">
-          <input
-            type="text"
-            name="course"
-            placeholder="Course"
-            value={formData.course}
+        {/* COURSE */}
+<label className="required-label">Course</label>
+        <select ref={refs.course} name="course" value={formData.course} onChange={handleChange} className="course-qd">
+          <option value="">Select Course</option>
+          <option value="B.Tech">B.Tech</option>
+          <option value="M.Tech">M.Tech</option>
+          <option value="Degree">Degree</option>
+          <option value="Other">Other</option>
+        </select>
+
+        {formData.course === "Other" && (
+          <input ref={refs.otherCourse}
+            name="otherCourse"
+            value={formData.otherCourse}
             onChange={handleChange}
-            required
+            placeholder="Enter Your Course"
+            className="course-enter-qd"
           />
-          <div className="year-of-passing">
-            <select
-              name="yearOfPassing"
-              value={formData.yearOfPassing}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Year of Passing</option>
-              {Array.from({ length: 15 }, (_, i) => 2025 - i).map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+          
+        )}
+        {errors.course && <p className="error">{errors.course}</p>}
+        {errors.otherCourse && <p className="error">{errors.otherCourse}</p>}
 
-        <div className="college-name">
-          <input
-            type="text"
-            name="college"
-            placeholder="College Name"
-            value={formData.college}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        {/* DEPARTMENT */}
+        <label className="required-label">Department</label>
 
-        <div className="cgpa-row">
-          <input
-            type="text"
-            name="cgpa"
-            placeholder="CGPA"
-            value={formData.cgpa}
-            onChange={handleChange}
-          />
-        </div>
+        <input ref={refs.department} name="department" value={formData.department} onChange={handleChange} placeholder="Department" className="department-qd" />
+        {errors.department && <p className="error">{errors.department}</p>}
 
-        <label>Employee Type</label>
+
+        {/* COLLEGE */}
+        <label className="required-label">College Name</label>
+
+        <input ref={refs.college} name="college" value={formData.college} onChange={handleChange} placeholder="College Name" className="college-qd"/>
+                {errors.college && <p className="error">{errors.college}</p>}
+
+
+<label className="required-label">Grade</label>
+<div className="grade-radio-group">
+  <label className="grade-option">
+    <input
+    ref={refs.gradeType}
+      type="radio"
+      name="gradeType"
+      value="cgpa"
+      checked={formData.gradeType === "cgpa"}
+      onChange={handleChange}
+    />
+    CGPA
+  </label>
+
+  <label className="grade-option">
+    <input ref={refs.gradeType}
+      type="radio"
+      name="gradeType"
+      value="percentage"
+      checked={formData.gradeType === "percentage"}
+      onChange={handleChange}
+    />
+    Percentage
+  </label>
+</div>
+
+{formData.gradeType && (
+  <input
+    className="grade-input"
+    type="text"
+    name="cgpa"
+    placeholder={
+      formData.gradeType === "cgpa"
+        ? "Enter CGPA (4 - 10)"
+        : "Enter Percentage (35% - 100%)"
+    }
+    value={formData.cgpa}
+    onChange={handleCgpaOrPercentage}
+    required
+  />
+)}
+
+{errors.cgpa && <p className="error">{errors.cgpa}</p>}
+
+
+        {/* EMPLOYEE TYPE */}
+        <label className="required-label">Employee Type</label>
         <div className="employee-type">
           <label>
             <input
+            ref={refs.employeeType}
               type="radio"
               name="employeeType"
               value="Fresher"
               checked={formData.employeeType === "Fresher"}
               onChange={handleChange}
-            />
+            />{" "}
             Fresher
           </label>
+
           <label>
             <input
+              ref={refs.employeeType}
               type="radio"
               name="employeeType"
               value="Experience"
               checked={formData.employeeType === "Experience"}
               onChange={handleChange}
-            />
+            />{" "}
             Experience
           </label>
         </div>
 
-        {/* ✅ Skills */}
-        <div className="skills-section">
-          <label>Skills *</label>
-          <input
-            type="text"
-            name="skills"
-            placeholder="Enter your skills (comma separated)"
-            value={formData.skills}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        {/* ✅ Experience Section */}
+        {/* EXPERIENCE FIELDS (Only When Experience = selected) */}
         {formData.employeeType === "Experience" && (
-          <div className="experience-section">
-            <label>Current Company Name</label>
+          <>
+<label className="required-label">Company Name</label>
             <input
-              className="current-company-input"
-              type="text"
+              ref={refs.companyName}
               name="companyName"
-              placeholder="Enter Current Company Name"
               value={formData.companyName}
               onChange={handleChange}
-              required
+              placeholder="Enter Company Name"
             />
+            {errors.companyName && <p className="error">{errors.companyName}</p>}
 
-            <label>Experience</label>
-            <div className="experience-years">
-              <select
-                name="experienceYears"
-                value={formData.experienceYears}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Experience</option>
-                <option value="Less than 1 Year">Less than 1 Year</option>
-                <option value="1-2 Years">1-2 Years</option>
-                <option value="2-3 Years">2-3 Years</option>
-                <option value="3-4 Years">3-4 Years</option>
-                <option value="4-5 Years">4-5 Years</option>
-                <option value="5+ Years">5+ Years</option>
-              </select>
-            </div>
-          </div>
+            <label className="required-label">Experience</label>
+            <select
+              ref={refs.experienceYears}
+              name="experienceYears"
+              value={formData.experienceYears}
+              onChange={handleChange}
+            >
+              <option value="">Select Experience</option>
+              <option value="Less than 1 Year">Less than 1 Year</option>
+              <option value="1-2 Years">1-2 Years</option>
+              <option value="2-3 Years">2-3 Years</option>
+              <option value="3-4 Years">3-4 Years</option>
+              <option value="4-5 Years">4-5 Years</option>
+              <option value="5+ Years">5+ Years</option>
+            </select>
+
+            {errors.experienceYears && <p className="error">{errors.experienceYears}</p>}
+          </>
         )}
 
-        <div className="resume-upload">
-          <label>Upload Resume *</label>
+        {/* SKILLS */}
+<label className="required-label">Skills</label>
+        <div className="skill-input-row">
           <input
-            type="file"
-            name="resume"
-            accept=".pdf,.doc,.docx"
-            onChange={handleChange}
-            required
+          ref={refs.skills}
+            value={skillInput}
+            onChange={(e) => setSkillInput(e.target.value.replace(/[^A-Za-z\s]/g, ""))}
+            placeholder="Enter Skill"
+    
           />
+          <button type="button" onClick={addSkill}>Add</button>
+        </div>
+        {errors.skills && <p className="error">{errors.skills}</p>}
+
+        <div className="skills-qd">
+          {formData.skills.map((skill, idx) => (
+            <span key={idx} className="skill-chip">
+              {skill} <button type="button" onClick={() => removeSkill(skill)}>x</button>
+            </span>
+          ))}
         </div>
 
-        <button type="submit" className="submit-btn">
-          Submit
-        </button>
+        {/* RESUME */}
+<label className="required-label">Upload Resume</label>
+        <input ref={refs.resume} type="file" name="resume" accept=".pdf" onChange={handleChange} />
+        {errors.resume && <p className="error">{errors.resume}</p>}
+
+        <button type="submit" className="submit-btn">Submit</button>
       </form>
     </div>
   );
