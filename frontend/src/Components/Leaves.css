@@ -3,9 +3,10 @@
 ============================== */
 .employeeleaves-leaves-page {
   font-family: "Poppins", sans-serif;
-  background-color: #f5f7fa;
+  background: linear-gradient(135deg, #e8f0ff, #f7faff);
   min-height: 100vh;
   padding: 30px 20px;
+  animation: fadeInUp 0.6s ease;
 }
 
 /* ==============================
@@ -37,9 +38,10 @@
 }
 
 .employeeleaves-tabs .tab.active {
-  background: #007bff;
+  background: linear-gradient(90deg, #007bff, #0056b3);
   color: #fff;
-  box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 /* ==============================
@@ -51,7 +53,13 @@
   margin: 0 auto;
   padding: 35px 40px;
   border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.employeeleaves-form-box:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.15);
 }
 
 .employeeleaves-form-box h2 {
@@ -70,12 +78,73 @@
   flex-direction: column;
 }
 
+/* Make From and To date inline */
+.employeeleaves-date-row {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.employeeleaves-date-row .employeeleaves-form-group {
+  flex: 1;
+  margin-bottom: 0;
+}
+
 .employeeleaves-form-group label {
   font-size: 15px;
   color: #333;
   margin-bottom: 6px;
 }
 
+/* Two-column layout */
+.employeeleaves-two-column {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+
+/* Left side - Leave Balance */
+.employeeleaves-left-column {
+  flex: 1;
+  min-width: 300px;
+  position: relative;
+}
+
+/* Right side - Form Fields */
+.employeeleaves-right-column {
+  flex: 2;
+  min-width: 320px;
+}
+
+/* Section titles (using data-title attr) */
+.employeeleaves-left-column::before,
+.employeeleaves-right-column::before {
+  content: attr(data-title);
+  display: block;
+  font-weight: 600;
+  font-size: 17px;
+  margin-bottom: 12px;
+  color: #007bff;
+  border-left: 4px solid #007bff;
+  padding-left: 8px;
+}
+
+/* Make both boxes look clean and aligned */
+.employeeleaves-leave-breakdown-box {
+  background: linear-gradient(145deg, #f0f6ff, #ffffff);
+  border: 1px solid #dce6ff;
+  border-radius: 10px;
+  padding: 15px;
+  color: #333;
+  font-size: 15px;
+  box-shadow: 0 2px 10px rgba(0, 123, 255, 0.08);
+  height: fit-content;
+}
+
+/* Input styling */
 .employeeleaves-form-group input,
 .employeeleaves-form-group select {
   padding: 10px 12px;
@@ -86,10 +155,70 @@
   font-size: 15px;
 }
 
+/* Focus glow */
 .employeeleaves-form-group input:focus,
 .employeeleaves-form-group select:focus {
   border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+}
+
+/* ==============================
+   RIGHT COLUMN UNIFORM FIELDS
+============================== */
+.employeeleaves-right-column .employeeleaves-form-group {
+  width: 100%;
+}
+
+.employeeleaves-right-column input,
+.employeeleaves-right-column select,
+.employeeleaves-right-column textarea {
+  width: 100%;
+  height: 45px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 15px;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.employeeleaves-right-column input[type="file"] {
+  background: #fff;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.employeeleaves-right-column label {
+  font-weight: 500;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.employeeleaves-right-column input:focus,
+.employeeleaves-right-column select:focus,
+.employeeleaves-right-column textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.25);
+}
+
+.employeeleaves-right-column .employeeleaves-form-group + .employeeleaves-form-group {
+  margin-top: 18px;
+}
+
+/* Uniform sizing fix */
+.employeeleaves-right-column .employeeleaves-form-group input[type="text"],
+.employeeleaves-right-column .employeeleaves-form-group select,
+.employeeleaves-right-column .employeeleaves-form-group input[type="file"],
+.employeeleaves-right-column .employeeleaves-form-group textarea {
+  width: 100% !important;
+  height: 45px !important;
+  display: block;
+  box-sizing: border-box;
+}
+
+.employeeleaves-right-column textarea {
+  resize: none;
+  height: 100px !important;
 }
 
 /* ==============================
@@ -123,7 +252,7 @@
   box-shadow: 0 0 4px rgba(0, 123, 255, 0.2);
 }
 
-/* Smooth fade-in animation for custom range */
+/* Fade animation for date range */
 .employeeleaves-custom-date-range {
   opacity: 0;
   transform: translateY(-10px);
@@ -139,13 +268,74 @@
   transition: all 0.4s ease;
 }
 
+
+.custom-dropdown {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  min-height: 40px;  /* prevents shrinking */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+}
+
+.custom-dropdown-menu {
+  position: absolute;
+  width: 100%;              /* stay inside the card */
+  max-height: 300px;        /* avoid overflow */
+  max-width: 550px;
+  overflow-x: hidden;
+  overflow-y: auto;         /* scroll instead of expanding */
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-top: 4px;
+  z-index: 9999;            /* stays above card */
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+}
+
+.custom-dropdown-search {
+  width: 95%;
+  padding: 8px;
+  margin: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* Options style */
+.custom-dropdown-options {
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.custom-dropdown-option {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #f3f3f3;
+}
+
+.custom-dropdown-option:hover {
+  background: #f0f0f0;
+}
+
+.custom-dropdown-option.selected {
+  background: #d7f0ff;
+  font-weight: bold;
+}
+
+
 /* ==============================
-   CHECKBOX GROUPS (INLINE FIX)
+   CHECKBOX GROUPS
 ============================== */
 .employeeleaves-checkbox-group {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px 20px; /* spacing between checkboxes */
+  gap: 12px 20px;
   margin-top: 8px;
 }
 
@@ -173,50 +363,6 @@
   transform: scale(1.1);
 }
 
-/* Compoff checkbox group (if same issue there) */
-.employeeleaves-form-group label input[type="checkbox"] {
-  margin-right: 6px;
-  vertical-align: middle;
-}
-
-
-/* ==============================
-   LEAVE BALANCE BOX
-============================== */
-.employeeleaves-leave-breakdown-box {
-  background: #f2f6ff;
-  border-radius: 10px;
-  padding: 15px;
-  margin: 15px 0;
-  color: #333;
-  font-size: 15px;
-  box-shadow: inset 0 0 5px rgba(0, 123, 255, 0.1);
-}
-
-.employeeleaves-leave-breakdown-box ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.employeeleaves-leave-breakdown-box li {
-  margin: 5px 0;
-}
-
-.employeeleaves-green-text {
-  color: #28a745;
-  font-weight: 600;
-}
-
-/* ==============================
-   WARNINGS & ERRORS
-============================== */
-.employeeleaves-warning-text {
-  font-size: 14px;
-  color: #d9534f;
-  margin-top: 4px;
-}
-
 /* ==============================
    BUTTONS
 ============================== */
@@ -225,17 +371,19 @@
   padding: 12px;
   border: none;
   border-radius: 8px;
-  background-color: #007bff;
+  background: linear-gradient(90deg, #007bff, #0056b3);
   color: white;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 10px;
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
 }
 
 .employeeleaves-submit-btn:hover {
-  background-color: #0056b3;
+  background: linear-gradient(90deg, #0056b3, #004099);
+  transform: translateY(-2px);
 }
 
 /* ==============================
@@ -290,6 +438,20 @@
 }
 
 /* ==============================
+   ANIMATIONS
+============================== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==============================
    RESPONSIVE DESIGN
 ============================== */
 @media (max-width: 768px) {
@@ -305,5 +467,9 @@
 
   .employeeleaves-custom-date-range input[type="date"] {
     width: 100%;
+  }
+
+  .employeeleaves-two-column {
+    flex-direction: column;
   }
 }

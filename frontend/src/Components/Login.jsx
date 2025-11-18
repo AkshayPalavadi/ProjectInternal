@@ -49,31 +49,66 @@ function Login({ setIsLoggedIn, setUserRole }) {
         localStorage.setItem("token", result.token);
 
         // Step 2: Fetch Employee Details
-        const empResponse = await fetch("https://internal-website-rho.vercel.app/api/auth");
-        const empResult = await empResponse.json();
-        console.log("📦 Employees API Response:", empResult);
+        // const empResponse = await fetch("https://internal-website-rho.vercel.app/api/auth");
+        // const empResult = await empResponse.json();
+        // console.log("📦 Employees API Response:", empResult);
 
-        const user = empResult.employees.find((emp) => emp.email === email);
+        const user = result.employee;
 
         if (user) {
           // ✅ Store user details
           localStorage.setItem("employeeName", `${user.firstName} ${user.lastName}`);
           localStorage.setItem("userEmail", user.email);
           localStorage.setItem("userRole", user.role);
-          // localStorage.setItem("employeeId", user.employeeId);
           setIsLoggedIn(true);
           setUserRole(user.role);
 
-          // ✅ Manage Application Submitted (per-user)
-          const submissionMap = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
-          const isSubmitted = submissionMap[user.userEmail] === true;
+          // Step 3: Fetch Full Employee Details to get employeeId & experience
+          try {
+            const empFullRes = await fetch(
+              `https://internal-website-rho.vercel.app/api/employee/${user.email}`
+            );
 
-          // Sync to localStorage
-          localStorage.setItem("applicationSubmitted", isSubmitted ? "true" : "false");
+            const empFullData = await empFullRes.json();
+            console.log("📌 Full Employee Details:", empFullData);
 
-          console.log(`📩 Application Submitted for ${user.email}:`, isSubmitted);
+            if (empFullRes.ok && empFullData.professional) {
+              const professional = empFullData.professional;
 
-          // ✅ Navigate based on role
+              // Save Employee ID
+              if (professional.employeeId) {
+                localStorage.setItem("employeeId", professional.employeeId);
+                console.log("✔ Employee ID Saved:", professional.employeeId);
+              }
+
+              // Save Department
+              if (professional.department) {
+                localStorage.setItem("employeeDepartment", professional.department);
+              }
+
+              // ⭐ Calculate Experience from dateOfJoining to today
+              if (professional.dateOfJoining) {
+                const joiningDate = new Date(professional.dateOfJoining);
+                const today = new Date();
+
+                // Calculate difference in milliseconds → convert to years
+                const diffInMs = today - joiningDate;
+                const years = diffInMs / (1000 * 60 * 60 * 24 * 365);
+
+                // Round to 2 decimals
+                const experienceYears = years.toFixed(2);
+
+                localStorage.setItem("employeeExperience", experienceYears);
+                console.log("📅 Experience Saved:", experienceYears, "years");
+              }
+            } else {
+              console.warn("❌ Employee details not found in response");
+            }
+          } catch (error) {
+            console.error("❌ Error fetching full employee details:", error);
+          }
+
+          // Navigate
           navigate(user.role === "admin" ? "/admin" : "/employee");
         } else {
           setError("User data not found in employee list.");

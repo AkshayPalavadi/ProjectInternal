@@ -321,11 +321,11 @@
   color: #1e293b;
 }
 
-/* Manager comment box width reduced */
+/* Manager comment box */
 .performancemanagement-final-left textarea {
   width: 90%;
   max-width: 400px;
-  min-height: 120px;
+  height: 120px; /* fixed height */
   border-radius: 10px;
   border: 1px solid #cbd5e1;
   padding: 12px;
@@ -333,6 +333,9 @@
   font-size: 0.95rem;
   background-color: #f9fafb;
   color: #374151;
+  overflow-y: auto; /* ✅ scroll inside when content overflows */
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #94a3b8 #f1f5f9;
 }
 
 /* Right Column: Employee Actions */
@@ -365,17 +368,31 @@
   gap: 6px;
 }
 
-/* Employee comment box width reduced */
+/* Employee comment box */
 .performancemanagement-emp-comment {
   width: 90%;
   max-width: 400px;
-  min-height: 100px;
+  height: 100px; /* fixed height */
   border-radius: 10px;
   border: 1px solid #cbd5e1;
   padding: 10px;
   resize: none;
   font-size: 0.95rem;
   transition: border 0.2s ease;
+  overflow-y: auto; /* ✅ scroll inside */
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #f1f5f9;
+}
+
+.performancemanagement-emp-comment::-webkit-scrollbar,
+.performancemanagement-final-left textarea::-webkit-scrollbar {
+  width: 6px;
+}
+
+.performancemanagement-emp-comment::-webkit-scrollbar-thumb,
+.performancemanagement-final-left textarea::-webkit-scrollbar-thumb {
+  background-color: #94a3b8;
+  border-radius: 8px;
 }
 
 .performancemanagement-emp-comment:focus {

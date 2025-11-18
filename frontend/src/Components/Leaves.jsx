@@ -1,13 +1,16 @@
+
 // src/pages/Leaves.jsx
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef } from "react";
 import "./Leaves.css";
 import History from "./History.jsx";
 
-
+// localStorage.setItem("employeeId", "127");
 
 
 export default function Leaves() {
   const [activeTab, setActiveTab] = useState("form");
+  const diseaseDropdownRef = useRef(null);
+
 
   // Form states
   const [fromDate, setFromDate] = useState("");
@@ -20,6 +23,14 @@ export default function Leaves() {
   const [file, setFile] = useState(null);
   const [disease, setDisease] = useState("");
   const [customDisease, setCustomDisease] = useState("");
+  const [customSelected, setCustomSelected] = useState([]);
+
+const [diseaseDropdownOpen, setDiseaseDropdownOpen] = useState(false);
+const [diseaseSearch, setDiseaseSearch] = useState("");
+const diseaseOptions = [
+  "-- None --","Fever", "Cold", "Injury", "Headache", "Food Poison",
+  "Weakness", "Stomach Pain", "Infection", "Allergy", "Other"
+];
 
   // Status + requests
   const [status, setStatus] = useState("draft");
@@ -34,16 +45,34 @@ export default function Leaves() {
   const [showCustomConfirmPopup, setShowCustomConfirmPopup] = useState(false);
   const [pendingRequest, setPendingRequest] = useState(null);
   const [errors, setErrors] = useState([]);
+  const [leaveSummary, setLeaveSummary] = useState(null);
+
 
   const today = new Date().toLocaleDateString("en-CA");
 
   // Leave balances
   const [leaveBalances, setLeaveBalances] = useState({
-    casual: 5,
-    sick: 3,
-    earned: 2,
-    optional: 2,
+    casual: 0,
+    sick: 0,
+    earned: 0,
+    optional: 0,
   });
+useEffect(() => {
+  const handleClickOutside = (event) => {
+    if (
+      diseaseDropdownRef.current &&
+      !diseaseDropdownRef.current.contains(event.target)
+    ) {
+      setDiseaseDropdownOpen(false);  // close dropdown
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
 
   // Calculate days excluding Saturdays and Sundays
   useEffect(() => {
@@ -106,7 +135,8 @@ const handleFileChange = (e) => {
   const uploadedFile = e.target.files[0];
   if (!uploadedFile) return;
 
-  const allowedTypes = ["application/pdf"];
+const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+
   if (!allowedTypes.includes(uploadedFile.type)) {
     setErrors(["Only PDF files are allowed."]);
     setFile(null);
@@ -144,35 +174,93 @@ const finalizeSubmit = async (request) => {
 
   // Refetch requests from backend
   try {
-    const empId = localStorage.getItem("employeeId");
-    const response = await fetch(`https://internal-website-rho.vercel.app/api/leaves?employeeId=${empId}`);
+    const empId = localStorage.getItem("employeeId")
+
+    const response = await fetch(`https://internal-website-rho.vercel.app/api/leaves/summary/${empId}`);
     if (response.ok) {
       const data = await response.json();
-      setRequests(data);
-      setCurrentIndex(data.length - 1); // point to last request
+      const list = Array.isArray(data.data) ? data.data : [];
+
+      setRequests(list);
+      setCurrentIndex(list.length > 0 ? list.length - 1 : null);
+      fetchRequests()
     }
   } catch (error) {
     console.error("Error updating requests:", error);
   }
 };
 
+const fetchRequests = async () => {
+  try {
+    const empId = localStorage.getItem("employeeId");
+
+    const response = await fetch(
+      `https://internal-website-rho.vercel.app/api/leaves/${empId}`
+    );
+
+    if (!response.ok) {
+      console.error("Failed to fetch leave requests");
+      return;
+    }
+
+    const data = await response.json();
+    console.log("API Response:", data);
+
+    // data.data is an ARRAY of leave entries
+    const list = Array.isArray(data.data) ? data.data : [];
+
+    const filtered = list.filter(
+      (leave) => String(leave.employeeId) === String(empId)
+    );
+
+    setRequests(filtered);
+    console.log("Filtered Requests:", filtered);
+
+  } catch (error) {
+    console.error("Error fetching leave", error);
+  }
+};
+
 useEffect(() => {
-  const fetchRequests = async () => {
+
+  fetchRequests();
+}, []);
+
+useEffect(() => {
+  const fetchLeaveSummary = async () => {
     try {
-      const empId = localStorage.getItem("employeeId"); // get employee ID
-      const response = await fetch(`https://internal-website-rho.vercel.app/api/leaves?employeeId=${empId}`);
+      const empId = localStorage.getItem("employeeId");
+
+      const response = await fetch(
+        `https://internal-website-rho.vercel.app/api/leaves/summary/${empId}`
+      );
+
       if (response.ok) {
         const data = await response.json();
-        setRequests(data);
+        console.log(data)
+
+        // Your API returns: { summary: [ ... ] }
+        const months = data.summary.summary || [];
+        console.log(months)
+
+        // pick last month
+        const latestMonth = months[months.length - 1] || {};
+
+        setLeaveBalances({
+          casual: latestMonth.balanceCL ?? 0,
+          sick: latestMonth.balanceSL ?? 0,
+          earned: latestMonth.balanceEL ?? 0,
+          optional: latestMonth.balanceOptional ?? 0,
+        });
       } else {
-        console.error("Failed to fetch leave requests");
+        console.error("Failed to fetch leave summary");
       }
     } catch (error) {
-      console.error("Error fetching leave requests:", error);
+      console.error("Error fetching leave summary:", error);
     }
   };
 
-  fetchRequests();
+  fetchLeaveSummary();
 }, []);
 
   const insufficientMsg =
@@ -213,27 +301,33 @@ if (leaveType === "sick") {
 }
 
 // ⚠️ Check insufficient balance — show LOP popup before submit
-if (
-  (leaveType !== "none" &&
-    leaveType in leaveBalances &&
-    daysApplied > leaveBalances[leaveType]) ||
-  (leaveType === "custom" &&
-    customTypes.some(
-      (type) => type in leaveBalances && daysApplied > leaveBalances[type]
-    ))
-) {
+// 🧮 Calculate total available leaves
+let totalAvailable = 0;
+
+if (leaveType === "custom") {
+  totalAvailable = customTypes.reduce(
+    (sum, type) => sum + (leaveBalances[type] || 0),
+    0
+  );
+} else if (leaveType in leaveBalances) {
+  totalAvailable = leaveBalances[leaveType];
+}
+
+// ⚠️ If applied days exceed total available, warn before submit
+if (daysApplied > totalAvailable) {
   setPendingRequest({
     fromDate,
     toDate,
     daysApplied,
     leaveType,
     customTypes,
-    reason: finalReason, // ✅ now defined before use
+    reason: finalReason,
     status: "Sent",
   });
   setShowCustomConfirmPopup(true);
   return; // stop here, wait for user confirmation
 }
+
 
   let leaveDetails = {};
   if (leaveType === "custom") {
@@ -262,19 +356,25 @@ if (
   formData.append("status", "Sent");
   formData.append("employeeId", localStorage.getItem("employeeId"));
   formData.append("employeeName", localStorage.getItem("employeeName"));
-  
+
   formData.append("requestDate", new Date().toISOString());
 
   // Add file only if selected
-  if (file) formData.append("file", file);
+if (file) formData.append("file", file);
 
   // Add JSON fields as strings
   formData.append("customTypes", JSON.stringify(customTypes));
   formData.append("leaveDetails", JSON.stringify(leaveDetails));
 
+  const token=localStorage.getItem("token");
+  console.log("token", token)
+
   try {
-    const response = await fetch("https://internal-website-rho.vercel.app/api/leaves/create", {
+    const response = await fetch("https://internal-website-rho.vercel.app/api/leaves/apply", {
         method: "POST",
+        headers:{
+          Authorization:`Bearer ${token}`
+        },
         body: formData, // ✅ no need for Content-Type (browser sets it automatically)
 
     });
@@ -291,6 +391,7 @@ if (
         file,
         status: "Sent",
       });
+      setActiveTab("history")
     } else {
       const errorText = await response.text();
       console.error("Server error:", errorText);
@@ -318,7 +419,7 @@ const handleBackendSubmit = async (request) => {
     formData.append("leaveDetails", JSON.stringify(request.leaveDetails || {}));
     if (file) formData.append("file", file);
 
-    const response = await fetch("https://internal-website-rho.vercel.app/api/leaves/create",{
+    const response = await fetch("https://internal-website-rho.vercel.app/api/leaves/apply",{
       method: "POST",
       body: formData,
       // headers: { "Content-Type": "application/json" },
@@ -403,7 +504,7 @@ const handleBackendSubmit = async (request) => {
     { id: "casual", label: "Casual" },
     { id: "sick", label: "Sick" },
     { id: "earned", label: "Earned" },
-    { id: "optional", label: "Optional (Female only)" },
+    { id: "optional", label: "Optional(Female)" },
     ...(allLeavesZero ? [{ id: "lop", label: "Loss of Pay" }] : []),
     { id: "maternity", label: "Maternity" },
     { id: "paternity", label: "Paternity" },
@@ -439,24 +540,50 @@ const handleBackendSubmit = async (request) => {
           <h2>Employee Leave</h2>
 
           <form onSubmit={handleSubmit}>
+            <div className="employeeleaves-date-row">
             <div className="employeeleaves-form-group">
               <label><strong>From Date</strong></label>
              <input
-                type="date"
-                value={fromDate}
-                min={today}
-                onChange={(e) => {
-                  const selected = new Date(e.target.value);
-                  const day = selected.getDay();
-                  // Disable Saturday (6) and Sunday (0)
-                  if (day === 0 || day === 6) {
-                    e.target.value = "";
-                    return;
-                  }
-                  setFromDate(e.target.value);
-                }}
-                required
-              />
+  type="date"
+  value={fromDate}
+  min={today}
+  max={
+    leaveType === "sick"
+      ? new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0]
+      : ""
+  }
+  onChange={(e) => {
+    const selected = new Date(e.target.value);
+    const day = selected.getDay();
+
+    // Disable Saturday (6) and Sunday (0)
+    if (day === 0 || day === 6) {
+      e.target.value = "";
+      return;
+    }
+
+    // For sick leave: restrict selection to within 2 days
+    if (leaveType === "sick") {
+      const todayDate = new Date();
+      const maxDate = new Date(
+        todayDate.getFullYear(),
+        todayDate.getMonth(),
+        todayDate.getDate() + 2
+      );
+      if (selected > maxDate) {
+        alert("⚠️ Sick Leave can only start within 2 days from today.");
+        e.target.value = "";
+        return;
+      }
+    }
+
+    setFromDate(e.target.value);
+  }}
+  required
+/>
+
             </div>
 
             <div className="employeeleaves-form-group">
@@ -478,78 +605,74 @@ const handleBackendSubmit = async (request) => {
                   required
                 />
             </div>
+</div>
+            <p><b>Total Days Applied: <span className="employeeleaves-green-text">{daysApplied}</span></b></p>
+<div className="employeeleaves-two-column">
+      <div className="employeeleaves-left-column" >
+        <div className="employeeleaves-leave-breakdown-box">
+          <ul>
+            <li><b style={{ color: "red" }}>Leaves Left:</b></li>
+            <li><b>Casual: </b>{leaveBalances.casual} day{leaveBalances.casual !== 1 ? "s" : ""}</li>
+            <li><b>Sick: </b>{leaveBalances.sick} day{leaveBalances.sick !== 1 ? "s" : ""}</li>
+            <li><b>Earned: </b>{leaveBalances.earned} day{leaveBalances.earned !== 1 ? "s" : ""}</li>
+            <li><b>Optional: </b>{leaveBalances.optional} day{leaveBalances.optional !== 1 ? "s" : ""}</li>
+          </ul>
+        </div>
+      </div>
+<div className="employeeleaves-right-column" >
+{/* Leave Type Dropdown */}
+<div className="employeeleaves-form-group">
+  <label><strong>Leave Type</strong></label>
+  <select
+    value={leaveType}
+    onChange={e => setLeaveType(e.target.value)}
+    required
+  >
+    <option value="none">-- Select Type --</option>
+    {leaveOptions.map(opt => {
+      const balance = leaveBalances[opt.id] ?? 0;
+      const isDisabled = mainLeaveTypes.includes(opt.id) && balance <= 0;
+      return (
+       <option key={opt.id} value={opt.id} disabled={isDisabled}>
+      {opt.label}
+      </option>
+      );
+    })}
+    <option value="custom">Custom (Select Multiple)</option>
+  </select>
 
-            <p>Total Days Applied: <span className="employeeleaves-green-text">{daysApplied}</span></p>
+  {insufficientMsg && (
+    <p className="employeeleaves-warning-text" style={{ color: "red", marginTop: "5px" }}>
+      {insufficientMsg}
+    </p>
+  )}
+</div>
 
-            <div className="employeeleaves-leave-breakdown-box">
-              <ul>
-                <li><b>Leaves Left:</b></li>
-                <li>Casual : {leaveBalances.casual}/5</li>
-                <li>Sick: {leaveBalances.sick}/3</li>
-                <li>Earned: {leaveBalances.earned}/2</li>
-                <li>Optional: {leaveBalances.optional}/2</li>
-              </ul>
-            </div>
-
-            <div className="employeeleaves-form-group">
-              <label><strong>Leave Type</strong></label>
-              <select
-                value={leaveType}
-                onChange={e => setLeaveType(e.target.value)}
-                required
-              >
-                <option value="none">-- Select Type --</option>
-                {leaveOptions.map(opt => {
-                  const balance = leaveBalances[opt.id] ?? 0;
-                  const isDisabled =
-                    mainLeaveTypes.includes(opt.id) && balance === 0;
-                  return (
-                    <option key={opt.id} value={opt.id} disabled={isDisabled}>
-                      {opt.label}
-                    </option>
-                  );
-                })}
-                <option value="custom">Custom (Select Multiple)</option>
-              </select>
-
-              {insufficientMsg && (
-                <p className="employeeleaves-warning-text" style={{ color: "red", marginTop: "5px" }}>
-                  {insufficientMsg}
-                </p>
-              )}
-            </div>
-
-            {leaveType === "sick" && (
-              <div className="employeeleaves-form-group">
-                <label><strong>Reason</strong></label>
-                <select value={disease} onChange={(e) => setDisease(e.target.value)} required>
-                  <option value="">-- Select Reason --</option>
-                  <option value="Fever">Fever</option>
-                  <option value="Cold">Cold</option>
-                  <option value="Injury">Injury</option>
-                  <option value="Other">Other</option>
-                </select>
-                {disease === "Other" && (
-                  <input
-                    type="text"
-                    placeholder="Enter disease"
-                    value={customDisease}
-                    onChange={(e) => setCustomDisease(e.target.value)}
-                    required
-                  />
-                )}
-              </div>
-            )}
-
-            {leaveType === "custom" && (
+{/* Custom Leave Checkbox Selection */}
+{leaveType === "custom" && (
   <div className="employeeleaves-form-group">
     <label><strong>Select Multiple Leave Types</strong></label>
     <div className="employeeleaves-checkbox-group">
       {leaveOptions.map(opt => {
         const balance = leaveBalances[opt.id] ?? 0;
-        const isCheckboxDisabled = mainLeaveTypes.includes(opt.id) && balance === 0;
+        const maternitySelected = customTypes.includes("maternity");
+        const paternitySelected = customTypes.includes("paternity");
+
+        const isOtherDisabled =
+          (maternitySelected && opt.id !== "maternity") ||
+          (paternitySelected && opt.id !== "paternity");
+
+        const isCheckboxDisabled =
+          (mainLeaveTypes.includes(opt.id) && balance <= 0) || isOtherDisabled;
+
         return (
-          <label key={opt.id}>
+          <label
+            key={opt.id}
+            style={{
+              opacity: isCheckboxDisabled ? 0.5 : 1,
+              pointerEvents: isCheckboxDisabled ? "none" : "auto"
+            }}
+          >
             <input
               type="checkbox"
               value={opt.id}
@@ -557,13 +680,13 @@ const handleBackendSubmit = async (request) => {
               onChange={handleCustomCheckbox}
               disabled={isCheckboxDisabled}
             />
-            {opt.label}
+            {opt.label} ({balance} day{balance !== 1 ? "s" : ""})
           </label>
         );
       })}
     </div>
 
-    {/* Show compoff dates if compoff is selected in customTypes */}
+    {/* Show compoff dates if compoff selected */}
     {customTypes.includes("compoff") && (
       <div className="employeeleaves-form-group">
         <label><strong>Select Worked Days (Sundays)</strong></label>
@@ -587,6 +710,127 @@ const handleBackendSubmit = async (request) => {
   </div>
 )}
 
+{leaveType === "sick" && (
+  <div className="employeeleaves-form-group" ref={diseaseDropdownRef}>
+    <label><strong>Reason</strong></label>
+
+    <div
+      className="custom-dropdown"
+      onClick={() => setDiseaseDropdownOpen(!diseaseDropdownOpen)}
+    >
+      {disease || "-- Select Reason --"}
+    </div>
+
+    {diseaseDropdownOpen && (
+      <div className="custom-dropdown-menu">
+        <input
+          type="text"
+          placeholder="Search reason..."
+          value={diseaseSearch}
+          onChange={(e) => setDiseaseSearch(e.target.value)}
+          className="custom-dropdown-search"
+        />
+
+        <div className="custom-dropdown-options">
+          {diseaseOptions
+            .filter(opt =>
+              opt.toLowerCase().includes(diseaseSearch.toLowerCase())
+            )
+            .map(opt => (
+              <div
+                key={opt}
+                className={`custom-dropdown-option ${disease === opt ? "selected" : ""}`}
+                onClick={() => {
+                  if (opt === "-- None --") {
+                    setDisease("");
+                    setCustomDisease("");
+                  } else {
+                    setDisease(opt);
+                  }
+                  setDiseaseDropdownOpen(false);
+                  setDiseaseSearch("");
+                }}
+              >
+                {opt}
+              </div>
+            ))}
+        </div>
+      </div>
+    )}
+
+    {disease === "Other" && (
+      <input
+        type="text"
+        placeholder="Enter disease"
+        value={customDisease}
+        onChange={(e) => setCustomDisease(e.target.value)}
+        required
+      />
+    )}
+  </div>
+)}
+
+{/* Custom Leave Checkbox Selection */}
+{leaveType === "custom" && (
+  <div className="employeeleaves-form-group">
+    <label><strong>Select Multiple Leave Types</strong></label>
+    <div className="employeeleaves-checkbox-group">
+      {leaveOptions.map(opt => {
+        const balance = leaveBalances[opt.id] ?? 0;
+        const maternitySelected = customTypes.includes("maternity");
+        const paternitySelected = customTypes.includes("paternity");
+
+        const isOtherDisabled =
+          (maternitySelected && opt.id !== "maternity") ||
+          (paternitySelected && opt.id !== "paternity");
+
+        const isCheckboxDisabled =
+          (mainLeaveTypes.includes(opt.id) && balance <= 0) || isOtherDisabled;
+
+        return (
+          <label
+            key={opt.id}
+            style={{
+              opacity: isCheckboxDisabled ? 0.5 : 1,
+              pointerEvents: isCheckboxDisabled ? "none" : "auto"
+            }}
+          >
+            <input
+              type="checkbox"
+              value={opt.id}
+              checked={customTypes.includes(opt.id)}
+              onChange={handleCustomCheckbox}
+              disabled={isCheckboxDisabled}
+            />
+            {opt.label} ({balance} day{balance !== 1 ? "s" : ""})
+          </label>
+        );
+      })}
+    </div>
+
+    {/* Show compoff dates if compoff selected */}
+    {customTypes.includes("compoff") && (
+      <div className="employeeleaves-form-group">
+        <label><strong>Select Worked Days (Sundays)</strong></label>
+        {validCompoffDates.length > 0 ? (
+          validCompoffDates.map(date => (
+            <label key={date}>
+              <input
+                type="checkbox"
+                value={date}
+                checked={compoffDates.includes(date)}
+                onChange={handleCompoffCheckbox}
+              />
+              {new Date(date).toDateString()}
+            </label>
+          ))
+        ) : (
+          <p>No available Sundays this month.</p>
+        )}
+      </div>
+    )}
+  </div>
+)}
 
             {leaveType === "compoff" && (
               <div className="employeeleaves-form-group">
@@ -613,36 +857,39 @@ const handleBackendSubmit = async (request) => {
               <label><strong>Upload Document</strong></label>
               <input
   type="file"
-  accept=".pdf"
+  accept=".pdf,.jpeg,.png"
   onChange={handleFileChange}
   required={leaveType === "sick" && daysApplied > 2}
 />
 
             </div>
-
+</div>
+</div>
             <button type="submit" className="employeeleaves-submit-btn">Submit</button>
+            {errors.length > 0 && (
+  <div className="employeeleaves-error-box">
+    {errors.map((err, i) => (
+      <p key={i} style={{ color: "red", margin: "4px 0" }}>
+        ⚠️ {err}
+      </p>
+    ))}
+  </div>
+)}
           </form>
-
-          {/* {submitted && status === "sent" && (
-            <button
-              onClick={handleManagerApproval}
-              className="employeeleaves-submit-btn"
-              style={{ marginTop: "12px", background: "green" }}
-            >
-              Manager Approve
-            </button>
-          )} */}
         </div>
       ) : (
         <div className="employeeleaves-form-box">
         <div className="employeeleaves-requests-box">
           <h2>My Leave Requests</h2>
-          {requests.length === 0 ? (
+          {(requests?.length ?? 0) === 0 ? (
             <p>No leave requests submitted yet.</p>
           ) : (
-            <History 
-  requests={requests.filter(req => req.employeeId === localStorage.getItem("employeeId"))} 
-  onDelete={handleDeleteRequest} 
+            <History
+
+            // requests={requests.length >0 && requests.filter(req => req.employeeId === localStorage.getItem("employeeId"))}
+requests={requests}
+
+onDelete={handleDeleteRequest}
 />
 
           )}

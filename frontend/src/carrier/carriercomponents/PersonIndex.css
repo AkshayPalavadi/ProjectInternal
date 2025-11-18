@@ -339,7 +339,8 @@ html,
 h4,
 h5 {
   margin-top: 25px;
-  color: #2e7d32;
+  /* color: #2e7d32; */
+  margin-left: 70px;
 }
 
 .muted {

@@ -147,7 +147,7 @@ useEffect(() => {
   const storedMap = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
 
   // If found in map (true), mark as submitted
-  if (storedMap[email]) {
+  if (storedMap[email] === "true") {
     setApplicationSubmitted(true);
     localStorage.setItem("applicationSubmitted", "true");
   } else {
@@ -238,7 +238,9 @@ useEffect(() => {
           <Route
             path="profile"
             element={
-              applicationSubmitted ? (
+                  getSubmitted(localStorage.getItem("applicationSubmitted"))
+? (
+                
                 <EmployeeReview key="review" />
               ) : (
                 <PersonApp

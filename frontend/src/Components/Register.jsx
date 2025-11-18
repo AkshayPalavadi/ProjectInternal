@@ -27,6 +27,26 @@ const Register = () => {
     let message = "";
 
     switch (name) {
+      case "dob":
+        if (value) {
+          const today = new Date();
+          const dobDate = new Date(value);
+
+          const age = today.getFullYear() - dobDate.getFullYear();
+          const monthDiff = today.getMonth() - dobDate.getMonth();
+          const dayDiff = today.getDate() - dobDate.getDate();
+
+          // Adjust age if birthday has not happened yet this year
+          const exactAge = monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)
+            ? age - 1
+            : age;
+
+          if (exactAge < 18 || exactAge > 60) {
+            message = "Age must be between 18 and 60 years.";
+          }
+        }
+        break;
+
       case "email":
         if (
           !/^[a-zA-Z0-9._%+-]+@(gmail\.com|yahoo\.com|outlook\.com|dhatvibs\.com)$/.test(
@@ -177,6 +197,7 @@ const Register = () => {
             onChange={handleChange}
             required
           />
+          {errors.dob && <p className="registerpage-emp-error">{errors.dob}</p>}
 
           <input
             type="email"

@@ -16,7 +16,7 @@ const jobs = [
   {
     id: 1,
     title: "Frontend Developer",
-    category: "Software IT",
+    department: "Software IT",
     experience: "2+ Years",
     salary: "₹4,00,000 - ₹6,00,000",
     location: "Hyderabad",
@@ -37,7 +37,7 @@ const jobs = [
   {
     id: 2,
     title: "Content Writer",
-    category: "Media & Communication",
+    department: "Media & Communication",
     experience: "1+ Years",
     salary: "₹2,50,000 - ₹4,00,000",
     location: "Remote / Hyderabad",
@@ -59,7 +59,7 @@ const jobs = [
   {
     id: 3,
     title: "Backend Developer",
-    category: "Software IT",
+    departent: "Software IT",
     experience: "3+ Years",
     salary: "₹5,00,000 - ₹8,00,000",
     location: "Bangalore",
@@ -80,7 +80,7 @@ const jobs = [
   {
     id: 4,
     title: "Web Developer",
-    category: "Information Technology",
+    department: "Information Technology",
     experience: "1-3 Years",
     salary: "₹3,00,000 - ₹5,00,000",
     location: "Chennai",
@@ -101,7 +101,7 @@ const jobs = [
   {
     id: 5,
     title: "UI/UX Designer",
-    category: "Design & Creative",
+    department: "Design & Creative",
     experience: "2+ Years",
     salary: "₹4,50,000 - ₹7,00,000",
     location: "Hyderabad",
@@ -122,7 +122,7 @@ const jobs = [
   {
     id: 6,
     title: "Python Developer",
-    category: "Software Development",
+    department: "Software Development",
     experience: "2-4 Years",
     salary: "₹4,50,000 - ₹7,50,000",
     location: "Pune",
@@ -186,8 +186,8 @@ const JobDetail = () => {
         <div className="overview-item">
           <FaBriefcase className="icon" />
           <div>
-            <p className="label">Category</p>
-            <p className="value">{job.category}</p>
+            <p className="label">Department</p>
+            <p className="value">{job.department}</p>
           </div>
         </div>
 
@@ -202,7 +202,7 @@ const JobDetail = () => {
         <div className="overview-item">
           <FaGraduationCap className="icon" />
           <div>
-            <p className="label">Degree</p>
+            <p className="label">Qualification</p>
             <p className="value">B.Tech</p>
           </div>
         </div>
@@ -232,7 +232,7 @@ const JobDetail = () => {
             <p className="experience">{job.experience}</p>
 
             <div className="job-tags">
-              <span>{job.category}</span>
+              <span>{job.department}</span>
               <span>{job.jobType}</span>
               <span>{job.salary}</span>
               <span>{job.location}</span>

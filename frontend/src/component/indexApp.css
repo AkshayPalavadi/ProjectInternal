@@ -167,8 +167,11 @@ body {
 }
 
 h4, h5 {
-  margin-top: 25px;
-  color: #2e7d32;
+  /* margin-top: 25px; */
+  color: #22b573;
+  font-weight: bold;
+    font-size: 1.17em;
+    /* margin-bottom: 30px; */
 }
 
 .muted {

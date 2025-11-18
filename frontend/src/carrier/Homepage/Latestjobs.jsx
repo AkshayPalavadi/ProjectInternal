@@ -14,23 +14,32 @@ const jobs = [
 ];
 
 function Latestjobs({ subscribeRef }) {
-    const navigate=useNavigate();
+  const navigate = useNavigate();
   const [selectedJob, setSelectedJob] = useState(null);
   const [email, setEmail] = useState("");
   const [showPopup, setShowPopup] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleOpen = (job) => setSelectedJob(job);
   const handleClose = () => setSelectedJob(null);
 
+  const emailRegex = /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+
   const handleSubscribe = () => {
     if (email.trim() === "") {
-      alert("Please enter your email before subscribing!");
+      setErrorMessage("⚠️ Please enter your email before subscribing!");
       return;
     }
+
+    if (!emailRegex.test(email)) {
+      setErrorMessage("⚠️ Email must start with a letter and follow valid format.");
+      return;
+    }
+
+    setErrorMessage("");
     setShowPopup(true);
     setEmail("");
 
-    // Auto close popup after 3 seconds
     setTimeout(() => {
       setShowPopup(false);
     }, 3000);
@@ -55,50 +64,64 @@ function Latestjobs({ subscribeRef }) {
           <div className="hero__overlay">
             <div className="hero__content">
               <h1 className="hero__title">Let’s Make the Most Unique Ideas Together</h1>
-              <button className="hero__cta-jobHome" onClick={()=>navigate("/carrier/jobs")}>Apply Now →</button>
+              <button className="hero__cta-jobHome" onClick={() => navigate("/carrier/jobs")}>Apply Now →</button>
             </div>
           </div>
         </section>
       </section>
 
-      {/* Job Details Modal */}
       {selectedJob && (
         <div className="modal-overlay" onClick={handleClose}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>{selectedJob.title}</h2>
             <p>{selectedJob.description}</p>
-            <button className="apply-btn-latest-job" onClick={()=>navigate("/apply")}>Apply Now →</button>
+            <button className="apply-btn-latest-job" onClick={() => navigate("/apply")}>Apply Now →</button>
             <button className="close-btn" onClick={handleClose}>✖</button>
           </div>
         </div>
       )}
 
-      {/* Newsletter Section with ref */}
       <footer className="footer-subscribe" ref={subscribeRef}>
         <div className="footer-subscribe__newsletter">
           <h2 className="footer-subscribe__title">Subscribe Newsletters</h2>
+          <div className="footer-subscribe-form">
           <div className="footer-subscribe__form-wrapper">
             <input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="footer-subscribe__input"
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setErrorMessage("");
+              }}
+              className={`footer-subscribe__input ${
+                errorMessage ? "input-error" : email && !errorMessage ? "input-success" : ""
+              }`}
               placeholder="Enter your email"
             />
+
             <button className="footer-subscribe__button" onClick={handleSubscribe}>
               Subscribe Now
             </button>
+                   
+          </div>
+
+           {/* 🔹 ERROR MESSAGE SHOWN BELOW FULL SECTION */}
+      {errorMessage && (
+        <p className="subscribe-note" style={{ textAlign: "center", marginTop: "12px" }}>
+          {errorMessage}
+        </p>
+      )}
           </div>
         </div>
 
         <div className="latest-job-footer">
           <div className="footer-subscribe__links">
-            <a href="https://www.dhatvibs.com/about/">About us</a>
-            {/* <a href="/discover">Discover</a> */}
-            {/* <a href="/explore">Explore</a> */}
+            <a href="https://www.dhatvibs.com/about/" target="_blank" rel="noopener noreferrer">About us</a>
             <a href="/carrier/contact">Contact us</a>
           </div>
+        </div>
 
+        <div className="footer-subscribe__social">
           <div className="social-links">
             <a href="https://facebook.com/" target="_blank" rel="noreferrer"><FaFacebookF /></a>
             <a href="https://twitter.com/" target="_blank" rel="noreferrer"><FaTwitter /></a>
@@ -120,15 +143,20 @@ function Latestjobs({ subscribeRef }) {
         </div>
       </footer>
 
-      {/* Subscription Confirmation Popup */}
-{showPopup && (
-  <div className="popup-overlay">
-    <div className="popup-message success">
-      <p>🎉 You have been successfully subscribed to <strong>DhaTvi Business Solutions!</strong></p>
-    </div>
-  </div>
-)}
+      {/* 🔹 ERROR MESSAGE SHOWN BELOW FULL SECTION
+      {errorMessage && (
+        <p className="subscribe-note" style={{ textAlign: "center", marginTop: "12px" }}>
+          {errorMessage}
+        </p>
+      )} */}
 
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-message success">
+            <p>🎉 You have been successfully subscribed to <strong>DhaTvi Business Solutions!</strong></p>
+          </div>
+        </div>
+      )}
     </>
   );
 }
