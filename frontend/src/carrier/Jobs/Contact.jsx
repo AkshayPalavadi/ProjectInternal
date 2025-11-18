@@ -99,28 +99,31 @@ const Contact = () => {
       </div>
 
       {/* ==== FOOTER SECTION ==== */}
-      <footer className="footer">
-        <div className="footer-container">
-          {/* COMPANY INFO */}
-          <div className="footer-column-c">
-            <h3>DhaTvi Business Solutions</h3>
-            <p>
-              We empower businesses through technology — offering modern
-              solutions for digital growth, innovation, and transformation.
-            </p>
+      <footer className="footer-contact">
+        <div className="footer-container-contact">
+          {/* COMPANY INFO / BRAND */}
+          <div className="footer-column-contact">
+            {/* <div className="Dhatvi-heading"> */}
+              <h3 className="Dhatvi-heading">DhaTvi Business Solutions</h3>
+              <p>
+                We empower businesses through technology — offering modern
+                solutions for digital growth, innovation, and transformation.
+              </p>
+            {/* </div> */}
           </div>
 
           {/* SERVICES & LINKS */}
-          <div className="footer-column-c">
-            <h4>Company</h4>
-            <ul>
-              <li><a href="#">Services</a></li>
-              <li><a href="#">About</a></li>
-              <li><a href="#">Careers</a></li>
-            </ul>
-          </div>
+{/* <div className="footer-column footer-company">
+  <h4 className="footer-title">Company</h4>
+  <ul className="footer-links-contact">
+    <li><a href="#">Services</a></li>
+    <li><a href="#">About</a></li>
+    <li><a href="#">Careers</a></li>
+  </ul>
+</div> */}
 
-          <div className="footer-column-c">
+
+          <div className="footer-column-contact-company">
             <h4>Legal</h4>
             <ul>
               <li><a href="#">Terms & Conditions</a></li>
@@ -129,7 +132,7 @@ const Contact = () => {
           </div>
 
           {/* CONTACT INFO */}
-          <div className="footer-column-c">
+          <div className="footer-column-contact">
             <h4>Contact</h4>
             <p>Email: info@dhatvibs.com</p>
             <p>Tel: +91 40 45374487</p>
@@ -138,12 +141,12 @@ const Contact = () => {
               Madhapur, Hyderabad, Telangana 500081
             </p>
 
-            <div className="footer-social">
+            <div className="footer-social-contact">
               <a href="https://www.linkedin.com/feed/update/urn:li:activity:7387755680721444864" target="_blank" rel="noreferrer">
                 <i className="fab fa-linkedin"></i>
               </a>
               <a href="https://www.youtube.com/@dhatvi" target="_blank" rel="noreferrer">
-                <i color="red" className="fab fa-youtube"></i>
+                <i style={{ color: "red" }} className="fab fa-youtube"></i>
               </a>
               <a href="https://www.instagram.com/dhatviofficial?utm_source=qr&igsh=YndrNWU4MnZwZmY5" target="_blank" rel="noreferrer">
                 <i className="fab fa-instagram"></i>
@@ -152,7 +155,7 @@ const Contact = () => {
           </div>
         </div>
 
-        <div className="footer-bottom">
+        <div className="footer-bottom-contact">
           <p>© {new Date().getFullYear()} DhaTvi Business Solutions Pvt. Ltd. All rights reserved.</p>
         </div>
       </footer>

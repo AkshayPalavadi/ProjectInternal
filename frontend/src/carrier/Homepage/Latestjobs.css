@@ -251,6 +251,7 @@ justify-content: space-between;
   justify-content: space-between;
  /* padding: 0 10px; */
   background-color: #ffffff;
+  /* position: relative; */
  
 }
 
@@ -375,17 +376,22 @@ background-color: white;}
   color: #333;
 }
 
-.social-links {
+.social-links-latestjob {
   display: flex;
   gap: 1rem;
   justify-content: center; /* or flex-start, flex-end depending where you want */
   align-items: center;
+  margin-left: 800px;
+  
+  /* top:80px; */
 }
 
-.social-links__icon {
+.social-links__icon-latestjob {
   color: #333; /* default icon color */
   font-size: 1.5rem;
   transition: color 0.2s ease, transform 0.2s ease;
+  
+  
 }
 
 .social-links__icon:hover {
@@ -551,3 +557,81 @@ background-color: white;}
   from { opacity: 0; transform: scale(0.9); }
   to { opacity: 1; transform: scale(1); }
 }
+
+
+.subscribe-note {
+  color: #d8000c;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.input-error {
+  border: 2px solid #d8000c !important;
+  background: #ffe6e6;
+  /* position: absolute; */
+}
+
+.input-success {
+  border: 2px solid #22c55e !important;
+  background: #e6ffe9;
+}
+
+.footer-subscribe__input {
+  transition: 0.25s ease-in-out;
+}
+
+/* Wrapper alignment fix */
+.footer-subscribe__form-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Input field styles */
+.footer-subscribe__input {
+  width: 280px;
+  padding: 10px 14px;
+  border-radius: 5px;
+  border: 2px solid #ccc;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+/* Validation states */
+.input-error {
+  border-color: red !important;
+}
+
+.input-success {
+  border-color: green !important;
+}
+
+/* Error message style + alignment fix */
+.subscribe-note {
+  color: #ffcc00;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 5px;
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+/* Button styling no change — but kept for alignment */
+.footer-subscribe__button {
+  padding: 10px 16px;
+  border: none;
+  background: #00933f;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  /* margin-bottom: 20px; */
+}
+
+.footer-subscribe-form {
+  width: fit-content;
+}
+
