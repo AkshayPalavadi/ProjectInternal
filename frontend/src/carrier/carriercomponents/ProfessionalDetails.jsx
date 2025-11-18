@@ -452,6 +452,33 @@ const ProfessionalDetails = ({ data, setData, setActive, errors, setErrors }) =>
     }));
   };
 
+  const handleSalaryChange = (index, e) => {
+  let value = e.target.value;
+
+  // Allow only digits and commas while typing
+  value = value.replace(/[^0-9,]/g, "");
+
+  // Prevent leading comma
+  if (value.startsWith(",")) {
+    value = value.substring(1);
+  }
+
+  // Prevent multiple commas together
+  value = value.replace(/,{2,}/g, ",");
+
+  // Prevent leading zero unless value is "0"
+  if (value.length > 1 && value.startsWith("0")) {
+    value = value.replace(/^0+/, "");
+  }
+
+  const newExperiences = [...localData.experiences];
+  newExperiences[index].salary = value;
+
+  setLocalData(prev => ({ ...prev, experiences: newExperiences }));
+  setErrors(prev => ({ ...prev, [`salary_${index}`]: "" }));
+};
+
+
   const removeExperience = (index) => {
     const updated = localData.experiences.filter((_, i) => i !== index);
     setLocalData((prev) => ({ ...prev, experiences: updated }));
@@ -643,8 +670,14 @@ const ProfessionalDetails = ({ data, setData, setActive, errors, setErrors }) =>
 
                 <div className="field">
                   <label>Salary *</label>
-                  <input name="salary" value={exp.salary} onChange={(e) => handleExperienceChange(index, e)} />
-                  {errors[`salary_${index}`] && <small className="err">{errors[`salary_${index}`]}</small>}
+              <input
+  name="salary"
+  value={exp.salary}
+  onChange={(e) => handleSalaryChange(index, e)}
+  placeholder="Enter salary (digits & commas only)"
+/>
+{errors[`salary_${index}`] && <small className="err">{errors[`salary_${index}`]}</small>}
+
                 </div>
               </div>
 

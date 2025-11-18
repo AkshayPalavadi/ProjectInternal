@@ -6,8 +6,22 @@ import ProfessionalDetails from './ProfessionalDetails';
 import ReviewSubmit from './ReviewSubmit';
 import './PersonApp.css';
 import Logo from "../assets/dhatvi.jpg"
+import { useNavigate } from "react-router-dom";
+import { FaHome } from "react-icons/fa";
 
 function PersonApp() {
+ const navigate = useNavigate();
+
+ const goHome = () => {
+  navigate("/carrier"); // go to Home page first
+
+  // delay scrolling to ensure page renders
+  setTimeout(() => {
+    const jobsSection = document.getElementById("jobs-section");
+    jobsSection?.scrollIntoView({ behavior: "smooth" });
+  }, 100);
+};
+
   const [active, setActive] = useState('personal'); // 'personal' | 'education' | 'professional' | 'review'
   const [formData, setFormData] = useState({
   jobType: "fresher",
@@ -123,7 +137,14 @@ function PersonApp() {
 
       <main className="main-content-job">
         <header>
-          <h2 className="topbar-job">Job Application Form</h2>
+          <h2 className="topbar-job">Job Application Form
+         <button className="header-home-btn" onClick={goHome}>
+  <FaHome className="home-icon" />
+  Home
+</button>
+
+          </h2>
+          
         </header>
 
         <section className="content-card-job">

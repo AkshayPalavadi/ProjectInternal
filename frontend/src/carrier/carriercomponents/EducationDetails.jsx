@@ -1,20 +1,29 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { simpleValidateEducation } from './validation';
 
 const EducationDetails = ({ data, setData, setActive, errors, setErrors }) => {
   const years = Array.from({ length: 2025 - 1960 + 1 }, (_, i) => 2025 - i);
 
-  const handleChange = (e) => {
+  const handleNameChange = (e) => {
     const { name, value } = e.target;
-    setData(prev => ({ ...prev, [name]: value }));
+    const clean = value.replace(/[^A-Za-z\s]/g, ""); // ⛔ BLOCK DIGITS
+    setData(prev => ({ ...prev, [name]: clean }));
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const handleGapReasonChange = (e) => {
     const { name, value } = e.target;
-    // This ONLY updates the data state. 
-    // It avoids clearing the error immediately, which fixes the typing bug.
+
+    // allow letters, spaces, and basic punctuation for typing explanation
+    const clean = value.replace(/[^A-Za-z0-9\s,.()-]/g, "");
+
+    setData(prev => ({ ...prev, [name]: clean }));
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
     setData(prev => ({ ...prev, [name]: value }));
+    setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const next = () => {
@@ -25,29 +34,27 @@ const EducationDetails = ({ data, setData, setActive, errors, setErrors }) => {
     }
   };
 
-  const prev = () => setActive('personal');
-
   return (
     <div className="form-wrap">
       <h3>Education Details</h3>
 
       <div className="form-grid">
-
+        
         {/* ---------- 10th Class ---------- */}
         <div className="field full"><h4>10th Class</h4></div>
 
         <div className="field">
-          <label>School Name <span className="required-star">*</span></label>
+          <label>School Name *</label>
           <input
             name="schoolName10"
             value={data.schoolName10 || ''}
-            onChange={handleChange}
+            onChange={handleNameChange}  // ⛔ NO DIGITS
           />
           {errors.schoolName10 && <small className="err">{errors.schoolName10}</small>}
         </div>
 
         <div className="field">
-          <label>Year of Passing <span className="required-star">*</span></label>
+          <label>Year of Passing *</label>
           <select name="year10" value={data.year10 || ''} onChange={handleChange}>
             <option value="">Select Year</option>
             {years.map(y => <option key={y} value={y}>{y}</option>)}
@@ -56,7 +63,7 @@ const EducationDetails = ({ data, setData, setActive, errors, setErrors }) => {
         </div>
 
         <div className="field">
-          <label>CGPA / Percentage <span className="required-star">*</span></label>
+          <label>CGPA / Percentage *</label>
           <input
             type="number"
             step="0.01"
@@ -77,7 +84,7 @@ const EducationDetails = ({ data, setData, setActive, errors, setErrors }) => {
         <div className="field full"><h4>Intermediate / Diploma</h4></div>
 
         <div className="field">
-          <label>Choose <span className="required-star">*</span></label>
+          <label>Choose *</label>
           <select
             name="interOrDiploma"
             value={data.interOrDiploma || ''}
@@ -91,17 +98,17 @@ const EducationDetails = ({ data, setData, setActive, errors, setErrors }) => {
         </div>
 
         <div className="field">
-          <label>College Name <span className="required-star">*</span></label>
+          <label>College Name *</label>
           <input
             name="collegeName12"
             value={data.collegeName12 || ''}
-            onChange={handleChange}
+            onChange={handleNameChange} // ⛔ NO DIGITS
           />
           {errors.collegeName12 && <small className="err">{errors.collegeName12}</small>}
         </div>
 
         <div className="field">
-          <label>Year of Passing <span className="required-star">*</span></label>
+          <label>Year of Passing *</label>
           <select name="year12" value={data.year12 || ''} onChange={handleChange}>
             <option value="">Select Year</option>
             {years.map(y => <option key={y} value={y}>{y}</option>)}
@@ -110,7 +117,7 @@ const EducationDetails = ({ data, setData, setActive, errors, setErrors }) => {
         </div>
 
         <div className="field">
-          <label>CGPA / Percentage <span className="required-star">*</span></label>
+          <label>CGPA / Percentage *</label>
           <input
             type="number"
             step="0.01"
@@ -122,40 +129,38 @@ const EducationDetails = ({ data, setData, setActive, errors, setErrors }) => {
                 setData(prev => ({ ...prev, cgpa12: value }));
               }
             }}
-            placeholder="Enter CGPA or %"
           />
           {errors.cgpa12 && <small className="err">{errors.cgpa12}</small>}
         </div>
 
         {errors.gapReason12 && (
           <div className="field full">
-            <label>Reason for Gap <span className="required-star">*</span></label>
+            <label>Reason for Gap *</label>
             <input
-  type='text'
-  name="gapReason12"
-  value={data.gapReason12 || ''}
-  onChange={handleGapReasonChange} // ✅ FIX: Use the general handleChange function
-  placeholder="Explain your gap after 10th"
-/>
+              name="gapReason12"
+              value={data.gapReason12 || ''}
+              onChange={handleGapReasonChange}
+              placeholder="Explain your gap after 10th"
+            />
             <small className="err">{errors.gapReason12}</small>
           </div>
         )}
 
-        {/* ---------- B.Tech / Degree ---------- */}
+        {/* ---------- UG ---------- */}
         <div className="field full"><h4>B.Tech / Degree</h4></div>
 
         <div className="field">
-          <label>College Name <span className="required-star">*</span></label>
+          <label>College Name *</label>
           <input
             name="collegeNameUG"
             value={data.collegeNameUG || ''}
-            onChange={handleChange}
+            onChange={handleNameChange}  // ⛔ NO DIGITS
           />
           {errors.collegeNameUG && <small className="err">{errors.collegeNameUG}</small>}
         </div>
 
         <div className="field">
-          <label>Year of Passing <span className="required-star">*</span></label>
+          <label>Year of Passing *</label>
           <select name="yearUG" value={data.yearUG || ''} onChange={handleChange}>
             <option value="">Select Year</option>
             {years.map(y => <option key={y} value={y}>{y}</option>)}
@@ -164,7 +169,7 @@ const EducationDetails = ({ data, setData, setActive, errors, setErrors }) => {
         </div>
 
         <div className="field">
-          <label>CGPA / Percentage <span className="required-star">*</span></label>
+          <label>CGPA / Percentage *</label>
           <input
             type="number"
             step="0.01"
@@ -176,29 +181,26 @@ const EducationDetails = ({ data, setData, setActive, errors, setErrors }) => {
                 setData(prev => ({ ...prev, cgpaUG: value }));
               }
             }}
-            placeholder="Enter CGPA or %"
           />
           {errors.cgpaUG && <small className="err">{errors.cgpaUG}</small>}
         </div>
 
         {errors.gapReasonUG && (
           <div className="field full">
-            <label>Reason for Gap <span className="required-star">*</span></label>
+            <label>Reason for Gap *</label>
             <input
               name="gapReasonUG"
               value={data.gapReasonUG || ''}
               onChange={handleGapReasonChange}
-              placeholder="Explain your gap before Degree"
             />
             <small className="err">{errors.gapReasonUG}</small>
           </div>
         )}
       </div>
 
-      {/* ---------- Buttons ---------- */}
       <div className="form-actions">
-        <button className="btn secondary" onClick={prev}>Back: Personal</button>
-        <button className="btn primary_app" onClick={next}>Next: Professional</button>
+        <button className="btn secondary" onClick={() => setActive('personal')}>Back</button>
+        <button className="btn primary_app" onClick={next}>Next</button>
       </div>
     </div>
   );

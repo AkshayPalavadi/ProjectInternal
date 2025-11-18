@@ -53,7 +53,7 @@ function Latestjobs({ subscribeRef }) {
 
         <div className="latest-jobs__list-job">
           {jobs.map((job) => (
-            <button key={job.title} className="latest-jobs__button" onClick={() => handleOpen(job)}>
+            <button key={job.title} className="latest-jobs__button-hp" onClick={() => handleOpen(job)}>
               {job.title}
               <span className="latest-jobs__plus">+</span>
             </button>

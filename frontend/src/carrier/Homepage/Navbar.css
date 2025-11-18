@@ -54,6 +54,12 @@
   color: #333
 }
 
+.nav-links li a {
+    color: #333;
+    text-decoration: none;
+
+}
+
 .login-btn-nav {
   background: #46af4f;
   border: none;

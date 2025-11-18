@@ -39,4 +39,25 @@
   height: 2px;
   background-color: #00995e;
   margin: 2px 0;
+
+  
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-home-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* space between icon and text */
+  text-decoration: none;
+  color: #000;
+  font-weight: 600;
+}
+
+.home-icon {
+  font-size: 18px;
 }
