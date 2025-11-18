@@ -226,7 +226,7 @@ const PersonalDetails = ({ data, setData, setActive, errors, setErrors }) => {
         </div>
 
         <div className="field">
-          <label>Landmark <span className="required-star">*</span></label>
+          <label>Landmark</label>
           <input
             name="landmark"
             value={data.landmark}

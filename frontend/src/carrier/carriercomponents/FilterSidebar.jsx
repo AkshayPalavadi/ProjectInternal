@@ -49,7 +49,7 @@ const FilterSidebar = ({ updateFilters }) => {
   const handleSalaryChange = (e) => {
     const value = Number(e.target.value);
     setSalaryRange(value);
-    handleUpdate("maxSalary", value);
+    handleUpdate("salaryRange", value);
   };
 
   const clearFilters = () => {
@@ -58,7 +58,7 @@ const FilterSidebar = ({ updateFilters }) => {
     setJobTypes([]);
     setExperiences([]);
     setEducation("");
-    setSalaryRange(0);
+     setSalaryRange(150000);
 
     updateFilters({
       searchTerm: "",
@@ -66,7 +66,7 @@ const FilterSidebar = ({ updateFilters }) => {
       jobTypes: [],
       experiences: [],
       education: "",
-      maxSalary: 0,
+       setSalaryRange:150000
     });
   };
 
@@ -134,7 +134,7 @@ const FilterSidebar = ({ updateFilters }) => {
       <div className="filter-section-fs">
         <h3><FaUserTie className="filter-icon-fs" /> Experience Level</h3>
         <ul>
-          {["Fresher", "1-2 Years", "2-4 Years", "4-6 Years", "6+ Years"].map((exp) => (
+          {["Fresher", "2 Years", "3 Years", "4 Years", "5 Years", "5+ Years"].map((exp) => (
             <li key={exp}>
               <input
                 type="checkbox"

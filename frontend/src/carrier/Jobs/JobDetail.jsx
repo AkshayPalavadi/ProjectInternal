@@ -16,7 +16,8 @@ const jobs = [
     id: 1,
     title: "Frontend Developer",
     department: "Software IT",
-    experience: "2+ Years",
+    experience: "2 Years",
+    education: "B.Tech",
     salary: "₹4,00,000 - ₹6,00,000",
     location: "Hyderabad",
     jobType: "Full Time",
@@ -34,7 +35,8 @@ const jobs = [
     id: 2,
     title: "Content Writer",
     department: "Media & Communication",
-    experience: "1+ Years",
+    experience: "1 Years",
+    education: "B.Sc",
     salary: "₹2,50,000 - ₹4,00,000",
     location: "Remote / Hyderabad",
     jobType: "Full Time",
@@ -51,8 +53,9 @@ const jobs = [
   {
     id: 3,
     title: "Backend Developer",
-    departent: "Software IT",
-    experience: "3+ Years",
+    department: "Software IT",
+    experience: "3 Years",
+    education: "B.Tech",
     salary: "₹5,00,000 - ₹8,00,000",
     location: "Bangalore",
     jobType: "Full Time",
@@ -70,7 +73,8 @@ const jobs = [
     id: 4,
     title: "Web Developer",
     department: "Information Technology",
-    experience: "1-3 Years",
+    experience: "1 Years",
+    education: "M.Tech",
     salary: "₹3,00,000 - ₹5,00,000",
     location: "Chennai",
     jobType: "Full Time",
@@ -88,7 +92,8 @@ const jobs = [
     id: 5,
     title: "UI/UX Designer",
     department: "Design & Creative",
-    experience: "2+ Years",
+    experience: "2 Years",
+    education: "MBA",
     salary: "₹4,50,000 - ₹7,00,000",
     location: "Hyderabad",
     jobType: "Full Time",
@@ -106,7 +111,8 @@ const jobs = [
     id: 6,
     title: "Python Developer",
     department: "Software Development",
-    experience: "2-4 Years",
+    experience: "4 Years",
+    education: "B.Tech",
     salary: "₹4,50,000 - ₹7,50,000",
     location: "Pune",
     jobType: "Full Time",
@@ -182,7 +188,7 @@ const JobDetail = () => {
           <FaGraduationCap className="icon" />
           <div>
             <p className="label">Qualification</p>
-            <p className="value">B.Tech</p>
+            <p className="value">{job.education}</p>
           </div>
         </div>
 
