@@ -86,6 +86,11 @@ function Login({ setIsLoggedIn, setUserRole }) {
                 localStorage.setItem("employeeDepartment", professional.department);
               }
 
+              // Save Date of Joining
+              if (professional.dateOfJoining) {
+                localStorage.setItem("employeeDateOfJoining", professional.dateOfJoining);
+              }
+
               // ⭐ Calculate Experience from dateOfJoining to today
               if (professional.dateOfJoining) {
                 const joiningDate = new Date(professional.dateOfJoining);

@@ -14,20 +14,61 @@ const PerformanceManagement = () => {
 
   const BASE_URL = "https://internal-website-rho.vercel.app";
 
-  // --- Financial Year Logic ---
-  const today = new Date();
-  const month = today.getMonth(); // 0=Jan
-  const year = today.getFullYear();
-  const fyStart = month >= 3 ? year : year - 1;
-  const fyEnd = fyStart + 1;
-  const currentFYLabel = `FY (${String(fyStart).slice(-2)} - ${String(fyEnd).slice(-2)})`;
+// --- DOJ based Appraisal Logic ---
+const dojRaw = localStorage.getItem("employeeDateOfJoining");
+const dojDate = dojRaw ? new Date(dojRaw.split("T")[0]) : null;
 
-  const years = [];
-  for (let i = fyStart; i >= fyStart - 3; i--) {
-    years.push(`FY (${String(i).slice(-2)} - ${String(i + 1).slice(-2)})`);
-  }
+const dojMonth = dojDate?.getMonth(); // 0=Jan, 3=April
+const dojYear = dojDate?.getFullYear();
 
-  const [selectedYear, setSelectedYear] = useState(currentFYLabel);
+// --- Generate FY list (last 3 years + current) ---
+const today = new Date();
+const month = today.getMonth();
+const year = today.getFullYear();
+const fyStart = month >= 3 ? year : year - 1;
+
+const makeFY = (startYear) =>
+  `FY (${String(startYear).slice(-2)} - ${String(startYear + 1).slice(-2)})`;
+
+const currentFYLabel = makeFY(fyStart);
+
+const fyList = [];
+for (let i = fyStart; i >= fyStart - 3; i--) {
+  fyList.push(makeFY(i));
+}
+
+// --- Classify PEA vs YEA based on DOJ rules ---
+let PEA_list = [];
+let YEA_list = [];
+
+if (dojDate) {
+  const dojFYStart = dojMonth >= 3 ? dojYear : dojYear - 1;
+
+  fyList.forEach((fy) => {
+    const fyStartYear = Number("20" + fy.substring(4, 6)); // extract 24 from FY (24 - 25)
+    const isFirstYear = fyStartYear === dojFYStart;
+
+    if (dojMonth === 3) {
+      // Joined in April → Only YEA is allowed
+      YEA_list.push(fy);
+    } else {
+      if (isFirstYear) {
+        PEA_list.push(fy); // First year only → PEA
+      } else {
+        YEA_list.push(fy); // Next years → YEA
+      }
+    }
+  });
+}
+
+const [selectedType, setSelectedType] = useState(
+  PEA_list.length > 0 ? "PEA" : "YEA"
+);
+
+const [selectedYear, setSelectedYear] = useState(
+  (PEA_list.length > 0 ? PEA_list[0] : YEA_list[0]) || ""
+);
+
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [showReviewBox, setShowReviewBox] = useState(false);
   const [openTaskReview, setOpenTaskReview] = useState(null);
@@ -56,21 +97,8 @@ const PerformanceManagement = () => {
 
         const r = data.review;
 
-        // Extract latest manager update from history
-        let latestManagerEntry = null;
-
-        if (r.history && Array.isArray(r.history)) {
-          const managerUpdates = r.history.filter((h) => h.by === "Manager");
-          if (managerUpdates.length > 0) {
-            latestManagerEntry = managerUpdates[managerUpdates.length - 1];
-          }
-        }
-
-        const bandScore =
-          latestManagerEntry?.payload?.bandScore || "-";
-
-        const managerComments =
-          latestManagerEntry?.payload?.managerComments || "";
+        const bandScore = r.bandScore || "-";
+        const managerComments = r.managerComments || "";
 
         setFinalReviews((prev) => ({
           ...prev,
@@ -137,6 +165,9 @@ const PerformanceManagement = () => {
       empComment: "",
     };
 
+  const isActionTaken =
+    reviewData.agree === true || reviewData.disagree === true;
+
   const updateTasks = (updatedTasks) => {
     setTasks(updatedTasks);
   };
@@ -188,60 +219,61 @@ const PerformanceManagement = () => {
     }));
   };
 
-    // --- Submit review to backend ---
-const handleFinalize = async () => {
-  const updatedReview = {
-    empComment: reviewData.empComment,
-    agree: true,
-    disagree: false,
-  };
+  // --- Submit review to backend ---
+  const handleFinalize = async () => {
+      const updatedReview = {
+        empComment: reviewData.empComment,
+        agree: true,
+        disagree: false,
+      };
 
-  try {
-    const res = await fetch(
-      `${BASE_URL}/api/tasks/final-review?fy=${encodeURIComponent(selectedYear)}&employeeId=${encodeURIComponent(user.id)}`,
-      {
+    try {
+      const res = await fetch(`${BASE_URL}/api/tasks/final-review`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedReview),
+        body: JSON.stringify({
+          fy: selectedYear,
+          employeeId: user.id,
+          ...updatedReview
+        }),
+      });
+      if (res.ok) {
+        alert("Final review submitted!");
+      } else {
+        alert("Failed to submit review");
       }
-    );
-
-    if (res.ok) {
-      alert("Final review submitted!");
-    } else {
-      alert("Failed to submit review");
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
-
-const handleReport = async () => {
-  const updatedReview = {
-    empComment: reviewData.empComment,
-    agree: false,
-    disagree: true,
   };
 
-  try {
-    const res = await fetch(
-      `${BASE_URL}/api/tasks/final-review?fy=${encodeURIComponent(selectedYear)}&employeeId=${encodeURIComponent(user.id)}`,
-      {
+  const handleReport = async () => {
+    const updatedReview = {
+      empComment: reviewData.empComment,
+      agree: false,
+      disagree: true,
+    };
+
+    try {
+      const res = await fetch(`${BASE_URL}/api/tasks/final-review`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedReview),
-      }
-    );
+        body: JSON.stringify({
+          fy: selectedYear,
+          employeeId: user.id,
+          ...updatedReview
+        }),
+      });
 
-    if (res.ok) {
-      alert("Submitted successfully!");
-    } else {
-      alert("Failed to update review");
+      if (res.ok) {
+        alert("Submitted successfully!");
+      } else {
+        alert("Failed to update review");
+      }
+    } catch (err) {
+      console.error(err);
     }
-  } catch (err) {
-    console.error(err);
-  }
-};
+  };
 
   // --- Rating ---
   const totalRating = tasks.reduce((sum, t) => sum + (t.rating || 0), 0);
@@ -267,16 +299,32 @@ const handleReport = async () => {
       {/* FY and Roles */}
       <div className="performancemanagement-role-section">
         <div className="performancemanagement-role-card-clock">
-          <select
-            value={selectedYear}
-            onChange={(e) => setSelectedYear(e.target.value)}
-            className="performancemanagement-fy-dropdown"
-          >
-            {years.map((year) => (
-              <option key={year} value={year}>{year}</option>
-            ))}
-          </select>
-          <p>April - March</p>
+{/* Appraisal Type + FY Selection */}
+<select
+  value={selectedType}
+  onChange={(e) => {
+    setSelectedType(e.target.value);
+    setSelectedYear(
+      e.target.value === "PEA" ? (PEA_list[0] || "") : (YEA_list[0] || "")
+    );
+  }}
+  className="performancemanagement-fy-dropdown"
+>
+  {PEA_list.length > 0 && <option value="PEA">Project End Appraisal</option>}
+  {YEA_list.length > 0 && <option value="YEA">Year End Appraisal</option>}
+</select>
+
+<select
+  value={selectedYear}
+  onChange={(e) => setSelectedYear(e.target.value)}
+  className="performancemanagement-fy-dropdown"
+>
+  {(selectedType === "PEA" ? PEA_list : YEA_list).map((fy) => (
+    <option key={fy} value={fy}>{fy}</option>
+  ))}
+</select>
+
+<p>April - March</p>
         </div>
 
         <div className="performancemanagement-role-card">
@@ -460,6 +508,7 @@ const handleReport = async () => {
                     type="checkbox"
                     checked={reviewData.agree}
                     onChange={handleAgree}
+                    disabled={isActionTaken}
                   />{" "}
                   Agree
                 </label>
@@ -468,6 +517,7 @@ const handleReport = async () => {
                     type="checkbox"
                     checked={reviewData.disagree}
                     onChange={handleDisagree}
+                    disabled={isActionTaken}
                   />{" "}
                   Disagree
                 </label>
@@ -478,15 +528,16 @@ const handleReport = async () => {
                 placeholder="Add your comments here..."
                 value={reviewData.empComment || ""}
                 onChange={handleEmpCommentChange}
+                disabled={isActionTaken}
               />
 
               {reviewData.agree && (
                 <button
                   className="performancemanagement-finalize-btn"
                   onClick={handleFinalize}
-                  disabled={!canFinalize}
+                  disabled={!canFinalize || isActionTaken}
                 >
-                  Finalize Review
+                  {isActionTaken ? "Finalized" : "Finalize"}
                 </button>
               )}
 
@@ -494,26 +545,11 @@ const handleReport = async () => {
                 <button
                   className="performancemanagement-report-btn"
                   onClick={handleReport}
-                  disabled={!canFinalize}
+                  disabled={!canFinalize || isActionTaken}
                 >
-                  Report to TL
+                  {isActionTaken ? "Reported" : "Report to TL"}
                 </button>
               )}
-
-              {/* <button
-                className="simulate-btn"
-                onClick={() => {
-                  const updated = {
-                    ...reviewData,
-                    bandScore: "A1",
-                    comments: "Excellent performance. Consistent delivery and leadership.",
-                  };
-                  setFinalReviews((prev) => ({ ...prev, [selectedYear]: updated }));
-                  alert("Simulated manager input added!");
-                }}
-              >
-                Simulate Manager Input
-              </button> */}
             </div>
           </div>
         )}
