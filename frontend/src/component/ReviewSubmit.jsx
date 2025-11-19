@@ -56,12 +56,15 @@ const ReviewSubmit = ({ personal, education, professional,prevStep, setErrors, o
             {renderField('Alternative Phone', personal.alternativePhone)}
             {renderField('Gender', personal.gender)}
             {renderField('Blood Group', personal.bloodGroup)}
-            {renderField('Date of Birth', personal.dob)}
-            {renderField('Marital Status', personal.isMarried ? 'Married' : 'Unmarried')}
-            {renderField('Nationality', personal.nationality)}
             {renderField('Emergency Contact Number', personal.emergencyNumber)}
             {renderField('Nominee 1', personal.nominee1)}
+            {renderField('Nominee 1Relation', personal.nominee1Relation)}
+            {renderField('Nominee 1Phone', personal.nominee1Phone)}
+            {renderField('Nominee 1Percentage', personal.nominee1Percentage)}
             {renderField('Nominee 2', personal.nominee2)}
+            {renderField('Nominee 2Relation', personal.nominee2Relation)}
+            {renderField('Nominee 2Phone', personal.nominee2Phone)}
+            {renderField('Nominee 2 Percentage', personal.nominee2Percentage)}
             {renderField('Current Address', personal.currentAddress)}
             {renderField('Permanent Address', personal.permanentAddress)}
             {renderField('Same as Permanent', personal.sameAddress ? 'Yes' : 'No')}
@@ -121,13 +124,28 @@ const ReviewSubmit = ({ personal, education, professional,prevStep, setErrors, o
 {/* M.Tech / ISM Tech */}
 {education.hasMTech && (
   <>
-    <h5>M.Tech / ISM Tech</h5>
+    <h5>PG</h5>
     <table className="review-table">
       <tbody>
         {renderField('College Name', education.collegeNameMTech)}
         {renderField('Year of Passing', education.yearMTech)}
         {renderField('CGPA / Percentage', education.cgpaMTech)}
         {renderField('Certificate', education.certificateMTech ? education.certificateMTech.name : 'No file uploaded')}
+      </tbody>
+    </table>
+  </>
+)}
+{education.hasCourse && (
+  <>
+    <h5>Certificate Course</h5>
+    <table className="review-table">
+      <tbody>
+        {renderField('College Name', education.courseName)}
+        {renderField('College Name', education.institueName)}
+
+        {renderField('Year of Passing', education.yearCourse)}
+        {renderField('CGPA / Percentage', education.cgpaCourse)}
+        {renderField('Certificate', education.certificateCourse ? education.certificateCourse.name : 'No file uploaded')}
       </tbody>
     </table>
   </>
@@ -142,7 +160,6 @@ const ReviewSubmit = ({ personal, education, professional,prevStep, setErrors, o
             {renderField("Date of Joining", professional.dateOfJoining)}
             {renderField("Role / Designation", professional.role)}
             {renderField("Department", professional.department)}
-            {renderField("Salary", professional.salary)}
             {renderField("Has Work Experience", professional.hasExperience ? "Yes" : "No")}
           </tbody>
         </table>

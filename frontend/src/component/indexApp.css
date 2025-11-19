@@ -231,4 +231,70 @@ h5 {
   background-color: #8a1414;
 }
 
+/* --- CHILDREN FIELD CONTAINER --- */
+.tag-input-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+/* --- EXISTING TAG LIST --- */
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* --- STYLE FOR INDIVIDUAL TAG --- */
+.tag {
+  background: #eef2ff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #c7d2fe;
+}
+
+/* --- REMOVE BUTTON INSIDE TAG --- */
+.tag .remove-tag {
+  background: none;
+  border: none;
+  color: #444;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+
+/* --- ADD CHILD ROW (input + button) --- */
+.add-child-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+/* --- CHILD INPUT BOX --- */
+.add-child-row input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+/* --- ADD BUTTON --- */
+.add-child-row .add-btn {
+  padding: 8px 14px;
+  background: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.add-child-row .add-btn:hover {
+  background: #4338ca;
+}
 

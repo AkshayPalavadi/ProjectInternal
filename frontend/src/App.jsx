@@ -37,11 +37,21 @@ import EmployeeDetails from "./Components/Admin/employee/EmployeeDetails.jsx";
 // -----------------------
 // Helpers
 // -----------------------
-const SUBMIT_MAP_KEY = "submissionStatusByEmail";
-const readSubmitMap = () => JSON.parse(localStorage.getItem(SUBMIT_MAP_KEY) || "{}");
-const getSubmitted = (email) => !!readSubmitMap()[email];
+
 
 function App() {
+   const [mustFill, setMustFill] = useState(false);
+
+useEffect(() => {
+  const value =
+    localStorage.getItem("mustFillPersonalDetails") === "true" ||
+    localStorage.getItem("mustFillEducationDetails") === "true" ||
+    localStorage.getItem("mustFillProfessionalDetails") === "true";
+
+  setMustFill(value);
+}, []);
+
+
   const totalLeaves = 12;
   const totalDays = 30;
 
@@ -107,61 +117,9 @@ function App() {
     }
   }, [employeeId]);
 
-  // -------------------------------
-  // Application Submitted per user
-  // -------------------------------
-  // const [applicationSubmitted, setApplicationSubmitted] = useState(()=>{
-  //   const isApplicationSubmitted = localStorage.getItem("applicationSubmitted");
-
-  //   return isApplicationSubmitted === true
-  // });
-
-  
-
-  // // Sync to localStorage when logged in/out
-  // useEffect(() => {
-  //   const email = localStorage.getItem("userEmail");
-  //   if (email) {
-  //     localStorage.setItem("applicationSubmitted", submitted ? "true" : "false");
-  //     setApplicationSubmitted(submitted);
-  //   }
-
-
-
-
-  //    const isApplicationSubmitted = localStorage.getItem("applicationSubmitted");
-  //    setApplicationSubmitted(isApplicationSubmitted ? true:false)
-  // }, []);
-  // -------------------------------
-// Application Submitted per user
-// -------------------------------
 const [applicationSubmitted, setApplicationSubmitted] = useState(false);
 
-// Run once after login or when userEmail changes
-useEffect(() => {
-  if (!isLoggedIn) return; // Only check if logged in
-
-  const email = localStorage.getItem("userEmail");
-
-  // Check backend/localStorage if this user has already submitted
-  const storedMap = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
-
-  // If found in map (true), mark as submitted
-  if (storedMap[email] === "true") {
-    setApplicationSubmitted(true);
-    localStorage.setItem("applicationSubmitted", "true");
-  } else {
-    setApplicationSubmitted(false);
-    localStorage.setItem("applicationSubmitted", "false");
-  }
-}, [isLoggedIn]);
-
-
-  // -------------------------------
-  // Default route helper
-  // -------------------------------
   const userEmail = localStorage.getItem("loginEmail") || "";
-
   const getDefaultRoute = () => {
     const currentPath = window.location.pathname;
 
@@ -235,21 +193,23 @@ useEffect(() => {
 
 
           {/* Profile Logic */}
-          <Route
-            path="profile"
-            element={
-                  getSubmitted(localStorage.getItem("applicationSubmitted"))
-? (
-                
-                <EmployeeReview key="review" />
-              ) : (
-                <PersonApp
-                  key="form"
-                  setApplicationSubmitted={setApplicationSubmitted}
-                />
-              )
-            }
+         
+
+<Route
+  path="profile"
+  element={
+    mustFill
+      ? (
+          <PersonApp
+            key="form"
           />
+        )
+      : (
+          <EmployeeReview key="review" />
+        )
+  }
+/>
+
         </Route>
 
         {/* Admin Routes */}
