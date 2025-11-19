@@ -16,8 +16,6 @@ import {
 function PersonApp({ setApplicationSubmitted }) {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
-
   // -------------------- STEP MANAGEMENT --------------------
   const steps = [
     "Personal Details",
@@ -27,7 +25,6 @@ function PersonApp({ setApplicationSubmitted }) {
   ];
   const [currentStep, setCurrentStep] = useState(0);
   const [errors, setErrors] = useState({});
-
   const getStepName = () => {
     switch (currentStep) {
       case 0:
@@ -45,31 +42,13 @@ function PersonApp({ setApplicationSubmitted }) {
 
   const active = getStepName();
 
-  const SUBMIT_MAP_KEY = "submissionStatusByEmail";
-const readSubmitMap = () => JSON.parse(localStorage.getItem(SUBMIT_MAP_KEY) || "{}");
-const setSubmitted = (email, val) => {
-  const map = readSubmitMap();
-  map[email] = !!val;
-  localStorage.setItem(SUBMIT_MAP_KEY, JSON.stringify(map));
-};
+  
 const handleSuccess = () => {
   const officialEmail = localStorage.getItem("userEmail");
+localStorage.setItem("mustFillPersonalDetails", false);
+localStorage.setItem("mustFillEducationDetails", false);
+localStorage.setItem("mustFillProfessionalDetails", false);
 
-  // Mark application submitted
-  setApplicationSubmitted(true);
-  localStorage.setItem("applicationSubmitted", "true");
-
-  // Save per-user submission map
-  const map = JSON.parse(localStorage.getItem("submissionStatusByEmail") || "{}");
-  map[officialEmail] = true;
-  localStorage.setItem("submissionStatusByEmail", JSON.stringify(map));
-
-  // Save employeeId if backend provided it
-  if (personal.employeeId) {
-    localStorage.setItem("employeeId", personal.employeeId);
-  }
-
-  console.log(`✅ Application marked submitted for: ${officialEmail}`);
 
   // Redirect to review page
   navigate(`/employee/profile/${officialEmail}`);
@@ -81,7 +60,6 @@ const handleSuccess = () => {
 
   // -------------------- FORM STATES --------------------
   const [personal, setPersonal] = useState({
-    employeeId:"",
     firstName: "",
     middleName: "",
     lastName: "",
@@ -97,7 +75,13 @@ const handleSuccess = () => {
     isMarried: false,
     emergencyNumber: "",
     nominee1: "",
+    nominee1Relation:"",
+    nominee1Phone:"",
+    nominee1Percentage:"",
     nominee2: "",
+    nominee2Relation:"",
+    nominee2Phone:"",
+    nominee2Percentage:"",
     currentAddress: "",
     permanentAddress: "",
     sameAddress: false,
@@ -110,11 +94,13 @@ const handleSuccess = () => {
     photo: null,
     aadharUpload: null,
     panUpload: null,
+    spouse:"",
+    children:[],
     marriageCertificate: null,
   });
 
   const [education, setEducation] = useState({
-    employeeId:"",
+    
     schoolName10: "",
     year10: "",
     cgpa10: "",
@@ -135,6 +121,13 @@ const handleSuccess = () => {
     yearMTech: "",
     cgpaMTech: "",
     certificateMTech: null,
+    hasCourse:false,
+    courseName:"",
+    institueName:"",
+    courseDuration:"",
+    cgpaCourse:"",
+    certificateCourse:"",
+    yearCourse:"",
   });
 
   const [professional, setProfessional] = useState({
@@ -192,7 +185,6 @@ const handleSuccess = () => {
     }
 
     console.log("📤 Sending data to: /api/personal/save");
-    console.log(formData);
 
     const res = await axios.post(
 "/api/personal/save",
@@ -292,9 +284,10 @@ const handleSuccess = () => {
 
   let success = false;
 
-  if (currentStep === 0) success = await savePersonal();
-  if (currentStep === 1) success = await saveEducation();
-  if (currentStep === 2) success = await saveProfessional();
+  
+  
+  setCurrentStep(prev => prev + 1); // just go next  
+
 
   // ✅ Always log the result
   console.log("🟢 Save success?", success);

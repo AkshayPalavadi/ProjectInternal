@@ -22,6 +22,8 @@ const EducationDetails = ({
       "collegeName12",
       "collegeNameUG",
       "collegeNameMTech",
+      "courseName",
+      "institueName"
     ];
 
     if (nameFields.includes(name)) {
@@ -78,7 +80,7 @@ const EducationDetails = ({
 
   return (
     <div className="form-wrap">
-      <h3>Education Details</h3>
+      {/* <h3>Education Details</h3> */}
 
       <div className="form-grid">
         {/* ---------- 10th Class ---------- */}
@@ -365,24 +367,24 @@ const EducationDetails = ({
         {/* ---------- M.Tech / ISM Tech ---------- */}
         {/* ---------- M.Tech / ISM Tech ---------- */}
         <div className="field full">
-          <h4>M.Tech / ISM Tech</h4>
+          <h4>PostGraduation</h4>
         </div>
 
         <div className="field checkbox-field">
           <label>
             <input
               type="checkbox"
-              name="hasMTech"
-              checked={data.hasMTech || false}
+              name="hasPG"
+              checked={data.hasPG || false}
               onChange={(e) =>
-                setData((prev) => ({ ...prev, hasMTech: e.target.checked }))
+                setData((prev) => ({ ...prev, hasPG: e.target.checked }))
               }
             />
-            &nbsp; hasMTech
+            &nbsp; hasPG
           </label>
         </div>
 
-        {data.hasMTech && (
+        {data.hasPG && (
           <>
             <div className="field full">
               <label>
@@ -458,7 +460,129 @@ const EducationDetails = ({
             </div>
           </>
         )}
+        <div className="field full">
+          <h4>CourseCertifications</h4>
+        </div>
+
+        <div className="field checkbox-field">
+          <label>
+            <input
+              type="checkbox"
+              name="hasCourse"
+              checked={data.hasCourse || false}
+              onChange={(e) =>
+                setData((prev) => ({ ...prev, hasCourse: e.target.checked }))
+              }
+            />
+            &nbsp; hasCourse
+          </label>
+        </div>
+
+        {data.hasCourse && (
+          <>
+            <div className="field full">
+              <label>
+                CourseName <span className="required-star">*</span>
+              </label>
+              <input
+                name="courseName"
+                value={data.courseName || ""}
+                onChange={handleChange}
+              />
+              {errors.courseName && (
+                <small className="err">{errors.courseName }</small>
+              )}
+            </div>
+            <div className="field">
+              <label>
+                  InstitueName <span className="required-star">*</span>
+              </label>
+              <input
+                name="institueName"
+                value={data.institueName || ""}
+                onChange={handleChange}
+              />
+              {errors.institueName && (
+                <small className="err">{errors.institueName }</small>
+              )}
+            </div>
+            <div className="field">
+              <label>
+                Course Duration <span className="required-star">*</span>
+              </label>
+              <input
+                name="courseDuration"
+                value={data.courseDuration || ""}
+                onChange={handleChange}
+              />
+              {errors.courseDuration && (
+                <small className="err">{errors.courseDuration }</small>
+              )}
+            </div>
+               
+            <div className="field">
+              <label>
+                Year of Passing <span className="required-star">*</span>
+              </label>
+              <select
+                name="yearCourse"
+                value={data.yearCourse || ""}
+                onChange={handleChange}
+              >
+                <option value="">Select Year</option>
+                {years.map((y) => (
+                  <option key={y} value={y}>
+                    {y}
+                  </option>
+                ))}
+              </select>
+              {errors.yearCourse && (
+                <small className="err">{errors.yearCourse}</small>
+              )}
+            </div>
+            <div className="field">
+              <label>
+                CGPA / Percentage <span className="required-star">*</span>
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                name="cgpaCourse"
+                value={data.cgpaCourse || ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (
+                    value === "" ||
+                    (/^\d*\.?\d*$/.test(value) && value <= 100)
+                  ) {
+                    setData((prev) => ({ ...prev, cgpaCourse: value }));
+                    setErrors((prev) => ({ ...prev, cgpCourse: "" }));
+                  }
+                }}
+                placeholder="Enter CGPA or %"
+              />
+              {errors.cgpaCourse && <small className="err">{errors.cgpaCourse}</small>}
+            </div>
+
+            <div className="field ">
+              <label>
+                Course Certificate (PDF, max 3MB){" "}
+                <span className="required-star">*</span>
+              </label>
+              <input
+                type="file"
+                accept="application/pdf"
+                onChange={(e) => handleFileUpload(e, "certificateCourse")}
+              />
+              {errors.certificateCourse && (
+                <small className="err">{errors.certificateCourse}</small>
+              )}
+            </div>
+          </>
+        )}
+        
       </div>
+      
 
       {/* ---------- Buttons ---------- */}
       <div className="form-actions">
