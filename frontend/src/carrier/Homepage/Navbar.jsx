@@ -14,7 +14,7 @@ const Navbar = ({ scrollToAbout, scrollToJobs, scrollToSubscribe }) => {
   const [appliedJobsCount, setAppliedJobsCount] = useState(0);
   const [savedJobsCount, setSavedJobsCount] = useState(0);
   const [profilePic, setProfilePic] = useState(null);
-  const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false); 
   const [tempName, setTempName] = useState("");
 
   const dropdownRef = useRef(null);
@@ -62,17 +62,7 @@ const Navbar = ({ scrollToAbout, scrollToJobs, scrollToSubscribe }) => {
  const handleFileChange = (e) => {
   console.log("upload photo")
   const file = e.target.files[0];
-  // if (file) {
-  //   const reader = new FileReader();
-  //   reader.onload = () => {
-  //     const base64 = reader.result;
-  //     setProfilePic(base64);
-  //     localStorage.setItem("profilePic", base64);
-  //     setDropdownOpen(false);
-  //     setTimeout(() => setDropdownOpen(true), 100);
-  //   };
-  //   reader.readAsDataURL(file);
-  // }
+ 
    if (file) {
       const newImageUrl = URL.createObjectURL(file);
       setProfilePic(newImageUrl);
