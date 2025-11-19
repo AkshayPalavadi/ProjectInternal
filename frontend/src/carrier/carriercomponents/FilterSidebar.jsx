@@ -8,11 +8,12 @@ import {
   FaRupeeSign,
   FaTimesCircle,
 } from "react-icons/fa";
-import "./FilterSidebar.css"
+import "./FilterSidebar.css";
+import Select from "react-select";
 
 const FilterSidebar = ({ updateFilters }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [location, setLocation] = useState("");
+  const [location, setLocation] = useState([]);
   const [jobTypes, setJobTypes] = useState([]);
   const [experiences, setExperiences] = useState([]);
   const [education, setEducation] = useState("");
@@ -30,45 +31,42 @@ const FilterSidebar = ({ updateFilters }) => {
     handleUpdate("searchTerm", e.target.value);
   };
 
-  const handleLocationChange = (e) => {
-    setLocation(e.target.value);
-    handleUpdate("locations", e.target.value ? [e.target.value] : []);
-  };
-
   const handleCheckboxChange = (e, list, setList, key) => {
     const { checked, value } = e.target;
     const updatedList = checked
       ? [...list, value]
       : list.filter((v) => v !== value);
+
     setList(updatedList);
     handleUpdate(key, updatedList);
   };
 
   const handleEducationChange = (e) => {
     setEducation(e.target.value);
-    handleUpdate("education", e.target.value ? [e.target.value] : []);
+    handleUpdate("education", e.target.value); // << fixed (string instead of array)
   };
 
   const handleSalaryChange = (e) => {
     const value = Number(e.target.value);
     setSalaryRange(value);
-    handleUpdate("maxSalary", value);
+    handleUpdate("salaryRange", value);
   };
 
   const clearFilters = () => {
     setSearchTerm("");
-    setLocation("");
+    setLocation([]);
     setJobTypes([]);
     setExperiences([]);
     setEducation("");
-    setSalaryRange(0);
+     setSalaryRange(150000);
+
     updateFilters({
       searchTerm: "",
       locations: [],
       jobTypes: [],
       experiences: [],
-      education: [],
-      maxSalary: 0,
+      education: "",
+       setSalaryRange:150000
     });
   };
 
@@ -89,23 +87,34 @@ const FilterSidebar = ({ updateFilters }) => {
       {/* Location */}
       <div className="filter-section-fs">
         <h3><FaMapMarkerAlt className="filter-icon-fs" /> Location</h3>
-        <select
-          className="dropdown-fs"
-          value={location}
-          onChange={handleLocationChange}
-        >
-          <option value="">All Cities</option>
-          <option value="Hyderabad">Hyderabad</option>
-          <option value="Chennai">Chennai</option>
-          <option value="Bengaluru">Bengaluru</option>
-        </select>
+
+        <Select
+          options={[
+            { value: "Hyderabad", label: "Hyderabad" },
+            { value: "Chennai", label: "Chennai" },
+            { value: "Bengaluru", label: "Bengaluru" },
+            { value: "Pune", label: "Pune" },
+            { value: "Mumbai", label: "Mumbai" },
+            { value: "Delhi", label: "Delhi" },
+          ]}
+          value={location.map((loc) => ({ value: loc, label: loc }))}
+          onChange={(selectedOptions) => {
+            const values = selectedOptions ? selectedOptions.map((o) => o.value) : [];
+            setLocation(values);
+            handleUpdate("locations", values);
+          }}
+          isMulti
+          isSearchable
+          placeholder="Select cities..."
+          className="react-select-location"
+        />
       </div>
 
       {/* Job Type */}
       <div className="filter-section-fs">
         <h3><FaBriefcase className="filter-icon-fs" /> Job Type</h3>
         <ul>
-          {["Full Time", "Part Time"].map((type) => (
+          {["Full Time", "Intern", "Part Time", "Contract"].map((type) => (
             <li key={type}>
               <input
                 type="checkbox"
@@ -125,7 +134,7 @@ const FilterSidebar = ({ updateFilters }) => {
       <div className="filter-section-fs">
         <h3><FaUserTie className="filter-icon-fs" /> Experience Level</h3>
         <ul>
-          {["Fresher", "1-2 Years", "2+ Years"].map((exp) => (
+          {["Fresher", "2 Years", "3 Years", "4 Years", "5 Years", "5+ Years"].map((exp) => (
             <li key={exp}>
               <input
                 type="checkbox"
@@ -164,18 +173,23 @@ const FilterSidebar = ({ updateFilters }) => {
 
       {/* Salary */}
       <div className="filter-section-fs-fs">
-        <h3><FaRupeeSign className="filter-icon-fs" /> Min Salary: ₹{salaryRange.toLocaleString()}</h3>
+        <h3>
+          <FaRupeeSign className="filter-icon-fs" /> 
+          Min Salary: {salaryRange >= 500000 ? "₹5,00,000+" : `₹${salaryRange.toLocaleString()}`}
+        </h3>
+
         <input
+          className="slider"
           type="range"
           min="150000"
-          max="400000"
+          max="500000"
           step="50000"
           value={salaryRange}
           onChange={handleSalaryChange}
         />
       </div>
 
-      {/* Clear Filters */}
+      {/* Clear */}
       <div className="filter-section-fs">
         <button className="clear-btn-fs" onClick={clearFilters}>
           <FaTimesCircle className="filter-icon-fs" /> Clear Filters

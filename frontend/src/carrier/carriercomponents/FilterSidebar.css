@@ -24,6 +24,11 @@
   color: #065717;
 }
 
+.slider {
+  width: 100%;
+  margin-top: 10px;
+}
+
 .search-input-fs,
 .dropdown-fs {
   width: 100%;
@@ -42,6 +47,7 @@ li {
 }
 
 .clear-btn-fs {
+  margin-top: 50px;
   background-color: #df4a4a;
   color: white;
   border: none;
@@ -58,4 +64,13 @@ li {
 .clear-btn-fs:hover {
   background-color: #cc3131;
   transform: translateY(-2px);
+}
+
+.react-select-location .css-13cymwt-control {
+  border-color: #ccc;
+  min-height: 38px;
+}
+
+.react-select-location .css-1nmdiq5-menu {
+  z-index: 9999;
 }

@@ -24,16 +24,13 @@ const Home = () => {
         scrollToSubscribe={scrollToSubscribe}
       />
 
-      {/* Top Sections */}
       <HeroSection />
       <SearchSection />
 
-      {/* About Section */}
       <div ref={aboutRef}>
         <AboutSection />
       </div>
 
-      {/* Latest Jobs Section */}
       <div ref={jobsRef}>
         <Latestjobs subscribeRef={subscribeRef} />
       </div>
@@ -41,4 +38,4 @@ const Home = () => {
   )
 }
 
-export default Home
+export default Home;

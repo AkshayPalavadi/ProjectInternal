@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   FaSuitcase,
   FaBriefcase,
@@ -6,16 +6,20 @@ import {
   FaMoneyBillWave,
   FaClock,
   FaGraduationCap,
+  FaBookmark,
+  FaRegBookmark
 } from "react-icons/fa";
 import { useParams, useNavigate } from "react-router-dom";
 import "./JobDetail.css";
+import Header from "../carriercomponents/Header";
 
 const jobs = [
   {
     id: 1,
     title: "Frontend Developer",
     department: "Software IT",
-    experience: "2+ Years",
+    experience: "2 Years",
+    education: "B.Tech",
     salary: "₹4,00,000 - ₹6,00,000",
     location: "Hyderabad",
     jobType: "Full Time",
@@ -28,12 +32,16 @@ const jobs = [
       "Work closely with backend developers for API integration.",
       "Test and debug code for cross-browser compatibility.",
     ],
+    skills: [
+      "HTML", "CSS", "JavaScript", "React.js", "Redux", "RESTful APIs", "Git", "Webpack"
+    ],
   },
   {
     id: 2,
     title: "Content Writer",
     department: "Media & Communication",
-    experience: "1+ Years",
+    experience: "1 Years",
+    education: "B.Sc",
     salary: "₹2,50,000 - ₹4,00,000",
     location: "Remote / Hyderabad",
     jobType: "Full Time",
@@ -46,12 +54,17 @@ const jobs = [
       "Edit and proofread content for accuracy and readability.",
       "Ensure consistent tone and messaging across all content formats.",
     ],
+    skills: [
+      "Keyword Research", "SEO", "Content Management Systems (CMS)", "Social Media Platforms",
+      "Google Analytics",
+    ]
   },
   {
     id: 3,
     title: "Backend Developer",
-    departent: "Software IT",
-    experience: "3+ Years",
+    department: "Software IT",
+    experience: "3 Years",
+    education: "B.Tech",
     salary: "₹5,00,000 - ₹8,00,000",
     location: "Bangalore",
     jobType: "Full Time",
@@ -64,12 +77,16 @@ const jobs = [
       "Ensure application security and scalability.",
       "Collaborate with frontend developers for smooth integration.",
     ],
+    skills: [
+      "Node.js", "Express.js", "MongoDB", "MySQL", "RESTful APIs", "Docker", "AWS"
+    ],
   },
   {
     id: 4,
     title: "Web Developer",
     department: "Information Technology",
-    experience: "1-3 Years",
+    experience: "1 Years",
+    education: "M.Tech",
     salary: "₹3,00,000 - ₹5,00,000",
     location: "Chennai",
     jobType: "Full Time",
@@ -82,12 +99,16 @@ const jobs = [
       "Debug and fix issues across browsers and platforms.",
       "Collaborate with designers and developers on new features.",
     ],
+    skills: [
+      "HTML", "CSS", "JavaScript", "React.js", "Angular", "Git", "Responsive Design"
+    ],
   },
   {
     id: 5,
     title: "UI/UX Designer",
     department: "Design & Creative",
-    experience: "2+ Years",
+    experience: "2 Years",
+    education: "MBA",
     salary: "₹4,50,000 - ₹7,00,000",
     location: "Hyderabad",
     jobType: "Full Time",
@@ -100,12 +121,16 @@ const jobs = [
       "Collaborate with developers to implement designs.",
       "Maintain consistency of design systems and visual identity.",
     ],
+    skills: [
+      "Figma", "Adobe XD", "Sketch", "User Research", "Wireframing", "Prototyping", "HTML/CSS"
+    ],
   },
   {
     id: 6,
     title: "Python Developer",
     department: "Software Development",
-    experience: "2-4 Years",
+    experience: "4 Years",
+    education: "B.Tech",
     salary: "₹4,50,000 - ₹7,50,000",
     location: "Pune",
     jobType: "Full Time",
@@ -118,12 +143,15 @@ const jobs = [
       "Collaborate with front-end teams and data scientists.",
       "Participate in code reviews and optimize performance.",
     ],
+    skills: [
+      "Python", "Django", "Flask", "PostgreSQL", "MongoDB", "RESTful APIs", "Git"
+    ],
   },
 ];
 
 const JobDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // ✅ added this line
+  const navigate = useNavigate();
   const job = jobs.find((job) => job.id === parseInt(id));
 
   const [formData, setFormData] = useState({
@@ -133,6 +161,10 @@ const JobDetail = () => {
     message: "",
   });
 
+  // ✅ Added Save State Only (no changes to your code)
+  const [saved, setSaved] = useState(false);
+  const handleSave = () => setSaved(!saved);
+
   if (!job) {
     return <h2 style={{ textAlign: "center", marginTop: "50px" }}>Job not found!</h2>;
   }
@@ -140,12 +172,13 @@ const JobDetail = () => {
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
- 
   const handleApply = () => {
-    navigate("/carrier/apply"); // ✅ navigate to /apply page
+    navigate("/carrier/apply");
   };
 
   return (
+    <>
+    <Header />
     <div className="job-detail-container">
       {/* Sidebar */}
       <aside className="sidebar-jd">
@@ -179,7 +212,7 @@ const JobDetail = () => {
           <FaGraduationCap className="icon" />
           <div>
             <p className="label">Qualification</p>
-            <p className="value">B.Tech</p>
+            <p className="value">{job.education}</p>
           </div>
         </div>
 
@@ -198,8 +231,6 @@ const JobDetail = () => {
             <p className="value">{job.location}</p>
           </div>
         </div>
-
-       
       </aside>
 
       {/* Main Content */}
@@ -208,6 +239,7 @@ const JobDetail = () => {
           <div className="job-header">
             <h2>{job.title}</h2>
             <p className="experience">{job.experience}</p>
+
             <div className="job-tags">
               <span>{job.department}</span>
               <span>{job.jobType}</span>
@@ -215,7 +247,25 @@ const JobDetail = () => {
               <span>{job.location}</span>
             </div>
           </div>
-          <button className="apply-btn" onClick={handleApply}>Apply now</button> 
+
+          {/* ✅ Apply + Save Button Added here */}
+          <div className="header-actions">
+            <button className="apply-btn" onClick={handleApply}>Apply now</button>
+
+            <button className="save-btn" onClick={handleSave}>
+              {saved ? (
+                <>
+                  <FaBookmark className="saved-icon" />
+                  <span>Saved</span>
+                </>
+              ) : (
+                <>
+                  <FaRegBookmark className="save-icon" />
+                  <span>Save</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Job Description */}
@@ -233,8 +283,18 @@ const JobDetail = () => {
             ))}
           </ul>
         </section>
+
+        {/* Required Skills */}
+        <section className="job-section">
+          <h3>Required Skills</h3>
+          <div className="skills-row">
+            {job?.skills?.length ? job.skills.join("   |   ") : "No skills listed"}
+          </div>
+        </section>
+
       </main>
     </div>
+    </>
   );
 };
 
