@@ -25,11 +25,11 @@ function Latestjobs({ subscribeRef }) {
 
   const emailRegex = /^[A-Za-z][A-Za-z0-9._%+-]*@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
 
-  const handleSubscribe = () => {
-    if (email.trim() === "") {
-      setErrorMessage("⚠️ Please enter your email before subscribing!");
-      return;
-    }
+      const handleSubscribe = () => {
+          if (email.trim() === "") {
+            setErrorMessage("⚠️ Please enter your email before subscribing!");
+            return;
+          }
 
     if (!emailRegex.test(email)) {
       setErrorMessage("⚠️ Email must start with a letter and follow valid format.");
@@ -64,7 +64,7 @@ function Latestjobs({ subscribeRef }) {
           <div className="hero__overlay">
             <div className="hero__content">
               <h1 className="hero__title">Let’s Make the Most Unique Ideas Together</h1>
-              <button className="hero__cta-jobHome" onClick={() => navigate("/carrier/jobs")}>Apply Now →</button>
+              {/* <button className="hero__cta-jobHome" onClick={() => navigate("/carrier/jobs")}>Apply Now →</button> */}
             </div>
           </div>
         </section>
@@ -75,7 +75,15 @@ function Latestjobs({ subscribeRef }) {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <h2>{selectedJob.title}</h2>
             <p>{selectedJob.description}</p>
-            <button className="apply-btn-latest-job" onClick={() => navigate("/apply")}>Apply Now →</button>
+            {/* <button
+              className="apply-btn-latest-job"
+              onClick={() => {
+                const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+                navigate(isLoggedIn ? "/carrier/jobs" : "/carrier/login");
+              }}
+            >
+              Apply Now →
+            </button> */}
             <button className="close-btn" onClick={handleClose}>✖</button>
           </div>
         </div>

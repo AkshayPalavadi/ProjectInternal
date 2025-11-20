@@ -324,6 +324,8 @@ justify-content: space-between;
   align-items: center;
   padding-right: 200px;
   color: rgb(0, 0, 0);
+  justify-content: end;
+  margin-top:  -40px;
 }
 
 .social-links__icon {
@@ -336,6 +338,7 @@ justify-content: space-between;
   color: #007bff;
   transform: translateY(-2px);
 }
+
 
 
 

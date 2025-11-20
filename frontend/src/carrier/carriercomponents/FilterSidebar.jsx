@@ -16,8 +16,8 @@ const FilterSidebar = ({ updateFilters }) => {
   const [location, setLocation] = useState([]);
   const [jobTypes, setJobTypes] = useState([]);
   const [experiences, setExperiences] = useState([]);
-  const [education, setEducation] = useState("");
-  const [salaryRange, setSalaryRange] = useState(0);
+  const [education, setEducation] = useState("All");
+  const [salaryRange, setSalaryRange] = useState(150000);
 
   const handleUpdate = (key, value) => {
     updateFilters((prev) => ({
@@ -43,7 +43,7 @@ const FilterSidebar = ({ updateFilters }) => {
 
   const handleEducationChange = (e) => {
     setEducation(e.target.value);
-    handleUpdate("education", e.target.value); // << fixed (string instead of array)
+    handleUpdate("education", e.target.value); 
   };
 
   const handleSalaryChange = (e) => {
@@ -57,16 +57,16 @@ const FilterSidebar = ({ updateFilters }) => {
     setLocation([]);
     setJobTypes([]);
     setExperiences([]);
-    setEducation("");
-     setSalaryRange(150000);
+    setEducation("All");
+    setSalaryRange(150000);
 
     updateFilters({
       searchTerm: "",
       locations: [],
       jobTypes: [],
       experiences: [],
-      education: "",
-       setSalaryRange:150000
+      education: "All",
+      salaryRange:150000
     });
   };
 
@@ -134,7 +134,7 @@ const FilterSidebar = ({ updateFilters }) => {
       <div className="filter-section-fs">
         <h3><FaUserTie className="filter-icon-fs" /> Experience Level</h3>
         <ul>
-          {["Fresher", "2 Years", "3 Years", "4 Years", "5 Years", "5+ Years"].map((exp) => (
+          {["Fresher", "1 Years", "2 Years", "3 Years", "4 Years", "5+ Years"].map((exp) => (
             <li key={exp}>
               <input
                 type="checkbox"
@@ -163,7 +163,7 @@ const FilterSidebar = ({ updateFilters }) => {
           value={education}
           onChange={handleEducationChange}
         >
-          <option value="">All</option>
+          <option value="All">All</option>
           <option value="B.Tech">B.Tech</option>
           <option value="M.Tech">M.Tech</option>
           <option value="B.Sc">B.Sc</option>

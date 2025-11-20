@@ -105,13 +105,13 @@ useEffect(() => {
     if (!res.ok) throw new Error("Failed to fetch timesheet entries");
 
     const data = await res.json();
-    console.log("✅ Timesheet API Response:", data);
+    console.log("Fetched entries from API:", data.entries);
 
     const formattedEntries = {};
     if (Array.isArray(data.entries)) {
     data.entries.forEach((entry) => {
-    const dateObj = new Date(entry.date);
-    const key = dateObj.toISOString().split("T")[0];
+    const key = entry.date.split("T")[0];  // always safe
+
     formattedEntries[key] = {
       category: entry.category,
       projectName: entry.projectName,
@@ -120,9 +120,12 @@ useEffect(() => {
       hours: entry.hours,
       date: key,
     };
+
   });
 }
 
+    console.log("Formatted entries:", formattedEntries);
+    
     setEntries(formattedEntries);
     console.log("✅ Loaded timesheet entries from backend:", formattedEntries);
 
@@ -347,7 +350,7 @@ const handleSubmit = async (e) => {
       // alert("✅ Timesheet updated successfully!");
     } else {
       // ✅ New entry via POST
-      response = await fetch("https://internal-website-rho.vercel.app/api/timesheet", {
+      response = await fetch("https://internal-website-rho.vercel.app/api/timesheet/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

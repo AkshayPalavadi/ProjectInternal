@@ -154,42 +154,74 @@ if (name === "email") {
 const handleCgpaOrPercentage = (e) => {
   let value = e.target.value;
 
-  // clear error immediately
-  setErrors(prev => ({ ...prev, cgpa: "" }));
+  // Allow clearing
+  if (value === "") {
+    setFormData(prev => ({ ...prev, cgpa: "" }));
+    setErrors(prev => ({ ...prev, cgpa: "" }));
+    return;
+  }
 
   let newErrors = { ...errors };
 
-  if (!value) {
-    setFormData({ ...formData, cgpa: "" });
-    newErrors.cgpa = "";
+  // -------------------------
+  // ⭐ CGPA VALIDATION
+  // -------------------------
+  if (formData.gradeType === "cgpa") {
+    if (!/^\d{0,2}(\.\d{0,2})?$/.test(value)) return;
+
+    const num = Number(value);
+
+    if (num>10) return;
+
+    if (num < 4 || num > 10) {
+      newErrors.cgpa = "CGPA must be between 4 and 10";
+    } else {
+      newErrors.cgpa = "";
+    }
+
     setErrors(newErrors);
+    setFormData(prev => ({ ...prev, cgpa: value }));
     return;
   }
-  
 
-    if (formData.gradeType === "cgpa") {
-      const pattern = /^([0-9]{1,2})(\.[0-9]{0,2})?$/;
-      if (!pattern.test(value)) return;
-      const num = Number(value);
+  // -------------------------
+  // ⭐ PERCENTAGE VALIDATION (FULLY CLEARABLE)
+  // -------------------------
+  if (formData.gradeType === "percentage") {
+    let clean = value.replace("%", "");
 
-      newErrors.cgpa = num < 4 || num > 10 ? "CGPA must be 4 - 10" : "";
+    // Allow digits + decimal
+    if (!/^\d{0,3}(\.\d{0,2})?$/.test(clean)) return;
+
+    // Allow clearing to empty
+    if (clean === "") {
+      setFormData(prev => ({ ...prev, cgpa: "" }));
+      setErrors(prev => ({ ...prev, cgpa: "" }));
+      return;
     }
 
-    if (formData.gradeType === "percentage") {
-      const pattern = /^[0-9]{1,3}(\.[0-9]{0,2})?%?$/;
-      if (!pattern.test(value)) return;
+    const num = Number(clean);
 
-      if (!value.endsWith("%")) {
-        newErrors.cgpa = "Add % at end";
-      } else {
-        const num = Number(value.replace("%", ""));
-        newErrors.cgpa = num < 35 || num > 100 ? "Percentage must be 35% - 100%" : "";
-      }
+    // Prevent numbers above 100
+    if (num > 100) return;
+
+    // Validate range
+    if (num < 40) {
+      newErrors.cgpa = "Percentage must be between 40% and 100%";
+    } else {
+      newErrors.cgpa = "";
     }
+
+    // Add % ONLY when numbers exist
+    const finalValue = clean + "%";
 
     setErrors(newErrors);
-    setFormData({ ...formData, cgpa: value });
-  };
+    setFormData(prev => ({ ...prev, cgpa: finalValue }));
+  }
+};
+
+
+
 
   // Add Skill
  const addSkill = () => {

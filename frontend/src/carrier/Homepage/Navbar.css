@@ -313,3 +313,9 @@
   cursor: pointer;
   transition: background 0.3s ease;
 }
+
+
+.disabled-link-nav {
+  cursor: pointer;
+  color: #333; /* your navbar text color */
+}
