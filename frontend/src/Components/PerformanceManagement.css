@@ -55,8 +55,7 @@
   flex-wrap: wrap;
 }
 
-.performancemanagement-role-card,
-.performancemanagement-role-card-clock {
+.performancemanagement-role-card {
   background: #fef3c7; /* Light Yellow */
   border-left: 6px solid #f59e0b; /* Amber accent */
   border-radius: 14px;
@@ -68,8 +67,7 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.performancemanagement-role-card:hover,
-.performancemanagement-role-card-clock:hover {
+.performancemanagement-role-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
@@ -78,7 +76,7 @@
 .performancemanagement-role-icon-hr {
   font-size: 24px;
   color: #3b82f6;
-  margin-bottom: 6px;
+  margin-top: 20px;
 }
 
 .performancemanagement-role-card p {
@@ -99,6 +97,7 @@
   background: #f8fafc;
   cursor: pointer;
   transition: border 0.2s ease;
+  margin: 5px;
 }
 
 .performancemanagement-fy-dropdown:hover {
@@ -155,6 +154,10 @@
 .performancemanagement-goals-table tr:hover {
   background-color: #f9fbff;
   transition: 0.2s ease;
+}
+
+.performancemanagement-task-row {
+  cursor: pointer;
 }
 
 /* Column Widths */

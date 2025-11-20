@@ -11,7 +11,6 @@ function Login({ setIsLoggedIn, setUserRole }) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
   // ✅ Keep user logged in if token exists
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -48,11 +47,6 @@ function Login({ setIsLoggedIn, setUserRole }) {
         // ✅ Save token
         localStorage.setItem("token", result.token);
 
-        // Step 2: Fetch Employee Details
-        // const empResponse = await fetch("https://internal-website-rho.vercel.app/api/auth");
-        // const empResult = await empResponse.json();
-        // console.log("📦 Employees API Response:", empResult);
-
         const user = result.employee;
 
         if (user) {
@@ -60,8 +54,14 @@ function Login({ setIsLoggedIn, setUserRole }) {
           localStorage.setItem("employeeName", `${user.firstName} ${user.lastName}`);
           localStorage.setItem("userEmail", user.email);
           localStorage.setItem("userRole", user.role);
+          localStorage.setItem("mustFillPersonalDetails", result.mustFillPersonalDetails);
+localStorage.setItem("mustFillEducationDetails", result.mustFillEducationDetails);
+localStorage.setItem("mustFillProfessionalDetails", result.mustFillProfessionalDetails);
+ 
           setIsLoggedIn(true);
           setUserRole(user.role);
+          window.location.reload(); // force React to reload fresh state
+
 
           // Step 3: Fetch Full Employee Details to get employeeId & experience
           try {
@@ -84,6 +84,11 @@ function Login({ setIsLoggedIn, setUserRole }) {
               // Save Department
               if (professional.department) {
                 localStorage.setItem("employeeDepartment", professional.department);
+              }
+
+              // Save Date of Joining
+              if (professional.dateOfJoining) {
+                localStorage.setItem("employeeDateOfJoining", professional.dateOfJoining);
               }
 
               // ⭐ Calculate Experience from dateOfJoining to today

@@ -178,7 +178,7 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
   // =========================
   return (
     <div className="form-wrap">
-      <h3>Professional Details</h3>
+      {/* <h3>Professional Details</h3> */}
 
       <div className="form-grid">
         <div className="field">
@@ -212,11 +212,7 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
           {localErrors.department && <small className="err">{localErrors.department}</small>}
         </div>
 
-        <div className="field">
-          <label>Salary <span className="required-star">*</span></label>
-          <input name="salary" value={localData.salary} onChange={handleChange} />
-          {localErrors.salary && <small className="err">{localErrors.salary}</small>}
-        </div>
+        
       </div>
 
       <div className="field checkbox-field">
@@ -235,7 +231,10 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
         <div>
           {localData.experiences.map((exp, index) => (
             <div key={index} className="experience-block">
-              <h4>Experience {index + 1}</h4>
+              {index===0 ?<h4> Current Comapany Experience</h4>  :
+                            <h4>Previous Company Experience {index}</h4>
+
+}
               <div className="form-grid">
                 {[
                   ["companyName", "Company Name"],
@@ -243,6 +242,7 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
                   ["jobTitle", "Job Title"],
                   ["startDate", "Start Date", "date"],
                   ["endDate", "End Date", "date"],
+                  ["duration","duration"],
                   ["roles", "Roles & Responsibilities", "textarea"],
                   ["projects", "Projects", "textarea"],
                   ["skills", "Skills"],
@@ -276,7 +276,18 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
                   </div>
                 ))}
 
-                <div className="field">
+                {index===0 ? <div className="field">
+                  <label>OfferLetter (PDF) <span className="required-star">*</span></label>
+                  <input
+                    type="file"
+                    accept=".pdf"
+                    name="offerLetter"
+                    onChange={(e) => handleExperienceChange(index, e)}
+                  />
+                  {localErrors[`offerLetter_${index}`] && (
+                    <small className="err">{localErrors[`offerLetter_${index}`]}</small>
+                  )}
+                </div> : <div className="field">
                   <label>Reliving Letter (PDF) <span className="required-star">*</span></label>
                   <input
                     type="file"
@@ -287,7 +298,7 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
                   {localErrors[`relivingLetter_${index}`] && (
                     <small className="err">{localErrors[`relivingLetter_${index}`]}</small>
                   )}
-                </div>
+                </div>}
 
                 <div className="field">
                   <label>Salary Slips (PDF) <span className="required-star">*</span></label>

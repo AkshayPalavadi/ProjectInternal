@@ -147,6 +147,9 @@ export default function EmployeeReview() {
         "updatedAt",
         "__v",
         "_id",
+        "sameAddress",
+        "maritalStatus",
+        "isMarried",
          // remove from personal section
       ];
             if (hiddenFields.includes(key)) return null;

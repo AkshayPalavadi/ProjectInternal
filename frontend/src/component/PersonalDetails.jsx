@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { simpleValidatePersonal } from "./validation";
 import "./indexApp.css";
-
 const states = [
   "Andhra Pradesh",
   "Arunachal Pradesh",
@@ -42,6 +41,25 @@ const PersonalDetails = ({
   nextStep,
   setErrors,
 }) => {
+  const [childInput, setChildInput] = useState("");
+
+const addChild = () => {
+  if (!childInput.trim()) return;
+
+  setData((prev) => ({
+    ...prev,
+    children: [...(prev.children || []), childInput.trim()],
+  }));
+
+  setChildInput("");
+};
+
+const removeChild = (index) => {
+  setData((prev) => ({
+    ...prev,
+    children: prev.children.filter((_, i) => i !== index),
+  }));
+};
   const [photoPreview, setPhotoPreview] = useState(null);
   const isPhone = (s) => /^[6-9]\d{9}$/.test(String(s).trim());
   const handleChange = (e) => {
@@ -53,6 +71,8 @@ const PersonalDetails = ({
     }
   } else {
     setData({ ...data, [name]: value });}
+    // Local state for input
+
   
 
     // Fields that should only accept letters and spaces
@@ -62,9 +82,13 @@ const PersonalDetails = ({
       "fatherName",
       "motherName",
       "nominee1",
+      "nominee1Relation",
+
       "nominee2",
+      "nominee2Relation",
       "middleName",
       "village",
+      "spouse",
     ];
 
     if (nameFields1.includes(name)) {
@@ -136,7 +160,7 @@ const PersonalDetails = ({
 
   return (
     <div className="form-wrap">
-      <h3>Personal Details</h3>
+      {/* <h3>Personal Details</h3> */}
 
       <div className="form-grid">
         {/* Existing fields */}
@@ -296,7 +320,7 @@ onChange={(e) => {
         {/* ---- Photo Upload ---- */}
         <div className="field full">
           <label>
-            Upload Photo <span className="required-star">*</span>
+            Upload Profile Photo <span className="required-star">*</span>
           </label>
           <input
             type="file"
@@ -457,6 +481,50 @@ onChange={(e) => {
           />
           {errors.nominee1 && <small className="err">{errors.nominee1}</small>}
         </div>
+        <div className="field">
+          <label>
+            Nominee 1 Relation <span className="required-star">*</span>
+          </label>
+          <input
+            name="nominee1Relation"
+            value={data.nominee1Relation || ""}
+            onChange={handleChange}
+          />
+          {errors.nominee1Relation && <small className="err">{errors.nominee1Relation}</small>}
+        </div>
+        <div className="field">
+          <label>
+            Nominee1 Phone <span className="required-star">*</span>
+          </label>
+          <input
+            type="tel"
+            name="nominee1phone"
+            value={data.nominee1phone}
+            onChange={(e) => {
+              const value = e.target.value;
+              // Allow only digits and limit to 10
+              if (/^\d{0,10}$/.test(value)) {
+                setData((prev) => ({ ...prev, nominee1phone: value }));
+                setErrors((prev) => ({ ...prev, nominee1phone: "" }));
+              }
+            }}
+            placeholder="Enter 10-digit number"
+          />
+          {errors.nominee1phone && <small className="err">{errors.nominee1phone}</small>}
+        </div>
+        
+        <div className="field">
+          <label>
+            Nominee 1 percentage <span className="required-star">*</span>
+          </label>
+          <input
+            name="nominee1Percentage"
+            value={data.nominee1Percentage || ""}
+            onChange={handleChange}
+          />
+          {errors.nominee1Percentage && <small className="err">{errors.nominee1Percentage}</small>}
+        </div>
+        
 
         <div className="field">
           <label>
@@ -468,6 +536,48 @@ onChange={(e) => {
             onChange={handleChange}
           />
           {errors.nominee2 && <small className="err">{errors.nominee2}</small>}
+        </div>
+        <div className="field">
+          <label>
+            Nominee 2 Relation <span className="required-star">*</span>
+          </label>
+          <input
+            name="nominee2Relation"
+            value={data.nominee2Relation || ""}
+            onChange={handleChange}
+          />
+          {errors.nominee2Relation && <small className="err">{errors.nominee2Relation}</small>}
+        </div>
+        <div className="field">
+          <label>
+            Nominee2 Phone <span className="required-star">*</span>
+          </label>
+          <input
+            type="tel"
+            name="nominee2phone"
+            value={data.nominee2phone}
+            onChange={(e) => {
+              const value = e.target.value;
+              // Allow only digits and limit to 10
+              if (/^\d{0,10}$/.test(value)) {
+                setData((prev) => ({ ...prev, nominee2phone: value }));
+                setErrors((prev) => ({ ...prev, nominee2phone: "" }));
+              }
+            }}
+            placeholder="Enter 10-digit number"
+          />
+          {errors.nominee2phone && <small className="err">{errors.nominee2phone}</small>}
+        </div>
+        <div className="field">
+          <label>
+            Nominee 2 Percentage <span className="required-star">*</span>
+          </label>
+          <input
+            name="nominee2Percentage"
+            value={data.nominee2Percentage || ""}
+            onChange={handleChange}
+          />
+          {errors.nominee2Percentage && <small className="err">{errors.nominee2Percentage}</small>}
         </div>
 
         <div className="field">
@@ -555,6 +665,56 @@ onChange={(e) => {
         </div>
 
         {data.isMarried && (
+          <div >
+            <div className="field">
+          <label>
+            spouse <span className="required-star">*</span>
+          </label>
+          <input
+            name="spouse"
+            value={data.spouse|| ""}
+            onChange={handleChange}
+          />
+          {errors.spouse && <small className="err">{errors.spouse}</small>}
+        </div>
+        <div className="field">
+  <label>
+    Children <span className="required-star">*</span>
+  </label>
+
+  <div className="tag-input-box">
+    <div className="tags-list">
+      {(data.children || []).map((child, index) => (
+        <span key={index} className="tag">
+          {child}
+          <button
+            type="button"
+            className="remove-tag"
+            onClick={() => removeChild(index)}
+          >
+            ×
+          </button>
+        </span>
+      ))}
+    </div>
+
+    <div className="add-child-row">
+      <input
+        type="text"
+        value={childInput}
+        placeholder="Enter child name"
+        onChange={(e) => setChildInput(e.target.value.replace(/[^A-Za-z ]/g, ""))}
+        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addChild())}
+      />
+      <button type="button" className="add-btn" onClick={addChild}>
+        Add
+      </button>
+    </div>
+  </div>
+
+  {errors.children && <small className="err">{errors.children}</small>}
+</div>
+
           <div className="field full">
             <label>Marriage Certificate (optional)</label>
             <input
@@ -566,6 +726,7 @@ onChange={(e) => {
             {errors.marriageCertificate && (
               <small className="err">{errors.marriageCertificate}</small>
             )}
+          </div>
           </div>
         )}
       </div>

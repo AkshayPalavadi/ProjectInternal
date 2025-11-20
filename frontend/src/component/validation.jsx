@@ -5,7 +5,7 @@ const isPhone = (s) => /^[6-9]\d{9}$/.test(String(s).trim());
 const isPincode = (s) => /^[1-9][0-9]{5}$/.test(String(s).trim());
 const isAadhar = (s) => /^[0-9]{12}$/.test(String(s).trim());
 const isPAN = (s) => /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(String(s).trim());
-  const namePattern = /^[A-Za-z\s]+$/; // ✅ Only letters and spaces
+const namePattern = /^[A-Za-z\s]{1,75}$/;
 
 const isValidEmail = (s) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || "").trim());
@@ -56,6 +56,22 @@ export const simpleValidatePersonal = (data) => {
 
   // Gender, Address
   if (isEmpty(data.gender)) errs.gender = "Gender is required";
+    if (isEmpty(data.nominee1)) errs.nominee1 = "Nominee1 is required";
+  if (isEmpty(data.nominee1Relation)) errs.nominee1Relation = "Nominee1 Relation is required";
+  if (isEmpty(data.nominee1Percentage)) errs.nominee1Percentage = "Nominee1 Percentage is required";
+  
+  if (isEmpty(data.nominee1phone)) errs.nominee1phone = "Phone number is required";
+  else if (!isPhone(data.nominee1phone)) errs.nominee1phone = "Enter valid 10-digit number";
+    
+  if (isEmpty(data.nominee2phone)) errs.nominee2phone = "Phone number is required";
+  else if (!isPhone(data.nominee2phone)) errs.nominee2phone = "Enter valid 10-digit number";
+  
+    if (isEmpty(data.nominee2)) errs.nominee2 = "Nominee2 is required";
+  if (isEmpty(data.nominee2Relation)) errs.nominee2Relation = "Nominee2 Relation is required";
+  if (isEmpty(data.nominee2Percentage)) errs.nominee2Percentage = "Nominee2 Percentage is required";
+
+
+
   if (isEmpty(data.bloodGroup)) errs.bloodGroup = "Blood group is required";
   if (isEmpty(data.currentAddress))
     errs.currentAddress = "Current address is required";
@@ -91,6 +107,12 @@ export const simpleValidatePersonal = (data) => {
   if (!data.panUpload) errs.panUpload = "PAN upload is required";
   else if (!isValidPDF(data.panUpload))
     errs.panUpload = "PAN file must be PDF below 3 MB";
+   if (
+    data.isMarried &&
+    !data.spouse
+  )
+    errs.spouse = "spouse Name is Required";
+
 
   if (
     data.isMarried &&
@@ -172,7 +194,21 @@ export const simpleValidateEducation = (data) => {
     else if (!(data.certificateMTech instanceof File))
       errs.certificateMTech = "Invalid certificate file";
   }
+ if (data.hasCourse) {
+    if (!data.courseName)
+      errs.courseName = "Course name is required";
+    else if (!namePattern.test(data.courseName))
+      errs.courseName = "Course name should contain only letters";
+    if (!data.institueName) errs.institueName = "Institue Name is  required";
 
+
+    if (!data.yearCourse) errs.yearCourse = "Year of passing required";
+    if (!data.cgpaCourse) errs.cgpaCourse = "CGPA / Percentage is required";
+    if (!data.certificateCourse)
+      errs.certificateCourse = "Certificate is required";
+    else if (!(data.certificateCourse instanceof File))
+      errs.certificateCourse = "Invalid certificate file";
+  }
   // --- Gap Validation ---
   if (year10 && year12 && data.interOrDiploma) {
     const diff = year12 - year10;
@@ -214,8 +250,7 @@ export const simpleValidateProfessional = (data) => {
   if (!data.role || data.role.trim() === "") errs.role = "Role is required";
   if (!data.department || data.department.trim() === "")
     errs.department = "Department is required";
-  if (!data.salary || data.salary.trim() === "")
-    errs.salary = "Salary is required";
+  
 
   // ✅ Only validate experience if user marked "hasExperience"
   if (data.hasExperience) {
@@ -248,12 +283,23 @@ export const simpleValidateProfessional = (data) => {
           errs[`projects${idx}`] = "Projects are required";
         if (!exp.skills?.trim()) errs[`skills${idx}`] = "Skills are required";
         if (!exp.salary?.trim()) errs[`salary${idx}`] = "Salary is required";
+        // OfferLetter only for current company (index 0)
+if (i === 0) {
+  if (!exp.offerLetter)
+    errs[`offerLetter_${i}`] = "Offer letter is required";
+  else if (!isValidPDF(exp.offerLetter))
+    errs[`offerLetter_${i}`] = "Offer letter must be PDF under 3 MB";
+}
 
-        if (!exp.relivingLetter)
-          errs[`relivingLetter${idx}`] = "Reliving letter is required";
-        else if (!isValidPDF(exp.relivingLetter))
-          errs[`relivingLetter${idx}`] =
-            "Reliving letter must be a PDF under 3 MB";
+// Relieving Letter only for previous companies (index > 0)
+if (i > 0) {
+  if (!exp.relivingLetter)
+    errs[`relivingLetter_${i}`] = "Relieving letter is required";
+  else if (!isValidPDF(exp.relivingLetter))
+    errs[`relivingLetter_${i}`] =
+      "Relieving letter must be a PDF under 3 MB";
+}
+
 
         if (!exp.salarySlips)
           errs[`salarySlips${idx}`] = "Salary slips are required";
