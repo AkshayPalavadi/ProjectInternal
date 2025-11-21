@@ -1,67 +1,97 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "./AdminEmployee.css";
-import PersonApp from "../../component/PersonApp";
 
 export default function AdminEmployees() {
   const [employees, setEmployees] = useState([]);
   const [searchId, setSearchId] = useState("");
+
+  // Filter menu states
+  const [showFilterMenu, setShowFilterMenu] = useState(false);
+  const [showDeptDropdown, setShowDeptDropdown] = useState(false);
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+
+  const [filterDept, setFilterDept] = useState("");
+  const [filterRole, setFilterRole] = useState("");
+
+  const menuRef = useRef(null);
+
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // --- Load Static Data ---
   useEffect(() => {
-    const staticData = [
-      {
-        id: "1",
-        empId: "E001",
-        personal: { firstName: "Akshay", lastName: "Patil" },
-        designation: "Software Engineer",
-        project: "Time Tracker",
-        manager: "Riya Sharma",
-      },
-      {
-        id: "2",
-        empId: "E002",
-        personal: { firstName: "Neha", lastName: "Verma" },
-        designation: "UI/UX Designer",
-        project: "HR Portal",
-        manager: "Rajesh Kumar",
-      },
-      {
-        id: "3",
-        empId: "E003",
-        personal: { firstName: "Rahul", lastName: "Mehta" },
-        designation: "Frontend Developer",
-        project: "Performance Dashboard",
-        manager: "Riya Sharma",
-      },
-      {
-        id: "4",
-        empId: "E004",
-        personal: { firstName: "Sneha", lastName: "Iyer" },
-        designation: "Backend Developer",
-        project: "Employee Portal",
-        manager: "Karan Singh",
-      },
-      {
-        id: "5",
-        empId: "E005",
-        personal: { firstName: "Vikram", lastName: "Das" },
-        designation: "QA Engineer",
-        project: "Timesheet Automation",
-        manager: "Karan Singh",
-      },
-    ];
-    setEmployees(staticData);
+    const fetchEmployees = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res = await fetch("https://internal-website-rho.vercel.app/api/employee");
+
+        if (!res.ok) throw new Error("Unable to fetch employees");
+
+        const data = await res.json();
+        const empList = data.data || [];
+
+        setEmployees(Array.isArray(empList) ? empList : []);
+      } catch (err) {
+        setError(err.message || "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEmployees();
   }, []);
 
-  const filteredEmployees = employees.filter((emp) =>
-    (emp.empId || "").toLowerCase().includes(searchId.toLowerCase())
-  );
+  // Close filter menu when clicked outside
+  useEffect(() => {
+    const handler = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowFilterMenu(false);
+        setShowDeptDropdown(false);
+        setShowRoleDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
-  const HandleSubmit = () => {
-    navigate("/admin/add-employee");
+  // Search + filter logic
+  const filteredEmployees = employees.filter((emp) => {
+    const empId = emp.professional?.employeeId?.toLowerCase() || "";
+    const first = emp.personal?.firstName?.toLowerCase() || "";
+    const last = emp.personal?.lastName?.toLowerCase() || "";
+    const fullname = `${first} ${last}`.trim();
+
+    const search = searchId.toLowerCase();
+
+    return (
+      (empId.includes(search) ||
+        first.includes(search) ||
+        last.includes(search) ||
+        fullname.includes(search)) &&
+      (filterDept ? emp.professional?.department === filterDept : true) &&
+      (filterRole ? emp.professional?.role === filterRole : true)
+    );
+  });
+
+  const departments = [
+    ...new Set(employees.map((e) => e.professional?.department).filter(Boolean)),
+  ];
+  const roles = [
+    ...new Set(employees.map((e) => e.professional?.role).filter(Boolean)),
+  ];
+
+  const clearFilters = () => {
+    setFilterDept("");
+    setFilterRole("");
+    setSearchId("");
+    setShowFilterMenu(false);
   };
+
+  if (loading) return <div>Loading employees…</div>;
+  if (error) return <div style={{ color: "red" }}>Error: {error}</div>;
 
   return (
     <div className="adminemployee-dashboard-layout">
@@ -69,49 +99,142 @@ export default function AdminEmployees() {
         <h2 className="adminemployee-title">Employee Management</h2>
 
         <div className="adminemployee-top-bar">
+
+          {/* Search Input */}
           <input
             type="text"
             className="adminemployee-search-box"
-            placeholder="🔍 Search by ID..."
+            placeholder="🔍 Search by Employee ID or Name..."
             value={searchId}
             onChange={(e) => setSearchId(e.target.value)}
           />
-          <button className="adminemployee-add-btn" onClick={HandleSubmit}>
-            + Add Employee
-          </button>
+
+          {/* FILTER BUTTON */}
+          <div className="filter-container" ref={menuRef}>
+            <button
+              className="filter-icon-btn"
+              onClick={() => setShowFilterMenu(!showFilterMenu)}
+            >
+              ⚙️ Filters
+            </button>
+
+            {/* Dropdown menu */}
+            {showFilterMenu && (
+              <div className="filter-menu">
+
+                <div className="filter-options-row">
+                  {/* Department Button */}
+                  <div
+                    className="filter-item-employee"
+                    onClick={() => {
+                      setShowDeptDropdown(!showDeptDropdown);
+                      setShowRoleDropdown(false);
+                    }}
+                  >
+                    Department ▸
+                  </div>
+
+                  {/* Designation Button */}
+                  <div
+                    className="filter-item-employee"
+                    onClick={() => {
+                      setShowRoleDropdown(!showRoleDropdown);
+                      setShowDeptDropdown(false);
+                    }}
+                  >
+                    Designation ▸
+                  </div>
+                </div>
+
+                {/* DROPDOWNS SIDE-BY-SIDE */}
+                <div className="dropdown-row">
+                  {showDeptDropdown && (
+                    <select
+                      className="nested-dropdown"
+                      value={filterDept}
+                      onChange={(e) => {
+                        setFilterDept(e.target.value);
+                        setShowDeptDropdown(false);
+                      }}
+                    >
+                      <option value="">All Departments</option>
+                      {departments.map((d, i) => (
+                        <option key={i} value={d}>
+                          {d}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+
+                  {showRoleDropdown && (
+                    <select
+                      className="nested-dropdown"
+                      value={filterRole}
+                      onChange={(e) => {
+                        setFilterRole(e.target.value);
+                        setShowRoleDropdown(false);
+                      }}
+                    >
+                      <option value="">All Designations</option>
+                      {roles.map((r, i) => (
+                        <option key={i} value={r}>
+                          {r}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+
+                {/* CLEAR FILTER BUTTON */}
+                <button className="clear-filter-btn" onClick={clearFilters}>
+                  Clear Filters
+                </button>
+              </div> 
+            )}
+          </div>
         </div>
 
         <table className="adminemployee-employee-table">
           <thead>
             <tr>
-              <th>EMP-ID</th>
-              <th>EMP-Name</th>
+              <th>Employee ID</th>
+              <th>Full Name</th>
+              <th>Official Email</th>
               <th>Designation</th>
-              <th>Project</th>
-              <th>Manager</th>
+              <th>Phone No</th>
+              <th>Department</th>
             </tr>
           </thead>
+
           <tbody>
             {filteredEmployees.length > 0 ? (
-              filteredEmployees.map((emp) => (
-                <tr key={emp.id}>
-                  <td>
-                    <Link className="adminemployee-emp-link" to={`/admin/employees/${emp.id}`}>
-  {emp.empId}
-</Link>
+              filteredEmployees.map((emp, index) => (
+                <tr key={index}>
+                  <td>{emp.professional?.employeeId || "N/A"}</td>
 
-                  </td>
+                  <td>{`${emp.personal?.firstName || ""} ${
+                    emp.personal?.lastName || ""
+                  }`}</td>
+
                   <td>
-                    {emp.personal?.firstName} {emp.personal?.lastName}
+                    <Link
+                      className="adminemployee-emp-link"
+                      to={`/admin/employees/${encodeURIComponent(
+                        emp.personal?.officialEmail || ""
+                      )}`}
+                    >
+                      {emp.personal?.officialEmail || "N/A"}
+                    </Link>
                   </td>
-                  <td>{emp.designation}</td>
-                  <td>{emp.project}</td>
-                  <td>{emp.manager}</td>
+
+                  <td>{emp.professional?.role || "N/A"}</td>
+                  <td>{emp.personal?.phone || "N/A"}</td>
+                  <td>{emp.professional?.department || "N/A"}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan="5" style={{ textAlign: "center" }}>
+                <td colSpan="6" style={{ textAlign: "center" }}>
                   No employee data found
                 </td>
               </tr>

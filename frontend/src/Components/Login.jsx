@@ -14,7 +14,8 @@ function Login({ setIsLoggedIn, setUserRole }) {
   // ✅ Keep user logged in if token exists
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const storedRole = localStorage.getItem("userRole");
+    // const storedRole = localStorage.getItem("userRole");
+    const storedRole = "admin";
     if (token && storedRole) {
       setIsLoggedIn(true);
       setUserRole(storedRole);

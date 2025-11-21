@@ -1,17 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { simpleValidateProfessional } from "./validation";
 
 const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
-  const [localData, setLocalData] = useState({
-    employeeId: data.employeeId || "",
-    dateOfJoining: data.dateOfJoining || "",
-    role: data.role || "",
-    department: data.department || "",
-    salary: data.salary || "",
-    hasExperience: data.hasExperience || false,
-    experiences: data.experiences || [],
-  });
-
   const [localErrors, setLocalErrors] = useState({});
 
   const departments = [
@@ -25,24 +15,22 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
     "Administration",
   ];
 
-  // ✅ Keep parent data synced when localData changes
-  useEffect(() => {
-    setData(localData);
-  }, [localData, setData]);
-
   // =========================
-  // 🔹 Handle basic field change
+  // 🔹 Basic field change
   // =========================
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
-    const val = type === "checkbox" ? checked : type === "file" ? files[0] : value;
+    const val =
+      type === "checkbox"
+        ? checked
+        : type === "file"
+        ? files[0]
+        : value;
 
-    let updated = { ...localData, [name]: val };
+    let updated = { ...data, [name]: val };
 
-    // Handle hasExperience toggle
     if (name === "hasExperience") {
       if (val) {
-        // Add one empty experience if none exist
         if (updated.experiences.length === 0) {
           updated.experiences = [
             {
@@ -72,103 +60,99 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
       }
     }
 
-    setLocalData(updated);
-
-    // Clear error for this field
+    setData(updated);
     setLocalErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
   // =========================
-  // 🔹 Handle Experience Change
+  // 🔹 Experience change
   // =========================
   const handleExperienceChange = (index, e) => {
     const { name, value, type, files } = e.target;
     const val = type === "file" ? files[0] : value;
 
-    const newExperiences = [...localData.experiences];
+    const newExperiences = [...data.experiences];
     newExperiences[index][name] = val;
 
-    // Auto calculate duration
+    // Auto Duration Calculation
     const start = new Date(newExperiences[index].startDate);
     const end = new Date(newExperiences[index].endDate);
+
     if (!isNaN(start) && !isNaN(end) && end > start) {
-      const diffYears = end.getFullYear() - start.getFullYear();
-      const diffMonths = end.getMonth() - start.getMonth();
-      let years = diffYears;
-      let months = diffMonths;
+      const y = end.getFullYear() - start.getFullYear();
+      const m = end.getMonth() - start.getMonth();
+
+      let years = y;
+      let months = m;
+
       if (months < 0) {
         years -= 1;
         months += 12;
       }
-      const durationStr =
+
+      newExperiences[index].duration =
         years > 0 && months > 0
           ? `${years} year${years > 1 ? "s" : ""} ${months} month${months > 1 ? "s" : ""}`
           : years > 0
           ? `${years} year${years > 1 ? "s" : ""}`
           : `${months} month${months > 1 ? "s" : ""}`;
-      newExperiences[index].duration = durationStr;
     } else {
       newExperiences[index].duration = "";
     }
 
-    setLocalData((prev) => ({ ...prev, experiences: newExperiences }));
+    setData((prev) => ({ ...prev, experiences: newExperiences }));
 
-    // ✅ Clear only this specific experience field error
-    setLocalErrors((prev) => ({ ...prev, [`${name}_${index}`]: "" }));
+    setLocalErrors((prev) => ({
+      ...prev,
+      [`${name}_${index}`]: "",
+    }));
   };
 
   // =========================
   // 🔹 Add / Remove experience
   // =========================
+  const emptyExperience = {
+    companyName: "",
+    companyLocation: "",
+    jobTitle: "",
+    startDate: "",
+    endDate: "",
+    duration: "",
+    roles: "",
+    projects: "",
+    skills: "",
+    salary: "",
+    relivingLetter: null,
+    salarySlips: null,
+    hrName: "",
+    hrEmail: "",
+    hrPhone: "",
+    managerName: "",
+    managerEmail: "",
+    managerPhone: "",
+  };
+
   const addExperience = () => {
-    setLocalData((prev) => ({
+    setData((prev) => ({
       ...prev,
-      experiences: [
-        ...prev.experiences,
-        {
-          companyName: "",
-          companyLocation: "",
-          jobTitle: "",
-          startDate: "",
-          endDate: "",
-          duration: "",
-          roles: "",
-          projects: "",
-          skills: "",
-          salary: "",
-          relivingLetter: null,
-          salarySlips: null,
-          hrName: "",
-          hrEmail: "",
-          hrPhone: "",
-          managerName: "",
-          managerEmail: "",
-          managerPhone: "",
-        },
-      ],
+      experiences: [...prev.experiences, emptyExperience],
     }));
   };
 
   const removeExperience = (index) => {
-    const updated = localData.experiences.filter((_, i) => i !== index);
-    setLocalData((prev) => ({ ...prev, experiences: updated }));
+    setData((prev) => ({
+      ...prev,
+      experiences: prev.experiences.filter((_, i) => i !== index),
+    }));
   };
 
   // =========================
-  // ✅ Next Button (final fix)
+  // 🔹 Next Button
   // =========================
   const next = () => {
-    console.log("DEBUG localData before validation:", localData);
-
-    const errs = simpleValidateProfessional(localData);
-    console.log("DEBUG validation output:", errs);
-
-    setLocalErrors({ ...errs }); // ensures re-render
-
-    // ✅ Move to next immediately if no errors
-    if (Object.keys(errs).length === 0) {
-      nextStep();
-    }
+    const errs = simpleValidateProfessional(data);
+    setLocalErrors({ ...errs });
+    if (Object.keys(errs).length === 0) nextStep();
   };
 
   const prev = () => prevStep();
@@ -178,30 +162,57 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
   // =========================
   return (
     <div className="form-wrap">
-      {/* <h3>Professional Details</h3> */}
+
 
       <div className="form-grid">
         <div className="field">
-          <label>Employee ID <span className="required-star">*</span></label>
-          <input name="employeeId" value={localData.employeeId} onChange={handleChange} />
-          {localErrors.employeeId && <small className="err">{localErrors.employeeId}</small>}
+          <label>
+            Employee ID <span className="required-star">*</span>
+          </label>
+          <input
+            name="employeeId"
+            value={data.employeeId}
+            onChange={handleChange}
+          />
+          {localErrors.employeeId && (
+            <small className="err">{localErrors.employeeId}</small>
+          )}
         </div>
 
         <div className="field">
-          <label>Date of Joining <span className="required-star">*</span></label>
-          <input type="date" name="dateOfJoining" value={localData.dateOfJoining} onChange={handleChange} />
-          {localErrors.dateOfJoining && <small className="err">{localErrors.dateOfJoining}</small>}
+          <label>
+            Date of Joining <span className="required-star">*</span>
+          </label>
+          <input
+            type="date"
+            name="dateOfJoining"
+            value={data.dateOfJoining}
+            onChange={handleChange}
+          />
+          {localErrors.dateOfJoining && (
+            <small className="err">{localErrors.dateOfJoining}</small>
+          )}
         </div>
 
         <div className="field">
-          <label>Role <span className="required-star">*</span></label>
-          <input name="role" value={localData.role} onChange={handleChange} />
-          {localErrors.role && <small className="err">{localErrors.role}</small>}
+          <label>
+            Role <span className="required-star">*</span>
+          </label>
+          <input name="role" value={data.role} onChange={handleChange} />
+          {localErrors.role && (
+            <small className="err">{localErrors.role}</small>
+          )}
         </div>
 
         <div className="field">
-          <label>Department <span className="required-star">*</span></label>
-          <select name="department" value={localData.department} onChange={handleChange}>
+          <label>
+            Department <span className="required-star">*</span>
+          </label>
+          <select
+            name="department"
+            value={data.department}
+            onChange={handleChange}
+          >
             <option value="">Select Department</option>
             {departments.map((d) => (
               <option key={d} value={d}>
@@ -209,75 +220,104 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
               </option>
             ))}
           </select>
-          {localErrors.department && <small className="err">{localErrors.department}</small>}
+          {localErrors.department && (
+            <small className="err">{localErrors.department}</small>
+          )}
         </div>
-
-        
       </div>
 
       <div className="field checkbox-field">
-        <label style={{marginTop:"10px"}}>
+        <label style={{ marginTop: "10px" }}>
           <input
             type="checkbox"
             name="hasExperience"
-            checked={localData.hasExperience}
+            checked={data.hasExperience}
             onChange={handleChange}
           />
-          &nbsp;  Experienced?
+          &nbsp; Experienced?
         </label>
       </div>
 
-      {localData.hasExperience && (
-        <div>
-          {localData.experiences.map((exp, index) => (
-            <div key={index} className="experience-block">
-              {index===0 ?<h4> Current Comapany Experience</h4>  :
-                            <h4>Previous Company Experience {index}</h4>
+      {data.hasExperience &&
+        data.experiences.map((exp, index) => (
+          <div key={index} className="experience-block">
+            {index === 0 ? (
+              <h4>Current Company Experience</h4>
+            ) : (
+              <h4>Previous Company Experience {index}</h4>
+            )}
 
-}
-              <div className="form-grid">
-                {[
-                  ["companyName", "Company Name"],
-                  ["companyLocation", "Company Location"],
-                  ["jobTitle", "Job Title"],
-                  ["startDate", "Start Date", "date"],
-                  ["endDate", "End Date", "date"],
-                  ["duration","duration"],
-                  ["roles", "Roles & Responsibilities", "textarea"],
-                  ["projects", "Projects", "textarea"],
-                  ["skills", "Skills"],
-                  ["salary", "Salary"],
-                  ["hrName", "HR Name"],
-                  ["hrEmail", "HR Email"],
-                  ["hrPhone", "HR Phone"],
-                  ["managerName", "Manager Name"],
-                  ["managerEmail", "Manager Email"],
-                  ["managerPhone", "Manager Phone"],
-                ].map(([field, label, type = "text"]) => (
-                  <div key={field} className="field">
-                    <label>{label} <span className="required-star">*</span></label>
-                    {type === "textarea" ? (
-                      <textarea
-                        name={field}
-                        value={exp[field]}
-                        onChange={(e) => handleExperienceChange(index, e)}
-                      />
-                    ) : (
-                      <input
-                        type={type}
-                        name={field}
-                        value={exp[field]}
-                        onChange={(e) => handleExperienceChange(index, e)}
-                      />
-                    )}
-                    {localErrors[`${field}_${index}`] && (
-                      <small className="err">{localErrors[`${field}_${index}`]}</small>
-                    )}
-                  </div>
-                ))}
+            <div className="form-grid">
+              {[
+                ["companyName", "Company Name"],
+                ["companyLocation", "Company Location"],
+                ["jobTitle", "Job Title"],
+                ["startDate", "Start Date", "date"],
+                ["endDate", "End Date", "date"],
 
-                {index===0 ? <div className="field">
-                  <label>OfferLetter (PDF) <span className="required-star">*</span></label>
+                // 🔹 Added readonly Duration field
+                [
+                  "duration",
+                  "Duration",
+                  "text",
+                  true, // readonly flag
+                ],
+
+                ["roles", "Roles & Responsibilities", "textarea"],
+                ["projects", "Projects", "textarea"],
+                ["skills", "Skills"],
+                ["salary", "Salary"],
+                ["hrName", "HR Name"],
+                ["hrEmail", "HR Email"],
+                ["hrPhone", "HR Phone"],
+                ["managerName", "Manager Name"],
+                ["managerEmail", "Manager Email"],
+                ["managerPhone", "Manager Phone"],
+              ].map(([field, label, type = "text", readonly = false]) => (
+                <div key={field} className="field">
+                  <label>
+                    {label} <span className="required-star">*</span>
+                  </label>
+
+                  {type === "textarea" ? (
+                    <textarea
+                      name={field}
+                      value={exp[field]}
+                      onChange={(e) => handleExperienceChange(index, e)}
+                    />
+                  ) : readonly ? (
+                    <input
+                      type="text"
+                      name={field}
+                      value={exp[field]}
+                      readOnly
+                      style={{
+                        background: "#f3f3f3",
+                        cursor: "not-allowed",
+                      }}
+                    />
+                  ) : (
+                    <input
+                      type={type}
+                      name={field}
+                      value={exp[field]}
+                      onChange={(e) => handleExperienceChange(index, e)}
+                    />
+                  )}
+
+                  {localErrors[`${field}_${index}`] && (
+                    <small className="err">
+                      {localErrors[`${field}_${index}`]}
+                    </small>
+                  )}
+                </div>
+              ))}
+
+              {index === 0 ? (
+                <div className="field">
+                  <label>
+                    OfferLetter (PDF) <span className="required-star">*</span>
+                  </label>
                   <input
                     type="file"
                     accept=".pdf"
@@ -285,10 +325,17 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
                     onChange={(e) => handleExperienceChange(index, e)}
                   />
                   {localErrors[`offerLetter_${index}`] && (
-                    <small className="err">{localErrors[`offerLetter_${index}`]}</small>
+                    <small className="err">
+                      {localErrors[`offerLetter_${index}`]}
+                    </small>
                   )}
-                </div> : <div className="field">
-                  <label>Reliving Letter (PDF) <span className="required-star">*</span></label>
+                </div>
+              ) : (
+                <div className="field">
+                  <label>
+                    Reliving Letter (PDF){" "}
+                    <span className="required-star">*</span>
+                  </label>
                   <input
                     type="file"
                     accept=".pdf"
@@ -296,37 +343,48 @@ const ProfessionalDetails = ({ data, setData, nextStep, prevStep }) => {
                     onChange={(e) => handleExperienceChange(index, e)}
                   />
                   {localErrors[`relivingLetter_${index}`] && (
-                    <small className="err">{localErrors[`relivingLetter_${index}`]}</small>
-                  )}
-                </div>}
-
-                <div className="field">
-                  <label>Salary Slips (PDF) <span className="required-star">*</span></label>
-                  <input
-                    type="file"
-                    accept=".pdf"
-                    name="salarySlips"
-                    onChange={(e) => handleExperienceChange(index, e)}
-                  />
-                  {localErrors[`salarySlips_${index}`] && (
-                    <small className="err">{localErrors[`salarySlips_${index}`]}</small>
+                    <small className="err">
+                      {localErrors[`relivingLetter_${index}`]}
+                    </small>
                   )}
                 </div>
-              </div>
-
-              {localData.experiences.length > 1 && (
-                <button type="button" className="btn remove" onClick={() => removeExperience(index)}>
-                  Remove Experience
-                </button>
               )}
-            </div>
-          ))}
 
-          <div className="add-exp-btn-wrap">
-            <button type="button" className="btn add" onClick={addExperience}>
-              Add More Experience
-            </button>
+              <div className="field">
+                <label>
+                  Salary Slips (PDF) <span className="required-star">*</span>
+                </label>
+                <input
+                  type="file"
+                  accept=".pdf"
+                  name="salarySlips"
+                  onChange={(e) => handleExperienceChange(index, e)}
+                />
+                {localErrors[`salarySlips_${index}`] && (
+                  <small className="err">
+                    {localErrors[`salarySlips_${index}`]}
+                  </small>
+                )}
+              </div>
+            </div>
+
+            {data.experiences.length > 1 && (
+              <button
+                type="button"
+                className="btn remove"
+                onClick={() => removeExperience(index)}
+              >
+                Remove Experience
+              </button>
+            )}
           </div>
+        ))}
+
+      {data.hasExperience && (
+        <div className="add-exp-btn-wrap">
+          <button type="button" className="btn add" onClick={addExperience}>
+            Add More Experience
+          </button>
         </div>
       )}
 

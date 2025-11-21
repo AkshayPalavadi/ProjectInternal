@@ -84,7 +84,6 @@ const handleLogout = () => {
         <div className="profile-section">
           <div className="photo-name-container">
             <div className="photo-wrapper" onClick={handlePhotoClick}>
-              <img src={userPhoto || defaultAvatar} alt="Profile" />
               {showMenu && (
                 <div className="photo-menu">
                   <button onClick={handleAddPhoto}>Add Photo</button>
