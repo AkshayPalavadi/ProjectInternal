@@ -1,9 +1,9 @@
 /* =======================================
-   adminhiredapplicants.jsx
+   Professional Table Design for Hired.jsx
    ======================================= */
 
-.adminhiredapplicants-hired-container,
-.adminhiredapplicants-onhold-container {
+.hired-container,
+.onhold-container {
   min-height: 100vh;
   background: #f8fafc;
   padding: 2rem 3rem;
@@ -14,21 +14,21 @@
 }
 
 /* Header */
-.adminhiredapplicants-hired-header,
-.adminhiredapplicants-onhold-header {
+.hired-header,
+.onhold-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.75rem;
 }
 
-.adminhiredapplicants-hired-title {
+.hired-title {
   font-size: 1.75rem;
   font-weight: 700;
   color: #0f172a;
 }
 
-.adminhiredapplicants-icon-btn {
+.icon-btn {
   background: #f1f5f9;
   border: none;
   color: #475569;
@@ -39,55 +39,55 @@
   font-size: 1.25rem;
 }
 
-.adminhiredapplicants-icon-btn:hover {
+.icon-btn:hover {
   background: #e2e8f0;
   color: #1e293b;
 }
 
 /* Table */
-.adminhiredapplicants-hired-table,
-.adminhiredapplicants-onhold-table {
+.hired-table,
+.onhold-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
 }
 
-.adminhiredapplicants-hired-table th,
-.adminhiredapplicants-hired-table td,
-.adminhiredapplicants-onhold-table th,
-.adminhiredapplicants-onhold-table td {
+.hired-table th,
+.hired-table td,
+.onhold-table th,
+.onhold-table td {
   padding: 0.9rem 1.25rem;
   text-align: left;
   white-space: nowrap;
 }
 
-.adminhiredapplicants-hired-table th,
-.adminhiredapplicants-onhold-table th {
+.hired-table th,
+.onhold-table th {
   font-weight: 600;
   color: white;
   background-color: #2563eb;
 }
 
-.adminhiredapplicants-hired-table tbody tr,
-.adminhiredapplicants-onhold-table tbody tr {
+.hired-table tbody tr,
+.onhold-table tbody tr {
   border-bottom: 1px solid #f1f5f9;
   transition: background-color 0.2s ease;
 }
 
-.adminhiredapplicants-hired-table tbody tr:hover,
-.adminhiredapplicants-onhold-table tbody tr:hover {
+.hired-table tbody tr:hover,
+.onhold-table tbody tr:hover {
   background-color: #f9fafb;
 }
 
-.adminhiredapplicants-no-data {
+.no-data {
   text-align: center;
   color: #64748b;
   padding: 12px;
 }
 
 /* Footer */
-.adminhiredapplicants-hired-footer,
-.adminhiredapplicants-onhold-footer {
+.hired-footer,
+.onhold-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -97,16 +97,16 @@
   gap: 10px;
 }
 
-.adminhiredapplicants-hired-footer p,
-.adminhiredapplicants-onhold-footer p {
+.hired-footer p,
+.onhold-footer p {
   font-weight: 600;
   color: #1e293b;
   margin: 0;
 }
 
 /* Export button */
-.adminhiredapplicants-export-btn,
-.adminhiredapplicants-onhold-export-btn {
+.export-btn,
+.onhold-export-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -123,30 +123,30 @@
   box-shadow: 0 3px 6px rgba(37, 99, 235, 0.25);
 }
 
-.adminhiredapplicants-export-btn:hover,
-.adminhiredapplicants-onhold-export-btn:hover {
+.export-btn:hover,
+.onhold-export-btn:hover {
   background: #1d4ed8;
   transform: translateY(-1px);
 }
 
 /* Filter icon */
-.adminhiredapplicants-filter-icon {
+.filter-icon {
   font-size: 20px;
   color: #2563eb;
   cursor: pointer;
   transition: 0.3s;
 }
 
-.adminhiredapplicants-filter-icon.adminhiredapplicants-active {
+.filter-icon.active {
   color: #1d4ed8;
 }
 
 /* Filter dropdown */
-.adminhiredapplicants-filter-dropdown-wrapper {
+.filter-dropdown-wrapper {
   position: relative;
 }
 
-.adminhiredapplicants-filter-box {
+.filter-box {
   position: absolute;
   top: 30px;
   right: 0;
@@ -159,39 +159,67 @@
   z-index: 10;
 }
 
-.adminhiredapplicants-filter-box h4 {
+.designation,Experience {
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  font-weight: bold;
+  font-size: 14px;
+  color:white;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Hover effect */
+.designation:hover {
+  border-color: #007bff;
+}
+/* Focus effect */
+.designation:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.4);
+}
+
+/* Dropdown option styling */
+.designation option {
+  padding: 8px;
+  background-color:#007bff;
+
+}
+
+.filter-box h4 {
   font-size: 1rem;
   font-weight: 600;
   color: #1e293b;
   margin-bottom: 8px;
 }
 
-.adminhiredapplicants-filter-field {
+.filter-field {
   display: flex;
   flex-direction: column;
   margin-bottom: 8px;
 }
 
-.adminhiredapplicants-filter-field label {
+.filter-field label {
   font-size: 0.8rem;
   color: #475569;
   margin-bottom: 3px;
 }
 
-.adminhiredapplicants-filter-field input {
+.filter-field input {
   border: 1px solid #cbd5e1;
   border-radius: 5px;
   padding: 5px 8px;
   font-size: 0.85rem;
 }
 
-.adminhiredapplicants-filter-actions {
+.filter-actions {
   display: flex;
   justify-content: space-between;
   margin-top: 10px;
 }
 
-.adminhiredapplicants-filter-actions button {
+.filter-actions button {
   border: none;
   padding: 6px 10px;
   border-radius: 5px;
@@ -199,44 +227,47 @@
   font-weight: 500;
 }
 
-.adminhiredapplicants-filter-actions button:first-child {
+.filter-actions button:first-child {
   background: #e2e8f0;
 }
 
-.adminhiredapplicants-filter-actions button:last-child {
+.filter-actions button:last-child {
   background: #2563eb;
   color: white;
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  .adminhiredapplicants-hired-container,
-  .adminhiredapplicants-onhold-container {
+  .hired-container,
+  .onhold-container {
     padding: 1.25rem;
   }
 
-  .adminhiredapplicants-hired-title {
+  .hired-title {
     font-size: 1.5rem;
   }
 
-  .adminhiredapplicants-hired-table th,
-  .adminhiredapplicants-hired-table td,
-  .adminhiredapplicants-onhold-table th,
-  .adminhiredapplicants-onhold-table td {
+  .hired-table th,
+  .hired-table td,
+  .onhold-table th,
+  .onhold-table td {
     padding: 0.6rem 0.9rem;
     font-size: 0.85rem;
   }
 
-  .adminhiredapplicants-export-btn,
-  .adminhiredapplicants-onhold-export-btn {
+  .export-btn,
+  .onhold-export-btn {
     width: 100%;
     justify-content: center;
   }
 
-  .adminhiredapplicants-hired-footer,
-  .adminhiredapplicants-onhold-footer {
+  .hired-footer,
+  .onhold-footer {
     flex-direction: column;
     align-items: stretch;
     gap: 8px;
   }
 }
+
+
+

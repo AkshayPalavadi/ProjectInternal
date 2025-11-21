@@ -129,3 +129,157 @@
 .onhold-export-btn:hover {
   background: #1d4ed8;
 }
+
+.filter-con{
+  position:relative;
+  padding: right 35px;
+  font-weight: 600;
+}
+/* Table Layout */
+.onhold-table-wrapper {
+  width: 100%;
+  overflow-x: auto; 
+  position: relative;
+}
+
+.onhold-table {
+  width: 100%;
+  border-collapse: collapse;
+  position: relative;
+}
+
+.onhold-table th,
+.onhold-table td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  white-space: nowrap;
+}
+
+/* Make each header a positioning anchor */
+.filter-col {
+  position: relative;
+}
+
+/* Filter icon */
+.filter-icon {
+  margin-left: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  vertical-align: middle;
+}
+
+/* Filter Dropdown — FIXED UNDER COLUMN */
+.filter-dropdown {
+  position: absolute;
+  top: 100%;       /* directly below header */
+  left: 0;
+  width: 100%;
+  background: white;
+  padding: 6px;
+  z-index: 999;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+}
+
+/* Input styling */
+.filter-input {
+  width: 100%;
+  padding: 5px;
+  font-size: 13px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+}
+
+/* Reason textarea - Horizontal scrolling only */
+.reason-textarea {
+  width: 160px;
+  height: 40px;
+  resize: horizontal;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+/* Reset Button Styling */
+.reset-btn {
+  background: #ff5252;
+  color: #fff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.reset-btn:hover {
+  background: #e64848;
+}
+
+/* Keep TH layout clean */
+.filter-col {
+  position: relative;
+  text-align: left;
+  padding: 6px 8px;
+  vertical-align: top;
+}
+
+/* Inline search box directly below field name */
+.filter-input-inline {
+  margin-top: 6px;
+  width: 95%;
+  font-size: 12px;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  background: #fafafa;
+  transition: 0.2s ease;
+}
+
+.filter-input-inline:focus {
+  border-color: #4a90e2;
+  background: #fff;
+  box-shadow: 0 0 4px rgba(0, 120, 255, 0.4);
+}
+
+/* Prevent table shaking when opening filters */
+.onhold-table thead th {
+  height: 65px;
+  vertical-align: top;
+}
+
+/* Icon alignment */
+.filter-icon {
+  font-size: 15px;
+  margin-left: 6px;
+  cursor: pointer;
+  color: #6a6a6a;
+}
+
+.filter-icon:hover {
+  color: #000;
+}
+
+/* Reason textarea horizontal scroll ONLY */
+.reason-textarea {
+  width: 160px;
+  height: 45px;
+  resize: none;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+.column-filter-input-onhold {
+  width: 100%;
+  padding: 6px;
+  font-size: 13px;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+
+}
+.applicant-onhold-column {
+  display: flex;
+  flex-direction: column;
+}

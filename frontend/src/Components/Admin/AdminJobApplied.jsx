@@ -3,13 +3,12 @@ import * as XLSX from "xlsx";
 import { FiFilter } from "react-icons/fi";
 import "./AdminJobApplied.css";
 
-const JobApplied= () => {
+const JobApplied = () => {
   const applicants = [
-    { id: "001", name: "N.Gangadhar", contact: "9876543210", skills: "HTML, React JS, Java", experience: "0yrs", salary: 20000, location: "Hyderabad", doj: "2024-10-01" },
-    { id: "002", name: "C.Vignesh", contact: "9123456780", skills: "Python, React JS, Java", experience: "2yrs", salary: 35000, location: "Hyderabad", doj: "2023-12-15" },
-    { id: "003", name: "R.Jagadeesh", contact: "9988776655", skills: "Python, React JS, SQL", experience: "1yr", salary: 25000, location: "Chennai", doj: "2024-03-20" },
-    { id: "004", name: "N.Tataji", contact: "9876512340", skills: "React Native, JS, NodeJS", experience: "1.5yrs", salary: 30000, location: "Bangalore", doj: "2024-06-05" },
-    
+    { id: "001", name: "N.Gangadhar", contact: "9876543210", skills: "HTML, React JS, Java", experience: "0yrs", location: "Hyderabad", doj: "2024-10-01" },
+    { id: "002", name: "C.Vignesh", contact: "9123456780", skills: "Python, React JS, Java", experience: "2yrs", location: "Hyderabad", doj: "2023-12-15" },
+    { id: "003", name: "R.Jagadeesh", contact: "9988776655", skills: "Python, React JS, SQL", experience: "1yr", location: "Chennai", doj: "2024-03-20" },
+    { id: "004", name: "N.Tataji", contact: "9876512340", skills: "React Native, JS, NodeJS", experience: "1.5yrs", location: "Bangalore", doj: "2024-06-05" },
   ];
 
   // 🟢 Unique filter values
@@ -18,7 +17,6 @@ const JobApplied= () => {
     applicants: [...new Set(applicants.map((a) => a.name))],
     skills: [...new Set(allSkills)],
     experience: [...new Set(applicants.map((a) => a.experience))],
-    salary: [...new Set(applicants.map((a) => a.salary.toString()))],
     location: [...new Set(applicants.map((a) => a.location))],
     doj: [...new Set(applicants.map((a) => a.doj))],
   };
@@ -28,7 +26,6 @@ const JobApplied= () => {
     applicant: "",
     skill: "",
     experience: "",
-    salary: "",
     location: "",
   });
   const [filterDOJ, setFilterDOJ] = useState("");
@@ -45,7 +42,6 @@ const JobApplied= () => {
       applicant: "",
       skill: "",
       experience: "",
-      salary: "",
       location: "",
     });
     setFilterDOJ("");
@@ -57,10 +53,9 @@ const JobApplied= () => {
       const matchApplicant = a.name.toLowerCase().includes(filters.applicant.toLowerCase());
       const matchSkill = a.skills.toLowerCase().includes(filters.skill.toLowerCase());
       const matchExp = a.experience.toLowerCase().includes(filters.experience.toLowerCase());
-      const matchSalary = a.salary.toString().includes(filters.salary);
       const matchLocation = a.location.toLowerCase().includes(filters.location.toLowerCase());
       const matchDOJ = !filterDOJ || a.doj === filterDOJ;
-      return matchApplicant && matchSkill && matchExp && matchSalary && matchLocation && matchDOJ;
+      return matchApplicant && matchSkill && matchExp && matchLocation && matchDOJ;
     });
   }, [filters, filterDOJ]);
 
@@ -134,22 +129,6 @@ const JobApplied= () => {
                 </datalist>
               </div>
 
-              {/* Salary */}
-              <div className="filter-item">
-                <label>Expected Salary</label>
-                <input
-                  list="salaryList"
-                  placeholder="Search..."
-                  value={filters.salary}
-                  onChange={(e) => handleFilterChange("salary", e.target.value)}
-                />
-                <datalist id="salaryList">
-                  {unique.salary.map((v) => (
-                    <option key={v} value={v} />
-                  ))}
-                </datalist>
-              </div>
-
               {/* Location */}
               <div className="filter-item">
                 <label>Location</label>
@@ -180,7 +159,7 @@ const JobApplied= () => {
               {/* 🟢 Reset Filters Button */}
               <div className="reset-btn-wrapper">
                 <button className="reset-filters-btn" onClick={resetFilters}>
-                  Reset 
+                  Reset
                 </button>
               </div>
             </div>
@@ -221,14 +200,6 @@ const JobApplied= () => {
               </th>
               <th>
                 <input
-                  list="salaryList"
-                  placeholder="Expected Salary"
-                  value={filters.salary}
-                  onChange={(e) => handleFilterChange("salary", e.target.value)}
-                />
-              </th>
-              <th>
-                <input
                   list="locList"
                   placeholder="Location"
                   value={filters.location}
@@ -254,14 +225,13 @@ const JobApplied= () => {
                 <td>{a.contact}</td>
                 <td>{a.skills}</td>
                 <td>{a.experience}</td>
-                <td>{a.salary}</td>
                 <td>{a.location}</td>
                 <td>{a.doj}</td>
               </tr>
             ))}
             {filteredApplicants.length === 0 && (
               <tr>
-                <td colSpan="8" className="no-data">
+                <td colSpan="7" className="no-data">
                   No applicants found
                 </td>
               </tr>

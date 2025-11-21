@@ -20,7 +20,7 @@ import AdminSidebarLayout from "./Components/Admin/AdminSidebarLayout.jsx";
 import AdminDashboard from "./Components/Admin/AdminDashboard.jsx";
 import AdminEmployees from "./Components/Admin/AdminEmployees.jsx";
 import AdminProjects from "./Components/Admin/AdminProjects.jsx";
-import AdminCareer from "./Components/Admin/AdminCareers.jsx";
+import AdminCarrier from "./Components/Admin/AdminCarrier.jsx";
 import AdminCarrier1 from "./Components/Admin/AdminCarrier1.jsx";
 import AdminJobform from "./Components/Admin/AdminJobform.jsx";
 import AdminJobApplicants from "./Components/Admin/AdminJobApplicants.jsx";
@@ -228,7 +228,7 @@ const [applicationSubmitted, setApplicationSubmitted] = useState(false);
           <Route path="add-employee" element={<PersonApp />} />
           <Route path="employees" element={<AdminEmployees />} />
           <Route path="employees/:id" element={<EmployeeDetails />} />
-          <Route path="careers" element={<AdminCareer />} />
+          <Route path="careers" element={<AdminCarrier />} />
           <Route path="jobform" element={<AdminJobform />} />
           <Route path="carriers1" element={<AdminCarrier1 />} />
           <Route path="jobapplicants" element={<AdminJobApplicants />} />
