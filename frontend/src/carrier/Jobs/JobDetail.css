@@ -239,3 +239,10 @@
 .save-btn:hover {
   background-color: #2e8939;
  }
+
+ 
+.apply-by {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 0;
+}

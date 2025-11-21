@@ -18,7 +18,19 @@ const HeroSection = () => {
           We are giving the best IT solutions so far and one of the best IT
           solutions ever we have the best team to make every idea possible.
         </p>
-        <button className="apply-btn"  onClick={() => navigate("/carrier/jobs")}>Apply Now →</button>
+        <button 
+          className="apply-btn"
+          onClick={() => {
+            const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+            if (isLoggedIn) {
+              navigate("/carrier/jobs");
+            } else {
+              navigate("/carrier/login");  // redirect to login
+            }
+          }}
+        >
+          Apply Now →
+        </button>
       </div>
 
       <div className="hero-image">

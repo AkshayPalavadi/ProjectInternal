@@ -250,6 +250,7 @@ const JobDetail = () => {
 
           {/* ✅ Apply + Save Button Added here */}
           <div className="header-actions">
+            <p className="apply-by">Apply By: 30-11-2025</p>
             <button className="apply-btn" onClick={handleApply}>Apply now</button>
 
             <button className="save-btn" onClick={handleSave}>

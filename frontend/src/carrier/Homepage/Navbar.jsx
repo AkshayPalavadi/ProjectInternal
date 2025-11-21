@@ -96,9 +96,19 @@ const Navbar = ({ scrollToAbout, scrollToJobs, scrollToSubscribe }) => {
       </div>
 
       <ul className="nav-links">
-        <li>
-          <Link to={"/carrier/jobs"}>Careers</Link>
+       <li>
+          {isLoggedIn ? (
+            <Link to={"/carrier/jobs"}>Careers</Link>
+          ) : (
+            <span
+              className="disabled-link-nav"
+              onClick={() => navigate("/carrier/login")}
+            >
+              Careers
+            </span>
+          )}
         </li>
+
         <li onClick={scrollToAbout}>What we do</li>
         <li onClick={scrollToSubscribe}>Join Talent Network</li>
 

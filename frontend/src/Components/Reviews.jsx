@@ -123,42 +123,19 @@ export default function Reviews({ task, tasks, setTasks }) {
       <div style={{ marginTop: 12 }}>
         {(task.comments || []).map((c, idx) => {
           const isEditing = editState && editState.cIndex === idx;
-
           return (
             <div
               key={c._id || `${idx}`}
               className={`reviews-comment-chat-bubble ${c.author === "Manager" ? "left" : "right"}`}
               style={{ marginBottom: 8 }}
             >
-              {isEditing ? (
-                <div className="reviews-edit-section">
-                  <input
-                    type="text"
-                    value={editText}
-                    onChange={(e) => setEditText(e.target.value)}
-                    style={{ minWidth: 200 }}
-                  />
-                  <button onClick={saveEdit} disabled={!editText.trim()} style={{ marginLeft: 6 }}>
-                    💾
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="reviews-chat-text">{c.text}</div>
-                  <div className="reviews-comment-chat-footer">
-                    <span className="reviews-comment-chat-time">
-                      {new Date(c.timestamp).toLocaleString()}
-                      {c.edited && " (edited)"}
-                    </span>
-                    {/* {canModifyComment(c) && (
-                      <div className="reviews-comment-chat-buttons">
-                        <button onClick={() => startEdit(idx)} title="Edit"><BiEdit /></button>
-                        <button onClick={() => deleteComment(idx)} title="Delete"><RiDeleteBinLine /></button>
-                      </div>
-                    )} */}
-                  </div>
-                </>
-              )}
+            <div className="reviews-chat-text">{c.text}</div>
+              <div className="reviews-comment-chat-footer">
+                <span className="reviews-comment-chat-time">
+                  {new Date(c.timestamp).toLocaleString()}
+                  {c.edited && " (edited)"}
+                </span>
+              </div>
             </div>
           );
         })}

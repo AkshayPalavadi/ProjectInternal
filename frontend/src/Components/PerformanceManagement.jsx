@@ -298,33 +298,33 @@ const [selectedYear, setSelectedYear] = useState(
 
       {/* FY and Roles */}
       <div className="performancemanagement-role-section">
-        <div className="performancemanagement-role-card-clock">
-{/* Appraisal Type + FY Selection */}
-<select
-  value={selectedType}
-  onChange={(e) => {
-    setSelectedType(e.target.value);
-    setSelectedYear(
-      e.target.value === "PEA" ? (PEA_list[0] || "") : (YEA_list[0] || "")
-    );
-  }}
-  className="performancemanagement-fy-dropdown"
->
-  {PEA_list.length > 0 && <option value="PEA">Project End Appraisal</option>}
-  {YEA_list.length > 0 && <option value="YEA">Year End Appraisal</option>}
-</select>
+        <div className="performancemanagement-role-card">
+          {/* Appraisal Type + FY Selection */}
+          <select
+            value={selectedType}
+            onChange={(e) => {
+              setSelectedType(e.target.value);
+              setSelectedYear(
+                e.target.value === "PEA" ? (PEA_list[0] || "") : (YEA_list[0] || "")
+              );
+            }}
+            className="performancemanagement-fy-dropdown"
+          >
+            {PEA_list.length > 0 && <option value="PEA">Project End Appraisal</option>}
+            {YEA_list.length > 0 && selectedYear !== PEA_list[0] && <option value="YEA">Year End Appraisal</option>}
+          </select>
 
-<select
-  value={selectedYear}
-  onChange={(e) => setSelectedYear(e.target.value)}
-  className="performancemanagement-fy-dropdown"
->
-  {(selectedType === "PEA" ? PEA_list : YEA_list).map((fy) => (
-    <option key={fy} value={fy}>{fy}</option>
-  ))}
-</select>
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            className="performancemanagement-fy-dropdown"
+          >
+            {(selectedType === "PEA" ? PEA_list : YEA_list).map((fy) => (
+              <option key={fy} value={fy}>{fy}</option>
+            ))}
+          </select>
 
-<p>April - March</p>
+          <p>April - March</p>
         </div>
 
         <div className="performancemanagement-role-card">
