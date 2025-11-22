@@ -1,0 +1,157 @@
+.onhold-container {
+  background: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  font-family: "Inter", sans-serif;
+}
+
+/* Header */
+.onhold-header {
+  display: flex;
+  align-items: center;
+  gap: 16px; 
+  margin-bottom: 18px;
+}
+
+.onhold-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+/* Back button */
+.onhold-back-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #1f2937;
+  transition: all 0.2s;
+}
+
+.onhold-back-btn:hover {
+  background-color: #e5e7eb;
+}
+
+/* Controls */
+.onhold-controls {
+  display: flex;
+  justify-content: space-between; /* search left, filter right */
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* Search bar */
+.onhold-search {
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 6px 10px;
+  width: 240px;
+}
+
+.onhold-search-icon {
+  color: #6b7280;
+  margin-right: 8px;
+}
+
+.onhold-search input {
+  border: none;
+  outline: none;
+  background: transparent;
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+/* Filter dropdown (right side) */
+.onhold-filter-right {
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.onhold-filter-icon {
+  color: #6b7280;
+  margin-right: 6px;
+}
+
+.onhold-filter-right select {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 0.9rem;
+}
+
+/* Table styling */
+.onhold-table-wrapper {
+  overflow-x: auto;
+  margin-top: 16px;
+}
+
+.onhold-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.onhold-table th,
+.onhold-table td {
+  border: 1px solid #e5e7eb;
+  padding: 10px 12px;
+  text-align: left;
+}
+
+.onhold-table th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+.onhold-table tr:hover {
+  background-color: #f9fafb;
+}
+
+.no-data {
+  text-align: center;
+  color: #6b7280;
+  padding: 16px;
+}
+
+/* Footer */
+.onhold-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.onhold-footer p {
+  color: #374151;
+  font-weight: 500;
+}
+
+.onhold-export-btn {
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.onhold-export-btn:hover {
+  background-color: #1d4ed8;
+}
