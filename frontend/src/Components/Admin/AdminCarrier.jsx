@@ -6,10 +6,18 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+<<<<<<< HEAD
 import { FiPlus, FiMapPin, FiClock, FiBriefcase } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import "./AdminCarrier.css";
 import AdminJobform from "./AdminJobform";
+=======
+import { FiPlus } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
+import "./AdminCarrier.css";
+import AdminJobform from "./AdminJobform";
+import { onHoldApplicants } from "../../data";
+>>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
 
 const AdminCarrier = () => {
   const navigate = useNavigate();
@@ -22,7 +30,11 @@ const AdminCarrier = () => {
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
   ];
 
+<<<<<<< HEAD
   // ✅ Initial chart data
+=======
+  // ✅ Chart data
+>>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
   const [appliedData, setAppliedData] = useState([
     { month: "Jan", applied: 1 },
     { month: "Feb", applied: 2 },
@@ -31,9 +43,15 @@ const AdminCarrier = () => {
     { month: "May", applied: 1 },
     { month: "Jun", applied: 2 },
     { month: "Jul", applied: 1 },
+<<<<<<< HEAD
     { month: "Aug", applied: 1 },
     { month: "Sep", applied: 2 },
     { month: "Oct", applied: 4 },
+=======
+    { month: "Aug", applied: 2 },
+    { month: "Sep", applied: 2 },
+    { month: "Oct", applied: 3 },
+>>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
   ]);
 
   const [viewData, setViewData] = useState([
@@ -71,14 +89,21 @@ const AdminCarrier = () => {
     });
   };
 
+<<<<<<< HEAD
   // ✅ Run once on mount + daily check
+=======
+>>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
   useEffect(() => {
     ensureCurrentMonthData();
     const interval = setInterval(ensureCurrentMonthData, 24 * 60 * 60 * 1000);
     return () => clearInterval(interval);
   }, []);
 
+<<<<<<< HEAD
   // ✅ Show latest month by default
+=======
+  // ✅ Default to last month
+>>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
   useEffect(() => {
     const lastIndex = appliedData.length - 1;
     setSelectedMonthIndex(lastIndex);
@@ -199,6 +224,7 @@ const AdminCarrier = () => {
   const totalApplied = appliedData
     .slice(0, selectedIndex + 1)
     .reduce((sum, item) => sum + item.applied, 0);
+<<<<<<< HEAD
   const onHold = Math.floor(6);
   const hired = Math.floor(6 + Math.random());
   const percentageChange =
@@ -210,6 +236,10 @@ const AdminCarrier = () => {
           100
         ).toFixed(0)
       : "+0";
+=======
+  const onHold = onHoldApplicants.length;
+  const hired = Math.floor(6 + Math.random());
+>>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
 
   const getDaysAgo = (postedDate) => {
     const now = new Date();
@@ -225,11 +255,24 @@ const AdminCarrier = () => {
         </div>
       ) : (
         <>
+<<<<<<< HEAD
           {/* ===== Summary ===== */}
           <div className="carriers-summary">
             <div
               className="summary-card clickable"
               onClick={() => navigate("/admin/jobApplicants")}
+=======
+          {/* ===== Summary Section ===== */}
+          <div className="carriers-summary">
+            {/* ✅ Send selectedMonth to JobApplicants page */}
+            <div
+              className="summary-card clickable"
+              onClick={() =>
+                navigate("/admin/jobApplicants", {
+                  state: { selectedMonth, totalJobs:true },
+                })
+              }
+>>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
             >
               <h4>Total Applied Jobs</h4>
               <p>{totalApplied}</p>
@@ -237,7 +280,15 @@ const AdminCarrier = () => {
 
             <div
               className="summary-card clickable"
+<<<<<<< HEAD
               onClick={() => navigate("/admin/JobApplied")}
+=======
+              onClick={() =>
+                navigate("/admin/monthjobs", {
+                  state: { selectedMonth },
+                })
+              }
+>>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
             >
               <h4>
                 Monthly Total Applicants
@@ -248,9 +299,13 @@ const AdminCarrier = () => {
                   </span>
                 )}
               </h4>
+<<<<<<< HEAD
               <p>
                 Applied: {appliedToShow}
               </p>
+=======
+              <p>Applied: {appliedToShow}</p>
+>>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
             </div>
 
             <div
@@ -260,9 +315,16 @@ const AdminCarrier = () => {
               <h4>On Hold</h4>
               <p>{onHold}</p>
             </div>
+<<<<<<< HEAD
             <div
               onClick={() => navigate("/admin/hired")}
               className="summary-card"
+=======
+
+            <div
+              className="summary-card clickable"
+              onClick={() => navigate("/admin/hired")}
+>>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
             >
               <h4>Hired</h4>
               <p>{hired}</p>
@@ -301,7 +363,10 @@ const AdminCarrier = () => {
                     onClick={(data, index) => {
                       setSelectedMonthIndex(index);
                       setSelectedMonth(data.month);
+<<<<<<< HEAD
                       setActiveStatTab("applied");
+=======
+>>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
                     }}
                   />
                 ) : (
@@ -315,7 +380,14 @@ const AdminCarrier = () => {
           <div className="current-openings">
             <div className="openings-header">
               <h3>Current Openings</h3>
+<<<<<<< HEAD
               <button className="post-job-btn" onClick={() => setShowJobForm(true)}>
+=======
+              <button
+                className="post-job-btn"
+                onClick={() => setShowJobForm(true)}
+              >
+>>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
                 <FiPlus /> Post New Job
               </button>
             </div>

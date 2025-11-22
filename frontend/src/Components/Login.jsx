@@ -11,11 +11,11 @@ function Login({ setIsLoggedIn, setUserRole }) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
   // ✅ Keep user logged in if token exists
   useEffect(() => {
     const token = localStorage.getItem("token");
-    // const storedRole = localStorage.getItem("userRole");
-    const storedRole = "admin";
+    const storedRole = localStorage.getItem("userRole");
     if (token && storedRole) {
       setIsLoggedIn(true);
       setUserRole(storedRole);
@@ -55,14 +55,11 @@ function Login({ setIsLoggedIn, setUserRole }) {
           localStorage.setItem("employeeName", `${user.firstName} ${user.lastName}`);
           localStorage.setItem("userEmail", user.email);
           localStorage.setItem("userRole", user.role);
-          localStorage.setItem("mustFillPersonalDetails", result.mustFillPersonalDetails);
+                    localStorage.setItem("mustFillPersonalDetails", result.mustFillPersonalDetails);
 localStorage.setItem("mustFillEducationDetails", result.mustFillEducationDetails);
 localStorage.setItem("mustFillProfessionalDetails", result.mustFillProfessionalDetails);
- 
           setIsLoggedIn(true);
           setUserRole(user.role);
-          window.location.reload(); // force React to reload fresh state
-
 
           // Step 3: Fetch Full Employee Details to get employeeId & experience
           try {
