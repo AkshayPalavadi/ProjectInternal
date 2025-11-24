@@ -26,11 +26,6 @@ const FilterSidebar = ({ updateFilters }) => {
     }));
   };
 
-  const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
-    handleUpdate("searchTerm", e.target.value);
-  };
-
   const handleCheckboxChange = (e, list, setList, key) => {
     const { checked, value } = e.target;
     const updatedList = checked
@@ -39,17 +34,6 @@ const FilterSidebar = ({ updateFilters }) => {
 
     setList(updatedList);
     handleUpdate(key, updatedList);
-  };
-
-  const handleEducationChange = (e) => {
-    setEducation(e.target.value);
-    handleUpdate("education", e.target.value); 
-  };
-
-  const handleSalaryChange = (e) => {
-    const value = Number(e.target.value);
-    setSalaryRange(value);
-    handleUpdate("salaryRange", value);
   };
 
   const clearFilters = () => {
@@ -66,7 +50,7 @@ const FilterSidebar = ({ updateFilters }) => {
       jobTypes: [],
       experiences: [],
       education: "All",
-      salaryRange:150000
+      salaryRange: 150000,
     });
   };
 
@@ -77,10 +61,13 @@ const FilterSidebar = ({ updateFilters }) => {
         <h3><FaSearch className="filter-icon-fs" /> Search</h3>
         <input
           type="text"
+          value={searchTerm}
           placeholder="Search by job title..."
           className="search-input-fs"
-          value={searchTerm}
-          onChange={handleSearchChange}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            handleUpdate("searchTerm", e.target.value);
+          }}
         />
       </div>
 
@@ -89,6 +76,8 @@ const FilterSidebar = ({ updateFilters }) => {
         <h3><FaMapMarkerAlt className="filter-icon-fs" /> Location</h3>
 
         <Select
+          isMulti
+          placeholder="Select cities..."
           options={[
             { value: "Hyderabad", label: "Hyderabad" },
             { value: "Chennai", label: "Chennai" },
@@ -98,15 +87,11 @@ const FilterSidebar = ({ updateFilters }) => {
             { value: "Delhi", label: "Delhi" },
           ]}
           value={location.map((loc) => ({ value: loc, label: loc }))}
-          onChange={(selectedOptions) => {
-            const values = selectedOptions ? selectedOptions.map((o) => o.value) : [];
+          onChange={(opts) => {
+            const values = opts ? opts.map((o) => o.value) : [];
             setLocation(values);
             handleUpdate("locations", values);
           }}
-          isMulti
-          isSearchable
-          placeholder="Select cities..."
-          className="react-select-location"
         />
       </div>
 
@@ -132,21 +117,22 @@ const FilterSidebar = ({ updateFilters }) => {
 
       {/* Experience */}
       <div className="filter-section-fs">
-        <h3><FaUserTie className="filter-icon-fs" /> Experience Level</h3>
+        <h3><FaUserTie className="filter-icon-fs" /> Experience</h3>
         <ul>
-          {["Fresher", "1 Years", "2 Years", "3 Years", "4 Years", "5+ Years"].map((exp) => (
+          {[
+            "Fresher",
+            "1-2 Years",
+            "2-4 Years",
+            "4-6 Years",
+            "6+ Years",
+          ].map((exp) => (
             <li key={exp}>
               <input
                 type="checkbox"
                 value={exp}
                 checked={experiences.includes(exp)}
                 onChange={(e) =>
-                  handleCheckboxChange(
-                    e,
-                    experiences,
-                    setExperiences,
-                    "experiences"
-                  )
+                  handleCheckboxChange(e, experiences, setExperiences, "experiences")
                 }
               />
               {exp}
@@ -161,7 +147,10 @@ const FilterSidebar = ({ updateFilters }) => {
         <select
           className="dropdown-fs"
           value={education}
-          onChange={handleEducationChange}
+          onChange={(e) => {
+            setEducation(e.target.value);
+            handleUpdate("education", e.target.value);
+          }}
         >
           <option value="All">All</option>
           <option value="B.Tech">B.Tech</option>
@@ -172,20 +161,23 @@ const FilterSidebar = ({ updateFilters }) => {
       </div>
 
       {/* Salary */}
-      <div className="filter-section-fs-fs">
+      <div className="filter-section-fs">
         <h3>
           <FaRupeeSign className="filter-icon-fs" /> 
           Min Salary: {salaryRange >= 500000 ? "₹5,00,000+" : `₹${salaryRange.toLocaleString()}`}
         </h3>
 
         <input
-          className="slider"
           type="range"
+          className="slider"
           min="150000"
           max="500000"
           step="50000"
           value={salaryRange}
-          onChange={handleSalaryChange}
+          onChange={(e) => {
+            setSalaryRange(Number(e.target.value));
+            handleUpdate("salaryRange", Number(e.target.value));
+          }}
         />
       </div>
 
