@@ -1,8 +1,8 @@
 /* ===== Container ===== */
 .adminjobform-job-form-container {
-  max-width: 900px;
+  max-width: 1200px;
   margin: 40px auto;
-  padding: 30px 40px;
+  padding: 20px 30px;
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
@@ -15,9 +15,11 @@
   text-align: center;
   font-size: 28px;
   font-weight: 600;
-  margin-bottom: 30px;
+  margin-bottom: 5px;
   color: #111827;
 }
+
+
 
 /* ===== Form Grid ===== */
 .adminjobform-form-grid {
@@ -145,4 +147,68 @@
   0% { transform: translate(-50%, -60%) scale(0.8); opacity: 0; }
   100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
+.chips-container.column {
+  display: flex;
+  flex-direction: column;   /* <-- one per row */
+  /* gap: 0px; */
+}
+/* ===== Chips Container (side by side) ===== */
+.chips-container {
+  display: flex;
+  flex-wrap: wrap;      /* allow chips to go side-by-side */
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
 
+/* Each chip style */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background-color: #f3f4f6;
+  border-radius: 20px;
+  font-size: 14px;
+  color: #111827;
+  white-space: nowrap;   /* keep text in one line */
+  border: 1px solid #d1d5db;
+}
+
+/* Remove button inside chip */
+.remove-chip {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
+  color: #6b7280;
+}
+
+.remove-chip:hover {
+  color: #dc3545;
+}
+
+/* Input + Add button wrapper */
+.input-add-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Add button style */
+.add-btn {
+  padding: 8px 16px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.add-btn:hover {
+  background-color: #1d4ed8;
+}

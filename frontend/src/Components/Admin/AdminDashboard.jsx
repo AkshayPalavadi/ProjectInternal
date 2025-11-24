@@ -1,6 +1,7 @@
-// AdminDashboard.jsx
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import "./AdminDashboard.css";
+import axios from "axios";
+
 import {
   FiSearch,
   FiBell,
@@ -11,7 +12,7 @@ import {
   FiPlus,
   FiEdit2,
 } from "react-icons/fi";
-import {
+ import {
   PieChart,
   Pie,
   Cell,
@@ -62,11 +63,11 @@ export default function AdminDashboard() {
     { id: "E003", name: "Tataji", role: "frontend", attendance: 72 },
     { id: "E004", name: "Rohith", role: "backend", attendance: 85 },
     { id: "E005", name: "Vignesh", role: "frontend", attendance: 95 },
-    { id: "E006", name: "Arjun Kumar", role: "frontend", attendance: 88 },
-    { id: "E007", name: "Suma Rao", role: "backend", attendance: 82 },
-    { id: "E008", name: "Neha Patel", role: "frontend", attendance: 76 },
-    { id: "E009", name: "Kiran Reddy", role: "backend", attendance: 79 },
-    { id: "E010", name: "Priya Sharma", role: "frontend", attendance: 92 },
+    { id: "E006", name: "Balaji", role: "frontend", attendance: 88 },
+    { id: "E007", name: "Karthik", role: "backend", attendance: 82 },
+    { id: "E008", name: "Akashay", role: "frontend", attendance: 76 },
+    { id: "E009", name: "Guru", role: "backend", attendance: 79 },
+    { id: "E010", name: "Devi", role: "UI/UX", attendance: 92 },
     // add more as needed...
   ];
 
@@ -148,6 +149,7 @@ export default function AdminDashboard() {
     if (attendanceMonth > current) {
       setAttendanceMonth(current);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ---------- COMPANY MONTHLY ATTENDANCE (derived) ----------
@@ -212,6 +214,7 @@ export default function AdminDashboard() {
   // default selectedDev will be overwritten when user selects an employee
   const [selectedDev, setSelectedDev] = useState("frontend");
   const [selectedCourse, setSelectedCourse] = useState("");
+  
 
   // When user selects employee, auto-set dev type and clear course
   useEffect(() => {
@@ -435,13 +438,13 @@ export default function AdminDashboard() {
   const monthOptions = monthNames.map((m, i) => ({ label: m, value: i, disabled: i > currentMonthIndex }));
 
   return (
-    <div className="admindashboard-dashboard-wrap">
+    <div className="dashboard-wrap">
       {/* HEADER */}
-      <header className="admindashboard-header">
+      <header className="header">
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <h2>Company Dashboard</h2>
 
-          <div className="admindashboard-search" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div className="search" style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <FiSearch color="currentColor" />
             <input
               placeholder="Search by full name or ID and press Enter..."
@@ -455,7 +458,7 @@ export default function AdminDashboard() {
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           {/* Theme toggle */}
           <button
-            className="admindashboard-mode-toggle"
+            className="mode-toggle"
             onClick={() => setDarkMode((prev) => !prev)}
             aria-label="Toggle theme"
             title={darkMode ? "Switch to light" : "Switch to dark"}
@@ -466,24 +469,30 @@ export default function AdminDashboard() {
       </header>
 
       {/* STATS GRID */}
-      <section className="admindashboard-stats-grid">
-        <div className="admindashboard-card">
-          <div className="admindashboard-small">Total Employees</div>
-          <div className="admindashboard-big">{stats.totalEmployees}</div>
+      <section className="stats-grid">
+        <div className="card">
+          <div className="small">Total Employees</div>
+          <div className="big">{stats.totalEmployees}</div>
+          {/* <button className="btn-update" onClick={handleUpdateEmployees}>Add / Update</button> */}
+          <div className="footer-note" style={{ marginTop: 8 }}>
+            {stats.employeesAdded > 0 ? `${stats.employeesAdded} new employees added` : "No new employees"}
+          </div>
         </div>
 
-        <div className="admindashboard-card">
-          <div className="admindashboard-small">Job Applied</div>
-          <div className="admindashboard-big">{stats.jobApplied}</div>
+        <div className="card">
+          <div className="small">Job Applied</div>
+          <div className="big">{stats.jobApplied}</div>
+          <div className="footer-note">+22.0%</div>
         </div>
 
-        <div className="admindashboard-card">
-          <div className="admindashboard-small">Leave Request</div>
-          <div className="admindashboard-big">{stats.leaveRequests}</div>
+        <div className="card">
+          <div className="small">Leave Request</div>
+          <div className="big">{stats.leaveRequests}</div>
+          <div className="footer-note">+12.0%</div>
         </div>
 
-        <div className="admindashboard-card upcoming-events">
-          <div className="admindashboard-small">Upcoming Tasks & Events</div>
+        <div className="card upcoming-events">
+          <div className="small">Upcoming Tasks & Events</div>
           <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
             {(stats.tasks || []).slice(0, 5).map((t, i) => (
               <li key={i} style={{ fontSize: 13 }}>{t}</li>
@@ -493,28 +502,28 @@ export default function AdminDashboard() {
       </section>
 
       {/* MAIN GRID */}
-      <div className="admindashboard-main-grid">
+      <div className="main-grid">
         <div style={{ display: "grid", gridTemplateRows: "auto auto", gap: 18 }}>
           {/* PENDING ACTIONS */}
-          <div className="admindashboard-card pending">
+          <div className="card pending">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div className="admindashboard-title" style={{ fontWeight: 700 }}>Pending Actions</div>
+                <div className="title" style={{ fontWeight: 700 }}>Pending Actions</div>
               </div>
 
               {/* Notification bell moved next to Pending Actions per request */}
               <div style={{ position: "relative" }}>
                 <div
-                  className="admindashboard-notification-icon"
+                  className="notification-icon"
                   onClick={() => setShowNotifications((s) => !s)}
                   style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
                 >
                   <FiBell />
-                  <span className="admindashboard-badge">{notifications.length}</span>
+                  <span className="badge">{notifications.length}</span>
                 </div>
 
                 {showNotifications && (
-                  <div className="admindashboard-notification-dropdown">
+                  <div className="notification-dropdown">
                     {notifications.map((g, i) => (
                       <div key={i} style={{ marginBottom: 8 }}>
                         <strong>{g.icon} {g.title}</strong>
@@ -530,7 +539,7 @@ export default function AdminDashboard() {
 
             <div style={{ marginTop: 12 }}>
               {pending.map((p) => (
-                <div key={p.id} className="admindashboard-btn" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
+                <div key={p.id} className="btn" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <FiClock />
                     <div>
@@ -547,7 +556,7 @@ export default function AdminDashboard() {
           {/* Widgets - Attendance & Training */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
             {/* Attendance */}
-            <div className="admindashboard-widget card" ref={chartsRef}>
+            <div className="widget card" ref={chartsRef}>
               <h4 style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span>
                   Monthly Attendance Overview
@@ -617,7 +626,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Training & Dev */}
-            <div className="admindashboard-widget card">
+            <div className="widget card">
               <h4 style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <span>
                   Training and Development — {monthNames[attendanceMonth]}
@@ -685,20 +694,20 @@ export default function AdminDashboard() {
         </div>
 
         {/* CALENDAR / REMINDERS (right column) */}
-        <aside>
-          <div className="admindashboard-calendar-card card" style={{ padding: 16 }}>
+        {/* <aside> */}
+          <div className="calendar-card card" style={{ padding: 16 }}>
             {/* Reminders Title */}
-            <h3 className="admindashboard-reminder-heading" style={{ marginBottom: 10 }}>Reminders</h3>
+            <h3 className="reminder-heading" style={{ marginBottom: 10 }}>Reminders</h3>
 
             {/* Month Navigation */}
-            <div className="admindashboard-calendar-nav" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <button className="admindashboard-cal-btn" onClick={prevMonth} aria-label="Previous month">◀</button>
+            <div className="calendar-nav" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <button className="cal-btn" onClick={prevMonth} aria-label="Previous month">◀</button>
               <div style={{ fontWeight: 700 }}>{monthNames[calMonth]} {calYear}</div>
-              <button className="admindashboard-cal-btn" onClick={nextMonth} aria-label="Next month">▶</button>
+              <button className="cal-btn" onClick={nextMonth} aria-label="Next month">▶</button>
             </div>
 
             {/* Calendar Table */}
-            <table className="admindashboard-calendar-table" style={{ width: "100%", borderCollapse: "collapse" }}>
+            <table className="calendar-table" style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
                   {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
@@ -735,9 +744,10 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
-        </aside>
+        {/* </aside> */}
       </div>
 
     </div>
   );
 }
+
