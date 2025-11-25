@@ -20,8 +20,8 @@
   border-radius: 12px;
   padding: 20px 25px;
   flex: 1;
-  min-width: 150px;
-  box-shadow: 0 px 2px 8px rgba(0, 0, 0, 0.08);
+  min-width: 200px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
 }
@@ -35,7 +35,7 @@
   font-size: 16px;
   color: #374151;
   margin-bottom: 1px;
-  margin-left: 0px;
+  margin-left: 0;
 }
 
 .summary-card p {
@@ -232,4 +232,3 @@
     align-items: flex-start;
   }
 }
-

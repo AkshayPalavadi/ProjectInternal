@@ -1,0 +1,152 @@
+/* =======================================
+   Professional Table Design for Hired.jsx
+   ======================================= */
+
+.hired-container {
+  min-height: 100vh;
+  background: #f8fafc;
+  padding: 2rem 3rem;
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #1e293b;
+}
+
+/* Header */
+.hired-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.75rem;
+}
+
+.hired-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.icon-btn {
+  background: #f1f5f9;
+  border: none;
+  color: #475569;
+  padding: 0.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.25rem;
+}
+
+.icon-btn:hover {
+  background: #e2e8f0;
+  color: #1e293b;
+}
+
+/* Card container */
+.hired-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+  border: 1px solid #e2e8f0;
+}
+
+/* Table styling */
+.hired-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.hired-table thead {
+  background-color: #f8fafc;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.hired-table th,
+.hired-table td {
+  padding: 0.9rem 1.25rem;
+  white-space: nowrap;
+}
+
+.hired-table th {
+  font-weight: 600;
+  color: #475569;
+}
+
+.hired-table tbody tr {
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s ease;
+}
+
+.hired-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Checkbox styling */
+.hired-table input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #2563eb;
+  cursor: pointer;
+}
+
+/* Selected row */
+.selected-row {
+  background-color: #eff6ff !important;
+  box-shadow: inset 2px 0 0 #2563eb;
+}
+
+/* DOJ text formatting */
+.doj {
+  color: #334155;
+  font-weight: 500;
+}
+
+/* Footer */
+.hired-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.export-btn {
+  display: flex;
+  align-items: center;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: 0.95rem;
+  box-shadow: 0 3px 6px rgba(37, 99, 235, 0.25);
+  transition: all 0.2s ease;
+}
+
+.export-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .hired-container {
+    padding: 1.25rem;
+  }
+
+  .hired-title {
+    font-size: 1.5rem;
+  }
+
+  .hired-table th,
+  .hired-table td {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+  }
+
+  .export-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

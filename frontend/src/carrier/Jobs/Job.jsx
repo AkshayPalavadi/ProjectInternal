@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import Header from "../carriercomponents/Header";
 import FilterSidebar from "../carriercomponents/FilterSidebar";
 import JobList from "./JobList";
-import "./Job.css"; // make sure you have layout styling
+import "./Job.css"; // contains .jobs-container CSS
+import Header from "../carriercomponents/Header";
 
 const Job = () => {
   const [filters, setFilters] = useState({
@@ -10,18 +10,20 @@ const Job = () => {
     locations: [],
     jobTypes: [],
     experiences: [],
-    education: [],
-    maxSalary: 0,
+    education: "All",
+    salaryRange: 150000,
   });
 
   return (
     <div>
-      <Header />
-      <div className="main-container-job">
-        {/* ✅ One single FilterSidebar */}
-        <FilterSidebar updateFilters={setFilters} />
+      {/* ⭐ Header Added */}
+      <header >
+        <Header/>
+      </header>
 
-        {/* ✅ JobList gets filters */}
+      {/* Main Layout */}
+      <div className="jobs-container">
+        <FilterSidebar updateFilters={setFilters} />
         <JobList filters={filters} />
       </div>
     </div>

@@ -16,10 +16,11 @@ function AdminSidebarLayout() {
     // { name: "Home", path: "/admin/home"},
     { name: "Dashboard", path: "/admin/dashboard" },
     { name: "Employees", path: "/admin/employees" },
-    { name: "Careers", path: "/admin/careers" },
+    { name: "Carrier", path: "/admin/Carriers" },
+    { name: "Training and Development", path: "/admin/TrainingandDevelopment" },
     { name: "Projects", path: "/admin/projects" },
     { name: "Reports", path: "/admin/reports" },
-    { name: "Leaves & Attendance", path: "/admin/leavesAdmin" }
+    { name: "Leaves", path: "/admin/leavesAdmin" }
   ];
 
   // ---------- PHOTO ----------
@@ -54,28 +55,11 @@ function AdminSidebarLayout() {
     setEditingName(false);
   };
 
-const handleLogout = () => {
-  // 🔹 Mark as logged out
-  localStorage.setItem("hasLoggedOut", "true");
-
-  // 🔹 Clear login-related data
-  localStorage.removeItem("isLoggedIn");
-  localStorage.removeItem("userRole");
-  localStorage.removeItem("employeeEmail");
-  localStorage.removeItem("employeeName");
-  localStorage.removeItem("employeeRole");
-  localStorage.removeItem("employeeId");
-
-  // (Optional) If you want to also forget the remembered user, uncomment:
-  // localStorage.removeItem("rememberedUser");
-
-  // 🔹 Redirect to login
-  navigate("/login", { replace: true });
-
-  // 🔹 Force a reload so App re-renders in logged-out state
-  window.location.reload();
-};
-
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userRole");
+    navigate("/login");
+  };
 
   return (
     <div className="admin-layout">
@@ -132,7 +116,7 @@ const handleLogout = () => {
               <Link to={item.path}>{item.name}</Link>
             </li>
           ))}
-        </ul>
+         </ul>
 
         {/* Logout */}
         <button className="logout-btn" onClick={handleLogout}>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* MAIN CONTAINER */
 .applicants-container {
   width: 100%;
@@ -111,3 +112,168 @@
   font-size: 20px;
   cursor: pointer;
 }
+=======
+/* ===========================================
+   Job Applicants Page — Senior Dashboard Styling
+   Matches AdminCarrier.css
+   =========================================== */
+
+:root {
+  --bg: #f9fafb;
+  --bg-card: #ffffff;
+  --text: #111827;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --accent: #7c3aed;
+  --accent-hover: #6d28d9;
+  --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  --radius: 14px;
+}
+
+/* ===== Container ===== */
+.applicants-container {
+  padding: 2rem;
+  background: var(--bg);
+  min-height: 100vh;
+}
+
+/* ===== Back Button ===== */
+.back-btn {
+  background: transparent;
+  border: none;
+  color: var(--accent);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 1rem;
+  transition: color 0.3s ease;
+}
+.back-btn:hover {
+  color: var(--accent-hover);
+}
+
+/* ===== Header ===== */
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.header-section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text);
+}
+.settings-icon {
+  font-size: 1.4rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+.settings-icon:hover {
+  color: var(--accent);
+}
+
+/* ===== Search Bar ===== */
+.search-bar {
+  display: flex;
+  align-items: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0.5rem 0.8rem;
+  margin-bottom: 1.5rem;
+  max-width: 400px;
+}
+.search-bar input {
+  border: none;
+  outline: none;
+  width: 100%;
+  margin-left: 0.5rem;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+.search-icon {
+  font-size: 1.2rem;
+  color: var(--text-muted);
+}
+
+/* ===== Table Wrapper ===== */
+.table-wrapper {
+  overflow-x: auto;
+}
+.applicants-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.applicants-table th,
+.applicants-table td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  font-size: 0.95rem;
+  border-bottom: 1px solid var(--border);
+}
+.applicants-table th {
+  background: var(--bg);
+  color: var(--text);
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  cursor: pointer;
+}
+.applicants-table th.sortable:hover {
+  color: var(--accent);
+}
+.applicants-table tr:hover {
+  background: #f1f5ff;
+  transition: background 0.3s ease;
+}
+.selected-row {
+  background: rgba(124, 58, 237, 0.08) !important;
+}
+
+/* ===== Export Button ===== */
+.export-btn-container {
+  margin-top: 1.5rem;
+  text-align: right;
+}
+.export-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 0.6rem 1.5rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.export-btn:hover {
+  background: var(--accent-hover);
+  transform: translateY(-2px);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .search-bar {
+    max-width: 100%;
+  }
+
+  .applicants-table th,
+  .applicants-table td {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+  }
+
+  .export-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+>>>>>>> 0b40a69e161d35125ae11544ef3d22f36faae9a6

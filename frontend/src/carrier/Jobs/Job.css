@@ -1,6 +1,16 @@
-.main-container-job {
+.jobs-container {
   display: flex;
-  /* gap: 20px;
-  padding: 20px; */
+  align-items: flex-start;
+  gap: 20px;
+  padding: 20px;
 }
 
+/* Sidebar must have a fixed width */
+.sidebar-fs {
+  width: 280px;
+}
+
+/* Joblist takes remaining horizontal space */
+.joblist {
+  flex: 1;
+}

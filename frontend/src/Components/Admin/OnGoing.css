@@ -1,0 +1,282 @@
+
+/* 🌟 On-Going Trainings Page Styling */
+.ongoing-container {
+  font-family: "Poppins", sans-serif;
+  padding: 40px;
+  max-width: 1200px;
+  margin: 30px auto;
+  color: #222;
+  background-color: #f9fafb;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+/* Title */
+.title {
+  text-align: center;
+  color: #1e293b;
+  margin-bottom: 35px;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+/* 🔍 Filter Icon Section */
+.search-section-ongoing {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.filter-box-ongoing {
+  position: relative;
+}
+
+.filter-icon-ongoing {
+  font-size: 22px;
+  color: #475569;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.filter-icon-ongoing:hover {
+  color: #2563eb;
+  transform: scale(1.1);
+}
+
+/* 🎯 Dropdown Filter Box */
+.filter-dropdown-ongoing {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: #fff;
+  width: 240px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  padding: 16px;
+  z-index: 100;
+  animation: fadeIn 0.25s ease;
+}
+
+.filter-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 8px;
+  color: #1e3a8a;
+}
+
+.filter-option {
+  
+  display: flex;
+  /* justify-content: space-between; ✅ name left, checkbox right */
+  align-items: center;
+  font-size: 14px;
+  color: #334155;
+  background: #f8fafc;
+  padding: 5px 8px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  transition: 0.2s;
+  
+  
+}
+
+.filter-option:hover {
+  background: #e0e7ff;
+}
+
+.filter-option input {
+  accent-color: #2563eb;
+  cursor: pointer;
+  max-width: 20px;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #e2e8f0;
+  margin: 10px 0;
+}
+
+.clear-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: 500;
+  width: 100%;
+  transition: 0.3s;
+}
+
+.clear-btn:hover {
+  background: #1e40af;
+}
+
+/* 📊 Table Styling */
+.table-wrapper {
+  overflow-x: auto;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.training-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 15px;
+  color: #1e293b;
+}
+
+/* ✅ Table Header with Inline Search */
+.training-table th {
+  background: #2563eb;
+  color: white;
+  padding: 10px 12px;
+  font-size: 15px;
+  text-transform: capitalize;
+  position: relative;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.training-table th input.column-search {
+  display: inline-block;
+  width: 130px;
+  margin-left: 10px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid #93c5fd;
+  outline: none;
+  font-size: 13px;
+  background: white;
+  color: #1e293b;
+}
+
+.training-table th input.column-search:focus {
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.training-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 14px;
+  color: #334155;
+}
+
+.training-table tr:hover {
+  background: #f1f5f9;
+  transition: 0.25s ease;
+}
+
+/* 📈 Progress Bar */
+.progress-wrapper {
+  position: relative;
+  background: #e5e7eb;
+  border-radius: 8px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  /* flex-direction: row-reverse; */
+  /* justify-content: space-between; */
+ 
+  /* overflow: hidden; */
+}
+
+/* ✅ Progress % Above Bar */
+.progress-wrapper .progress-percentage-text {
+text-align: center;
+  font-size: 12px;
+  color: #1e293b;
+  font-weight: 600;
+  margin-left: auto;
+ 
+}
+
+/* ✅ Base bar styling */
+.progress-bar {
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.4s ease;
+}
+
+/* 🟥 Dynamic progress colors */
+.progress-bar.red {
+  background: linear-gradient(90deg, #f87171, #dc2626);
+}
+
+.progress-bar.yellow {
+  background: linear-gradient(90deg, #facc15, #eab308);
+}
+
+.progress-bar.green {
+  background: linear-gradient(90deg, #4ade80, #16a34a);
+}
+
+/* 📤 Footer Section */
+.onGoing-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 25px;
+  border-top: 1px solid #e2e8f0;
+  padding-top: 15px;
+  font-size: 15px;
+  color: #334155;
+}
+
+.export-btn-ongoing {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 10px 22px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 500;
+  box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
+  transition: 0.3s;
+  margin-left: 200px;
+}
+
+.export-btn-ongoing:hover {
+  background: #1e40af;
+  transform: scale(1.05);
+}
+
+/* 🌀 Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 📱 Responsive */
+@media (max-width: 900px) {
+  .training-table th input.column-search {
+    display: block;
+    width: 100%;
+    margin: 5px 0 0;
+  }
+
+  .onGoing-footer {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+    width: 100px; 
+    color: #dc2626;
+  }
+
+  .filter-dropdown-ongoing {
+    width: 220px;
+  }
+}
+
