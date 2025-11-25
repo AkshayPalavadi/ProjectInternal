@@ -1,0 +1,58 @@
+.offerletter-container {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+  font-family: "Poppins";
+}
+
+.offerletter-card {
+  width: 600px;
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.offerletter-card h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.candidate-name {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.offerletter-content {
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.back-btn {
+  background: #007bff;
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+.btn-area {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.download-btn {
+  padding: 10px 15px;
+  background-color: #28a745;
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s;
+}
+
+.download-btn:hover {
+  background-color: #218838;
+}
