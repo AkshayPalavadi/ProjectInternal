@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
-// ==== Employee Components ====
+// Components
 import SidebarLayout from "./Components/SidebarLayout.jsx";
 import Home from "./Components/Home.jsx";
 import Dashboard from "./Components/Dashboard.jsx";
 import Leaves from "./Components/Leaves.jsx";
 import Login from "./Components/Login.jsx";
+import ResetPassword from "./Components/ResetPassword.jsx";
+import Register from "./Components/Register.jsx";
+import EmployeeReview from "./component/EmployeeReview.jsx";
+import PerformanceManagement from "./Components/PerformanceManagement.jsx";
+import PersonApp from "./component/PersonApp.jsx";
+import TimeSheet from "./Components/TimeSheet.jsx";
+import CarrierApp from "./carrier/carrierapp.jsx";
 
-
-// ==== Admin Components ====
+// Admin Components
 import AdminSidebarLayout from "./Components/Admin/AdminSidebarLayout.jsx";
 import AdminDashboard from "./Components/Admin/AdminDashboard.jsx";
 import AdminEmployees from "./Components/Admin/AdminEmployees.jsx";
@@ -24,20 +30,14 @@ import AdminHiredApplicants from "./Components/Admin/AdminHiredApplicants.jsx";
 import AdminOnHold from "./Components/Admin/AdminOnHold.jsx";
 import AdminReports from "./Components/Admin/AdminReports.jsx";
 import LeavesAdmin from "./Components/Admin/LeavesAdmin.jsx";
-import AdminCarrier from "./Components/Admin/AdminCarrier.jsx";
-import OnHold from "./Components/Admin/OnHold.jsx";
-import JobApplicants from "./Components/Admin/JobApplicants.jsx";
-import Hired from "./Components/Admin/Hired.jsx";
-import TrainingDevelopment from "./Components/Admin/TrainingDevelopment.jsx";
-import OnGoing from "./Components/Admin/OnGoing.jsx";
-import InProgress from "./Components/Admin/InProgress.jsx"; 
-import CompletedTraining from "./Components/Admin/CompletedTraining.jsx";
-import TrainingModule from "./Components/Admin/TrainingModule.jsx"; 
-import CertificatePage from "./Components/Admin/CertificatePage.jsx"; // ✅ Make sure file exists
-import AdminCarrier1 from "./Components/Admin/AdminCarrier1.jsx";
-import TrainingAssignment from "./Components/Admin/TrainingAssignment.jsx";
-import ReportPage from "./Components/Admin/ReportPage.jsx";
-import FreshersTrainingAssignment from "./Components/Admin/FreshersTrainingAssignment.jsx";
+import AttendanceEmp from "./Components/Admin/AttendanceEmp.jsx";
+import LeavesEmp from "./Components/Admin/LeavesEmp.jsx";
+import EmployeeDetails from "./Components/Admin/employee/EmployeeDetails.jsx";
+
+// -----------------------
+// Helpers
+// -----------------------
+
 
 function App() {
    const [mustFill, setMustFill] = useState(false);
@@ -54,10 +54,11 @@ useEffect(() => {
   const totalLeaves = 12;
   const totalDays = 30;
 
+  // -------------------------------
+  // Basic Employee Data
+  // -------------------------------
   const [leavesUsed, setLeavesUsed] = useState(4);
   const [absentDays, setAbsentDays] = useState(4);
-
-  // ===== Employee Data =====
   const [employeeData, setEmployeeData] = useState({
     totalLeaves,
     leavesUsed,
@@ -66,11 +67,13 @@ useEffect(() => {
     projects: [],
   });
 
-  // ===== Sidebar/Profile =====
+  // Sidebar/Profile
   const [userName, setUserName] = useState("User Name");
   const [userPhoto, setUserPhoto] = useState(null);
 
-  // ===== Auth State =====
+  // -------------------------------
+  // Auth State
+  // -------------------------------
   const [isLoggedIn, setIsLoggedIn] = useState(
     () => localStorage.getItem("isLoggedIn") === "true"
   );
@@ -81,33 +84,39 @@ useEffect(() => {
     () => parseInt(localStorage.getItem("employeeId")) || null
   );
 
-  // ===== Admin Employees =====
+  useEffect(() => {
+    localStorage.setItem("isLoggedIn", isLoggedIn);
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    localStorage.setItem("userRole", userRole);
+
+  
+  }, [userRole]);
+
+  // -------------------------------
+  // Admin Data
+  // -------------------------------
   const [adminEmployees] = useState([
     { id: 2, name: "Akshay" },
     { id: 3, name: "Sathvika" },
     { id: 4, name: "Sravani" },
   ]);
 
-  // ===== Admin Projects =====
   const [adminProjects, setAdminProjects] = useState([]);
-
-  // ===== Load projects from localStorage =====
   useEffect(() => {
     const storedProjects = JSON.parse(localStorage.getItem("projects")) || [];
     setAdminProjects(storedProjects);
 
     if (employeeId) {
-      const assignedProjects = storedProjects.filter(
-        (p) => p.assignedEmployees && p.assignedEmployees.includes(employeeId)
+      const assignedProjects = storedProjects.filter((p) =>
+        p.assignedEmployees.includes(employeeId)
       );
       setEmployeeData((prev) => ({ ...prev, projects: assignedProjects }));
     }
   }, [employeeId]);
 
-  // ===== Dark Mode =====
-  const [darkMode, setDarkMode] = useState(
-    () => localStorage.getItem("darkMode") === "true"
-  );
+const [applicationSubmitted, setApplicationSubmitted] = useState(false);
 
   const userEmail = localStorage.getItem("userEmail") || "";
   const getDefaultRoute = () => {
@@ -139,15 +148,17 @@ useEffect(() => {
   return (
     <Router>
       <Routes>
-        {/* ==== LOGIN ==== */}
+        {/* Login */}
         <Route
           path="/login"
-          element={
-            <Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />
-          }
+          element={<Login setIsLoggedIn={setIsLoggedIn} setUserRole={setUserRole} />}
         />
 
-        {/* ==== EMPLOYEE ROUTES ==== */}
+        {/* Reset Password & Register */}
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Employee Routes */}
         <Route
           path="/employee"
           element={
@@ -157,8 +168,6 @@ useEffect(() => {
                 setUserName={setUserName}
                 userPhoto={userPhoto}
                 setUserPhoto={setUserPhoto}
-                darkMode={darkMode}
-                setDarkMode={setDarkMode}
               />
             ) : (
               <Navigate to="/login" replace />
@@ -166,37 +175,48 @@ useEffect(() => {
           }
         >
           <Route index element={<Navigate to="home" replace />} />
-          <Route path="home" element={<Home darkMode={darkMode} />} />
+          <Route path="home" element={<Home />} />
           <Route
             path="dashboard"
-            element={
-              <Dashboard projects={employeeData.projects} darkMode={darkMode} />
-            }
+            element={<Dashboard projects={employeeData.projects} />}
           />
+          <Route path="timesheet" element={<TimeSheet />} />
           <Route
-            path="leaves"
-            element={
-              <Leaves
-                totalLeaves={totalLeaves}
-                leavesUsed={leavesUsed}
-                setLeavesUsed={setLeavesUsed}
-                absentDays={absentDays}
-                setAbsentDays={setAbsentDays}
-                darkMode={darkMode}
-              />
-            }
+            path="performancemanagement"
+            element={<PerformanceManagement />}
           />
+          <Route path="leaves" element={<Leaves />} />
+
+<Route path="profile/:email" element={<EmployeeReview />} />
+
+
+
+          {/* Profile Logic */}
+         
+
+<Route
+  path="profile"
+  element={
+    mustFill
+      ? (
+          <PersonApp
+            key="form"
+          />
+        )
+      : (
+          <EmployeeReview key="review" />
+        )
+  }
+/>
+
         </Route>
 
-        {/* ==== ADMIN ROUTES ==== */}
+        {/* Admin Routes */}
         <Route
           path="/admin"
           element={
             isLoggedIn && userRole === "admin" ? (
-              <AdminSidebarLayout
-                darkMode={darkMode}
-                setDarkMode={setDarkMode}
-              />
+              <AdminSidebarLayout />
             ) : (
               <Navigate to="/login" replace />
             )
@@ -207,7 +227,7 @@ useEffect(() => {
           <Route path="add-employee" element={<PersonApp />} />
           <Route path="employees" element={<AdminEmployees />} />
           <Route path="employees/:email" element={<EmployeeDetails />} />
-          <Route path="careers" element={<AdminCareer />} />
+          <Route path="Carriers" element={<AdminCareer />} />
           <Route path="jobform" element={<AdminJobform />} />
           <Route path="carriers1" element={<AdminCarrier1 />} />
           <Route path="jobapplicants" element={<AdminJobApplicants />} />
@@ -217,18 +237,12 @@ useEffect(() => {
           <Route path="onhold" element={<AdminOnHold />} />
           <Route
             path="projects"
-            element={
-              <AdminProjects employees={adminEmployees} darkMode={darkMode} />
-            }
+            element={<AdminProjects employees={adminEmployees} />}
           />
-          <Route
-            path="reports"
-            element={<AdminReports darkMode={darkMode} />}
-          />
-          <Route
-            path="leavesadmin"
-            element={<LeavesAdmin darkMode={darkMode} />}
-          />
+          <Route path="reports" element={<AdminReports />} />
+          <Route path="leavesAdmin" element={<LeavesAdmin />} />
+          <Route path="leaves" element={<LeavesEmp />} />
+          <Route path="attendance" element={<AttendanceEmp />} />
         </Route>
 
         {/* Carrier Routes */}
@@ -268,4 +282,3 @@ useEffect(() => {
 }
 
 export default App;
-
