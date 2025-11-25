@@ -197,6 +197,7 @@ export default function AdminEmployees() {
         <table className="adminemployee-employee-table">
           <thead>
             <tr>
+              <th>S.No</th>
               <th>Employee ID</th>
               <th>Full Name</th>
               <th>Official Email</th>
@@ -210,6 +211,8 @@ export default function AdminEmployees() {
             {filteredEmployees.length > 0 ? (
               filteredEmployees.map((emp, index) => (
                 <tr key={index}>
+                  <td>{index + 1}</td>
+
                   <td>{emp.professional?.employeeId || "N/A"}</td>
 
                   <td>{`${emp.personal?.firstName || ""} ${
@@ -244,7 +247,5 @@ export default function AdminEmployees() {
       </div>
     </div>
   );
-// import React from "react";
-
-
+}
 

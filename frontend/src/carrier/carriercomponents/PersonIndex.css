@@ -472,3 +472,13 @@ html,
   from { transform: scale(0.9); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+/* Already existing field + full will work, only adding row-between */
+
+.row-between {
+  display: flex;
+  flex-direction: row;
+  /* justify-content: space-between; */
+  align-items: center;
+  gap: 10px;
+}
+

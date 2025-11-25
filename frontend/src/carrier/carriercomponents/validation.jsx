@@ -13,7 +13,6 @@ const isValidYear = (y) => /^[0-9]{4}$/.test(String(y));
 
 const isValidCGPA = (c) => /^([0-9](\.\d{1,2})?|10(\.0{1,2})?)$/.test(String(c));
 
-
 // -----------------------------------------------------
 //                PERSONAL VALIDATION
 // -----------------------------------------------------
@@ -83,79 +82,105 @@ export const simpleValidatePersonal = (data) => {
 // -----------------------------------------------------
 //                EDUCATION VALIDATION
 // -----------------------------------------------------
-export const simpleValidateEducation = (data) => {
+// -----------------------------------------------------
+//                EDUCATION VALIDATION
+// -----------------------------------------------------
+export const simpleValidateEducation = (educations) => {
   const errs = {};
+  let isValid = true;
 
-  // ---- 10th ----
-  if (isEmpty(data.schoolName10))
-    errs.schoolName10 = "School name required";
-  else if (!isValidName(data.schoolName10))
-    errs.schoolName10 = "School name must contain only letters";
-
-  if (!isValidYear(data.year10))
-    errs.year10 = "Enter valid 10th passing year (YYYY)";
-
-  if (!isValidCGPA(data.cgpa10)) errs.cgpa10 = "Enter valid 10th CGPA (0–10)";
-
-
-  // ---- Inter / Diploma ----
-  if (isEmpty(data.interOrDiploma))
-    errs.interOrDiploma = "Select Intermediate or Diploma";
-
-  if (isEmpty(data.collegeName12))
-    errs.collegeName12 = "College name required";
-
-  if (!isValidYear(data.year12))
-    errs.year12 = "Enter valid passing year (YYYY)";
-
-  if (!isValidCGPA(data.cgpa12)) errs.cgpa12 = "Enter valid CGPA (0–10)";
-
-
-  // ---- UG ----
-  if (isEmpty(data.collegeNameUG))
-    errs.collegeNameUG = "College name required";
-
-  if (!isValidYear(data.yearUG))
-    errs.yearUG = "Enter valid UG passing year (YYYY)";
-
-  if (!isValidCGPA(data.cgpaUG)) errs.cgpaUG = "Enter valid CGPA (0–10)";
-
-
-  // ---- GAP CHECK 10th → 12th ----
-  const year10 = Number(data.year10);
-  const year12 = Number(data.year12);
-
-  if (year10 && year12) {
-    const expected = data.interOrDiploma === "Intermediate" ? 2 : 3;
-    const diff = year12 - year10;
-
-    if (diff !== expected) {
-      errs.gapReason12 =
-        `Expected ${expected} year gap between 10th and ${data.interOrDiploma}. Please specify reason.`;
+  educations.forEach((edu, idx) => {
+    
+    // 1. Higher Education
+    if (!edu.higherEducation) {
+      errs[`higherEducation_${idx}`] = "This is Required Field";
+      isValid = false;
     }
-  }
 
-  // ---- GAP CHECK 12th → UG ----
-  const yearUG = Number(data.yearUG);
-
-  if (year12 && yearUG) {
-    const expectedUG = data.interOrDiploma === "Intermediate" ? 4 : 3;
-    const diff = yearUG - year12;
-
-    if (diff !== expectedUG) {
-      errs.gapReasonUG =
-        `Expected ${expectedUG} year gap between ${data.interOrDiploma} and Degree. Please specify reason.`;
+    // 2. Education Level
+    if (!edu.educationLevel) {
+      errs[`educationLevel_${idx}`] = "This is Required Field";
+      isValid = false;
     }
-  }
 
-  if (errs.gapReason12 && isEmpty(data.gapReason12))
-    errs.gapReason12 = "Reason for this gap is required.";
+    // 3. Education Type
+    if (!edu.educationType) {
+      errs[`educationType_${idx}`] = "This is Required Field";
+      isValid = false;
+    }
 
-  if (errs.gapReasonUG && isEmpty(data.gapReasonUG))
-    errs.gapReasonUG = "Reason for this gap is required.";
+    // ----------- 4A. SSC Validation -------------
+    if (edu.educationLevel === "SSC") {
 
-  return errs;
+      // School Name → must be letters only
+      if (!edu.schoolName) {
+        errs[`schoolName_${idx}`] = "School Name is Required";
+        isValid = false;
+      } else if (!/^[A-Za-z\s]+$/.test(edu.schoolName.trim())) {
+        errs[`schoolName_${idx}`] = "School Name must contain only letters";
+        isValid = false;
+      }
+
+      if (!edu.board) {
+        errs[`board_${idx}`] = "Board Type is Required";
+        isValid = false;
+      }
+    }
+
+    // ----------- 4B. Other levels: College Name -------------
+    if (edu.educationLevel && edu.educationLevel !== "SSC") {
+      if (!edu.collegeName) {
+        errs[`collegeName_${idx}`] = "College Name is Required";
+        isValid = false;
+      } else if (!/^[A-Za-z\s]+$/.test(edu.collegeName.trim())) {
+        errs[`collegeName_${idx}`] = "College Name must contain only letters";
+        isValid = false;
+      }
+    }
+
+    // ----------- 5. Year of Passing -------------
+    if (!edu.yearOfPassing) {
+      errs[`yearOfPassing_${idx}`] = "Year Of Passing Required";
+      isValid = false;
+    } else if (!/^[0-9]{4}$/.test(edu.yearOfPassing)) {
+      errs[`yearOfPassing_${idx}`] = "Invalid Year";
+      isValid = false;
+    }
+
+    // ----------- 6. Percentage / CGPA Validation -------------
+    const num = Number(edu.percentage);
+
+    if (!edu.percentage) {
+      errs[`percentage_${idx}`] = "Percentage or CGPA is required";
+      isValid = false;
+    } 
+    else if (isNaN(num)) {
+      errs[`percentage_${idx}`] = "Only numbers or decimals allowed";
+      isValid = false;
+    } 
+    else {
+      // CGPA (5.5 - 9.8) → if less than 10 & has decimal
+      if (num < 10) {
+        if (num < 5.5 || num > 9.8) {
+          errs[`percentage_${idx}`] = "CGPA must be between 5.5 and 9.8";
+          isValid = false;
+        }
+      }
+      // Percentage (35-99)
+      else {
+        if (num < 35 || num > 99) {
+          errs[`percentage_${idx}`] = "Percentage must be between 35 and 99";
+          isValid = false;
+        }
+      }
+    }
+
+  });
+
+  return errs ;
 };
+
+
 
 
 // -----------------------------------------------------
@@ -163,6 +188,33 @@ export const simpleValidateEducation = (data) => {
 // -----------------------------------------------------
 export const simpleValidateProfessional = (data) => {
   const errs = {};
+  
+  if (!data.heardFrom) {
+    errs.heardFrom = "This field is required";
+  }
+  // If social media selected
+if (localData.heardFrom === "socialMedia") {
+  if (!localData.platformName?.trim()) {
+    errs.platformName = "Please mention the social media platform";
+  }
+}
+
+// If "other" selected
+if (localData.heardFrom === "other") {
+  if (!localData.specifyOther?.trim()) {
+    errs.specifyOther = "Please specify the source";
+  }
+}
+
+
+  if (data.heardFrom === "employee") {
+    if (!data.employeeName?.trim()) {
+      errs.employeeName = "Employee name is required";
+    }
+    if (!data.employeeEmail?.trim()) {
+      errs.employeeEmail = "Employee email is required";
+    }
+  }
 
   if (!data.jobType) {
     errs.jobType = "Please select Fresher or Experienced.";
@@ -209,7 +261,7 @@ export const simpleValidateProfessional = (data) => {
 export function validateAll(personal, education, professional) {
   return {
     ...simpleValidatePersonal(personal),
-    ...simpleValidateEducation(education),
+    ...simpleValidateEducation(education.educations),
     ...simpleValidateProfessional(professional),
   };
 }

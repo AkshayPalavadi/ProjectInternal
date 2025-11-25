@@ -24,7 +24,7 @@ function PersonApp() {
 
   const [active, setActive] = useState('personal'); // 'personal' | 'education' | 'professional' | 'review'
   const [formData, setFormData] = useState({
-  jobType: "fresher",
+  jobType: "",
   experiences: [],
 });
 
@@ -48,29 +48,36 @@ function PersonApp() {
   state: "",
   });
   const [education, setEducation] = useState({
-    schoolName10: '',
-  year10: '',
-  cgpa10: '',
-  interOrDiploma: '',
-  collegeName12: '',
-  year12: '',
-  cgpa12: '',
-  collegeNameUG: '',
-  yearUG: '',
-  cgpaUG: '',
-  gapReason12:'',
+  educations: [
+    {
+      higherEducation: "",
+      educationLevel: "",
+      educationType: "",
+      schoolName: "",
+      collegeName: "",
+      department:"",
+  specilization:"",
+      board: "",
 
-  gapReasonUG: '',
+      yearOfPassing: "",
+      percentage: "",
+    },
+  ],
 });
+
 
   const [professional, setProfessional] = useState({
     // ---------- Professional Details ----------
-    jobType: '',
+    jobType: "",
+  heardFrom:  "",
+  platformName: "",
+specifyOther:  "",
+
   resume: null,
-  skills: '',
+  skills: [],
   projects: '',
   linkedin: '',
-  certifications: '',
+  certifications: [],
   achievements: '',
   experiences: [],
   
@@ -111,7 +118,7 @@ function PersonApp() {
 
     setProfessional((prev) => ({
       ...prev,
-      jobType: data.employeeType || "",
+  jobType: (data.jobType || "").toLowerCase(),
       skills: data.skills || "",
       resume: data.resume || null,
       companyName: data.companyName || "",
@@ -172,6 +179,7 @@ function PersonApp() {
             <ProfessionalDetails
               data={professional}
               setData={setProfessional}
+              
               setActive={setActive}
               errors={errors}
               setErrors={setErrors}

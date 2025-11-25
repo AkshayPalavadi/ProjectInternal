@@ -92,8 +92,6 @@ const submitAllData = async () => {
     alternativePhone: "",
     gender: "",
     bloodGroup: "",
-    dob: "",
-    maritalStatus: "",
     isMarried: false,
     emergencyNumber: "",
     nominee1: "",

@@ -12,7 +12,7 @@ import "./AdminCarrier.css";
 import AdminJobform from "./AdminJobform";
 import { onHoldApplicants } from "../../data";
 
-const AdminCarrier = () => {
+const AdminCareer = () => {
   const navigate = useNavigate();
   const [activeStatTab, setActiveStatTab] = useState("applied");
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
@@ -368,4 +368,4 @@ const AdminCarrier = () => {
   );
 };
 
-export default AdminCarrier;
+export default AdminCareer;

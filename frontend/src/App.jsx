@@ -20,7 +20,7 @@ import AdminSidebarLayout from "./Components/Admin/AdminSidebarLayout.jsx";
 import AdminDashboard from "./Components/Admin/AdminDashboard.jsx";
 import AdminEmployees from "./Components/Admin/AdminEmployees.jsx";
 import AdminProjects from "./Components/Admin/AdminProjects.jsx";
-import AdminCarrier from "./Components/Admin/AdminCarrier.jsx";
+import AdminCareer from "./Components/Admin/AdminCarrier.jsx";
 import AdminCarrier1 from "./Components/Admin/AdminCarrier1.jsx";
 import AdminJobform from "./Components/Admin/AdminJobform.jsx";
 import AdminJobApplicants from "./Components/Admin/AdminJobApplicants.jsx";
@@ -50,7 +50,6 @@ useEffect(() => {
 
   setMustFill(value);
 }, []);
-
 
   const totalLeaves = 12;
   const totalDays = 30;
@@ -119,7 +118,7 @@ useEffect(() => {
 
 const [applicationSubmitted, setApplicationSubmitted] = useState(false);
 
-  const userEmail = localStorage.getItem("loginEmail") || "";
+  const userEmail = localStorage.getItem("userEmail") || "";
   const getDefaultRoute = () => {
     const currentPath = window.location.pathname;
 
@@ -132,7 +131,7 @@ const [applicationSubmitted, setApplicationSubmitted] = useState(false);
     }
 
     // Not logged in
-    if (!isLoggedIn) return "/register";
+    if (!isLoggedIn) return "/login";
 
     // Internal employees
     if (userEmail.endsWith("@dhatvibs.com")) {
@@ -227,8 +226,8 @@ const [applicationSubmitted, setApplicationSubmitted] = useState(false);
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="add-employee" element={<PersonApp />} />
           <Route path="employees" element={<AdminEmployees />} />
-          <Route path="employees/:id" element={<EmployeeDetails />} />
-          <Route path="careers" element={<AdminCarrier />} />
+          <Route path="employees/:email" element={<EmployeeDetails />} />
+          <Route path="careers" element={<AdminCareer />} />
           <Route path="jobform" element={<AdminJobform />} />
           <Route path="carriers1" element={<AdminCarrier1 />} />
           <Route path="jobapplicants" element={<AdminJobApplicants />} />
@@ -250,7 +249,7 @@ const [applicationSubmitted, setApplicationSubmitted] = useState(false);
         <Route path="/carrier/*" element={<CarrierApp />} />
 
         {/* Default Redirect */}
-        <Route
+        {/* <Route
           path="*"
           element={
             <Navigate
@@ -264,10 +263,23 @@ const [applicationSubmitted, setApplicationSubmitted] = useState(false);
               replace
             />
           }
-        />
+        /> */}
+{/* Catch-all route */}
+<Route
+  path="*"
+  element={
+    isLoggedIn
+      ? userRole === "admin"
+        ? <Navigate to="/admin/dashboard" replace />
+        : <Navigate to="/employee/home" replace />
+      : <Navigate to="/login" replace />
+  }
+/>
+
       </Routes>
     </Router>
   );
 }
 
 export default App;
+
