@@ -1,0 +1,217 @@
+.certificate-container {
+  font-family: "Poppins", sans-serif;
+  background: #f5f6fa;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
+}
+
+/* ===== Certificate Box ===== */
+.certificate-box {
+  position: relative;
+  background: #ffffff !important; /* solid background ensures proper contrast */
+  border: 8px double #b8860b;
+  border-radius: 10px;
+  width: 1000px;
+  padding: 80px 100px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  animation: fadeUp 1s ease forwards;
+  opacity: 1 !important;
+  transform: scale(0.98);
+  margin: 0 auto;
+  color: #000; /* enforce solid black text rendering */
+}
+
+/* ===== Top Logo ===== */
+.certificate-logo {
+  position: absolute;
+  top: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 120px;
+  opacity: 1 !important;
+  margin-bottom: 50px;
+}
+
+.certificate-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 1 !important;
+  filter: none !important;
+  /* margin-bottom: 60px; */
+}
+
+/* ===== Watermark (faint but visible) ===== */
+.certificate-watermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 400px;
+  height: 400px;
+  transform: translate(-50%, -50%) rotate(-5deg);
+  opacity: 0.1 !important;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.certificate-watermark img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: none !important; /* no grayscale or contrast that affects PDF colors */
+  opacity: 0.1 !important;
+}
+
+.certificate-box *:not(.certificate-watermark) {
+  position: relative;
+  z-index: 2;
+}
+
+/* ===== Title & Subtitle ===== */
+.certificate-title {
+  font-size: 30px;
+  font-weight: 800;
+  color: #000 !important; /* solid black for PDF visibility */
+  margin-top: 20px;
+  letter-spacing: 2px;
+  text-shadow: none !important;
+}
+
+.certificate-subtitle {
+  font-size: 15px;
+  color: #111 !important;
+  margin-top: 10px;
+  opacity: 1 !important;
+}
+
+/* ===== Name ===== */
+.certificate-name {
+  font-family: "Pacifico", cursive;
+  font-size: 46px;
+  color: #002366 !important; /* strong navy for readability */
+  margin: 25px 0;
+  font-weight: 700;
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.3); /* subtle depth for PDF */
+}
+
+/* ===== Description ===== */
+.certificate-desc {
+  font-size: 16px;
+  color: #000 !important;
+  line-height: 1.9;
+  font-weight: 600;
+  padding: 0 40px;
+  text-shadow: none !important;
+}
+
+/* ===== Signature Section ===== */
+.signature-section {
+  margin-top: 70px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.signature-block {
+  text-align: center;
+}
+
+.signature-img {
+  width: 180px;
+  height: auto;
+  object-fit: contain;
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+.signature-label {
+  margin-top: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #000 !important;
+}
+
+.signature-role {
+  font-size: 13px;
+  color: #222 !important;
+  font-weight: 600;
+}
+
+/* ===== Stamp (uses same logo) ===== */
+.stamp-block {
+  text-align: right;
+}
+
+.stamp-img {
+  width: 130px;
+  height: 130px;
+  object-fit: contain;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* ===== Footer ===== */
+.certificate-footer {
+  margin-top: 40px;
+  font-size: 13px;
+  color: #000 !important;
+  font-weight: 600;
+  text-shadow: none !important;
+}
+
+/* ===== Download Button ===== */
+.download-btn-container {
+  margin-top: 35px;
+}
+
+.download-btn {
+  background: linear-gradient(to right, #facc15, #d4af37);
+  color: #1e293b;
+  padding: 12px 35px;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.5);
+  transition: all 0.3s ease;
+}
+
+.download-btn:hover {
+  background: linear-gradient(to right, #d4af37, #facc15);
+  transform: translateY(-2px);
+}
+
+/* ===== Animation ===== */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Print Optimization ===== */
+@media print {
+  body {
+    background: white;
+  }
+
+  .download-btn-container {
+    display: none;
+  }
+
+  .certificate-box {
+    box-shadow: none;
+    border-color: #b8860b;
+  }
+}

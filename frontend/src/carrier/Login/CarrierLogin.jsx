@@ -12,8 +12,9 @@ function Login({ onLoginSuccess }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // ✅ Validate email or 10-digit mobile
+  // Validate Email / Mobile
   const validateInput = (value) => {
     const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
     const isMobile = /^\d{10}$/.test(value);
@@ -25,7 +26,7 @@ function Login({ onLoginSuccess }) {
     setUserInput(value);
   };
 
-  // ✅ Password validation
+  // Validate Password
   const validatePassword = (value) => {
     const passwordRegex =
       /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
@@ -33,45 +34,79 @@ function Login({ onLoginSuccess }) {
     if (value === "") setPasswordError("");
     else if (!passwordRegex.test(value))
       setPasswordError(
-        "Password must have at least 8 characters, including uppercase, lowercase, number & special character."
+        "Password must include uppercase, lowercase, number & special character."
       );
     else setPasswordError("");
 
     setPassword(value);
   };
 
-  // ✅ Handle Login
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // ------------------ LOGIN WITH API ------------------
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userInput);
-    const isMobile = /^\d{10}$/.test(userInput);
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userInput);
+  const isMobile = /^\d{10}$/.test(userInput);
 
-    if (!isEmail && !isMobile) {
-      setError("Enter a valid email or 10-digit mobile number.");
+  if (!isEmail && !isMobile) {
+    setError("Enter a valid email or 10-digit mobile number.");
+    return;
+  }
+
+  if (passwordError || password === "") {
+    setPasswordError("Please enter a valid password.");
+    return;
+  }
+
+
+
+  try {
+      setLoading(true);
+    // 🔥 Correct payload based on backend structure
+const payload = {
+  loginId: userInput,
+  password: password,
+}
+
+    console.log("📤 SENDING PAYLOAD TO API:", payload);
+
+    const response = await fetch(
+      "https://public-website-drab-ten.vercel.app/api/auth/login",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    let data = {};
+    try {
+      data = await response.json();
+    } catch (err) {
+      console.log("❌ Failed to parse JSON:", err);
+    }
+
+    console.log("📥 API RAW RESPONSE:", response);
+    console.log("📥 API JSON BODY:", data);
+
+    if (!response.ok) {
+      alert(data.message || "Login failed");
+      setLoading(false);
       return;
     }
 
-    if (passwordError || password === "") {
-      setPasswordError("Please enter a valid password format.");
-      return;
-    }
+    alert("Login successful!");
+    localStorage.setItem("token", data.token);
+    navigate("/carrier");
 
-    // ✅ Save login info
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("userEmail", userInput);
+  } catch (err) {
+    console.error("🔥 LOGIN ERROR:", err);
+    alert("Something went wrong.");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    if (onLoginSuccess) onLoginSuccess();
-
-    // ✅ Check if this specific user's details were already submitted
-    const detailsSubmitted = localStorage.getItem(`detailsSubmitted_${userInput}`);
-
-    if (detailsSubmitted === "true") {
-      navigate("/carrier"); // Go directly to main page
-    } else {
-      navigate("/carrier/quickdetails"); // Go to form if not filled
-    }
-  };
 
   return (
     <div className="container">
@@ -126,9 +161,9 @@ function Login({ onLoginSuccess }) {
           <button
             className="login-btn-Login"
             type="submit"
-            disabled={!!error || !!passwordError}
+            disabled={!!error || !!passwordError || loading}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

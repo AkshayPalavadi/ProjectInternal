@@ -1,0 +1,219 @@
+/* ===========================
+   Completed Training Page
+   =========================== */
+.completed-container {
+  font-family: "Poppins", sans-serif;
+  padding: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+/* TITLE */
+.title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 25px;
+  color: #1e293b;
+}
+
+/* ===========================
+   SEARCH + FILTER SECTION
+   =========================== */
+.search-section-completed {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+/* FILTER ICON RIGHT */
+.filter-box-completed {
+  position: relative;
+}
+
+.filter-icon-completed {
+  font-size: 22px;
+  cursor: pointer;
+  color: #475569;
+  transition: 0.3s ease;
+}
+
+.filter-icon-completed:hover {
+  color: #1e40af;
+}
+
+/* FILTER DROPDOWN (RIGHT SIDE) */
+.filter-dropdown-completed {
+  position: absolute;
+  right: 0;
+  top: 35px;
+  width: 260px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  animation: fadeIn 0.25s ease;
+  z-index: 50;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.filter-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.filter-option {
+  display: flex;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #1e293b;
+}
+
+.divider {
+  border: 0.5px solid #e2e8f0;
+  margin: 12px 0;
+}
+
+/* CLEAR BUTTON */
+.clear-btn {
+  padding: 8px 12px;
+  width: 100%;
+  background: #ef4444;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s ease;
+}
+
+.clear-btn:hover {
+  background: #dc2626;
+}
+
+/* ===========================
+   TABLE SECTION
+   =========================== */
+.table-wrapper {
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+  overflow-x: auto;
+}
+
+.training-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.training-table th {
+  background: #1e3a8a;
+  color: #fff;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.training-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.training-table tr:hover {
+  background: #f1f5f9;
+}
+
+/* SEARCH INPUT INSIDE HEADERS */
+.column-search {
+  width: 90%;
+  margin-top: 6px;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  font-size: 12px;
+}
+
+/* ===========================
+   PROGRESS BAR
+   =========================== */
+.progress-wrapper {
+  background: #e2e8f0;
+  height: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  transition: width 0.4s ease;
+}
+
+/* ===========================
+   FOOTER (TOTAL + EXPORT)
+   =========================== */
+.completed-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.completed-footer p {
+  font-size: 16px;
+  font-weight: 600;
+  margin-left: 10px;
+}
+
+/* EXPORT BUTTON RIGHT */
+.export-btn-completed {
+  padding: 10px 20px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 15px;
+  margin-right: 10px;
+  transition: 0.3s ease;
+}
+
+.export-btn-completed:hover {
+  background: #1d4ed8;
+}
+
+/* ===========================
+   RESPONSIVE
+   =========================== */
+@media (max-width: 768px) {
+  .completed-container {
+    padding: 20px;
+  }
+
+  .completed-footer {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .export-btn-completed {
+    width: 100%;
+  }
+}
