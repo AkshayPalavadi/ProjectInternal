@@ -157,6 +157,23 @@ const AdminCarrier1 = () => {
     }));
     setIsEditing(false);
   };
+  const handleDelete = () => {
+  const confirmDelete = window.confirm(
+    `Are you sure you want to delete the entire "${job.title}" job?`
+  );
+
+  if (confirmDelete) {
+    setJobData((prev) => {
+      const updated = { ...prev };
+      delete updated[selectedRole]; // Remove entire job
+      return updated;
+    });
+
+    // Navigate back after deleting
+    navigate(-1);
+  }
+};
+
 
   return (
     <div className="career-container">
@@ -182,23 +199,27 @@ const AdminCarrier1 = () => {
             </>
           )}
         </div>
+         <div className="edit-buttons">
+  {isEditing ? (
+    <></>
+  ) : (
+    <>
+      <button className="edit-btn" onClick={handleEditToggle}>
+        <FaEdit /> Edit
+      </button>
 
-        <div className="edit-buttons">
-          {isEditing ? (
-            <>
-              {/* <button className="save-btn" onClick={handleSave}> */}
-                {/* <FaSave /> Save */}
-              {/* </button> */}
-              {/* <button className="cancel-btn" onClick={handleEditToggle}> */}
-                {/* <FaTimes /> Cancel */}
-              {/* </button> */}
-            </>
-          ) : (
-            <button className="edit-btn" onClick={handleEditToggle}>
-              <FaEdit /> Edit
-            </button>
-          )}
-        </div>
+      <button
+        className="delete-btn"
+        onClick={handleDelete}
+        style={{ backgroundColor: "red", color: "white" }}
+      >
+        <FaTimes /> Delete
+      </button>
+    </>
+  )}
+</div>
+
+       
       </div>
 
       <div className="career-info">

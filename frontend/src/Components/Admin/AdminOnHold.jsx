@@ -1,10 +1,13 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import * as XLSX from "xlsx";
-import { FaUserCheck } from "react-icons/fa";
+import { FaUserCheck, FaSearch } from "react-icons/fa";
 import "./AdminOnHold.css";
-import { onHoldApplicants as applicants } from "../../data";
+import { onHoldApplicants as applicantsData } from "../../data";
+import { useNavigate } from "react-router-dom";
 
-// Generate random date between 2023 and today
+
+const LS_KEY = "onhold_applicants_saved"; // 🔹 LocalStorage Key
+
 const getRandomDate = () => {
   const start = new Date(2023, 0, 1).getTime();
   const end = new Date().getTime();
@@ -12,227 +15,354 @@ const getRandomDate = () => {
   return random.toISOString().split("T")[0];
 };
 
-// Assign email based on name (keeps previous mapping)
 const getEmailByName = (name) => {
   const lower = name.toLowerCase();
-  if (lower.includes("gangadar") || lower.includes("gangadhar")) return "gangadar@gmail.com";
+
+  if (lower.includes("gangadar") || lower.includes("gangadhar"))
+    return "gangadar@gmail.com";
+
   if (lower.includes("vignesh")) return "vignesh@gmail.com";
+
   if (lower.includes("jagadeesh")) return "jagadeesh@gmail.com";
+
   if (lower.includes("tataji")) return "tataji@gmail.com";
-  if (lower.includes("likith")) return "likith@gmail.com";
-  if (lower.includes("akash") || lower.includes("akashay")) return "akashay@gmail.com";
+
+  if (
+    lower.includes("likith") ||
+    lower.includes("likhith") ||
+    lower.includes("likitha") ||
+    lower.includes("likhitha")
+  )
+    return "likith@gmail.com";
+
+  if (lower.includes("akshay") || lower.includes("akash"))
+    return "akshay@gmail.com";
+
   if (lower.includes("sai")) return "sai@gmail.com";
+
   return "";
 };
 
 const Hold = () => {
-  // filters shown under column headers (always visible)
+  const navigate = useNavigate();
+
   const [filters, setFilters] = useState({
+    sno: "",
     applicantId: "",
     name: "",
     jobTitle: "",
+    contact: "",
+    email: "",
     date: "",
     skills: "",
     experience: "",
     location: "",
+    resume: "",
+    status: "",
+    reason: "",
   });
 
-  // applicants list prepared once (you can keep this in state to mutate status/reason)
-  const [applicantList, setApplicantList] = useState(
-    applicants.map((a, i) => {
-      const cleanedName = a.name.replace(/^(mr|ms|mrs|miss|dr|prof)\.?\s+/i, "").trim();
+  // 🔹 FIRST: Load from localStorage OR fallback to initial applicants
+  const loadInitialApplicants = () => {
+    const saved = localStorage.getItem(LS_KEY);
+    if (saved) return JSON.parse(saved);
+
+    return applicantsData.map((a, i) => {
+      const cleanedName = a.name
+        .replace(/^(mr|ms|mrs|miss|dr|prof)\.?\s+/i, "")
+        .trim();
+
+      const lname = cleanedName.toLowerCase();
+
       let assignedTitle = "Frontend Developer";
-      if (cleanedName.toLowerCase().includes("jagadeesh")) assignedTitle = "Backend Developer";
-      if (cleanedName.toLowerCase().includes("sai")) assignedTitle = "UI/UX Designer";
+      if (lname.includes("jagadeesh")) assignedTitle = "Backend Developer";
+      if (lname.includes("sai")) assignedTitle = "UI/UX Designer";
 
       return {
         ...a,
         name: cleanedName,
-        applicantId: a.applicantId || `APP-${i + 1001}`,
+        applicantId: a.applicantId || `APP-${i + 1}`,
         email: getEmailByName(cleanedName),
-        reason: a.reason || "",
         jobTitle: a.jobTitle || assignedTitle,
+        reason: a.reason || "",
         date: a.date || getRandomDate(),
-        // keep id if provided; otherwise create unique
         id: a.id ?? `app-${i + 1}`,
-      };
-    })
-  );
 
-  // Filtering logic (applies all filter fields)
+        resume:
+          a.resume ||
+          (
+            lname.includes("gangadhar") ? "resume_gangadhar.pdf" :
+            lname.includes("vignesh") ? "resume_vignesh.pdf" :
+            lname.includes("jagadeesh") ? "resume_jagadeesh.pdf" :
+            lname.includes("tataji") ? "resume_tataji.pdf" :
+            lname.includes("likith") ||
+            lname.includes("likhith") ||
+            lname.includes("likitha") ||
+            lname.includes("likhitha")
+              ? "resume_likith.pdf" :
+            lname.includes("akshay") || lname.includes("akash")
+              ? "resume_akshay.pdf" :
+            lname.includes("sai") ? "resume_sai.pdf" :
+            "not_uploaded.pdf"
+          ),
+
+        status: a.status || "On Hold",
+      };
+    });
+  };
+
+  const [applicantList, setApplicantList] = useState(loadInitialApplicants);
+
+  // 🔹 SAVE CHANGES (STATUS + REASON) to localStorage
+  const saveData = () => {
+    localStorage.setItem(LS_KEY, JSON.stringify(applicantList));
+    alert("Applicant changes saved successfully!");
+  };
+
+  // 🔹 Make filtering work normally
   const filteredApplicants = useMemo(() => {
-    return applicantList.filter((a) => {
+    return applicantList.filter((a, idx) => {
       return (
+        (idx + 1).toString().includes(filters.sno) &&
         a.applicantId.toLowerCase().includes(filters.applicantId.toLowerCase()) &&
         a.name.toLowerCase().includes(filters.name.toLowerCase()) &&
         a.jobTitle.toLowerCase().includes(filters.jobTitle.toLowerCase()) &&
-        // date filter - match substring (exact chosen date will match)
+        (a.contact || "").toLowerCase().includes(filters.contact.toLowerCase()) &&
+        (a.email || "").toLowerCase().includes(filters.email.toLowerCase()) &&
         a.date.includes(filters.date) &&
         a.skills.toLowerCase().includes(filters.skills.toLowerCase()) &&
         a.experience.toLowerCase().includes(filters.experience.toLowerCase()) &&
-        a.location.toLowerCase().includes(filters.location.toLowerCase())
+        a.location.toLowerCase().includes(filters.location.toLowerCase()) &&
+        a.resume.toLowerCase().includes(filters.resume.toLowerCase()) &&
+        (filters.status ? a.status === filters.status : true) &&
+        a.reason.toLowerCase().includes(filters.reason.toLowerCase())
       );
     });
   }, [filters, applicantList]);
 
-  // Export visible rows to Excel
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(filteredApplicants);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "OnHold");
-    XLSX.writeFile(workbook, "OnHold_Applicants.xlsx");
+    const ws = XLSX.utils.json_to_sheet(filteredApplicants);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "OnHold");
+    XLSX.writeFile(wb, "OnHold_Applicants.xlsx");
   };
 
-  // Reset all filters
   const resetFilters = () => {
     setFilters({
+      sno: "",
       applicantId: "",
       name: "",
       jobTitle: "",
+      contact: "",
+      email: "",
       date: "",
       skills: "",
       experience: "",
       location: "",
+      resume: "",
+      status: "",
+      reason: "",
     });
   };
 
-  // Update status inline
-  const handleStatusChange = (id, status) => {
-    setApplicantList((prev) => prev.map((x) => (x.id === id ? { ...x, status } : x)));
+  const handleStatusChange = (id, newStatus) => {
+    setApplicantList((prev) =>
+      prev.map((x) => (x.id === id ? { ...x, status: newStatus } : x))
+    );
   };
 
-  // Update reason inline
-  const handleReasonChange = (id, reason) => {
-    setApplicantList((prev) => prev.map((x) => (x.id === id ? { ...x, reason } : x)));
+  const handleReasonChange = (id, newReason) => {
+    setApplicantList((prev) =>
+      prev.map((x) => (x.id === id ? { ...x, reason: newReason } : x))
+    );
   };
 
   return (
     <div className="onhold-container">
-      {/* Header with Reset */}
+
       <div className="onhold-header">
-        <h2>On Hold Applicants</h2>
+        <h2>Hold Applicants</h2>
+
         <div className="header-actions">
-          <button className="reset-btn" onClick={resetFilters}>
-            Reset Filters
-          </button>
-          <button className="export-btn" onClick={exportToExcel}>
-            Export to Excel
-          </button>
+          <button className="reset-btn" onClick={resetFilters}>Reset Filters</button>
         </div>
       </div>
 
-      {/* Table */}
       <div className="onhold-table-wrapper">
         <table className="onhold-table">
           <thead>
-            {/* Row 1: column labels */}
-            <tr>
-              <th>S.No</th>
-              <th>Applicant ID</th>
-              <th>Applicant</th>
-              <th>Job Title</th>
-              <th>Contact</th>
-              <th>Email</th>
-              <th>DOA</th>
-              <th>Skills</th>
-              <th>Experience</th>
-              <th>Location</th>
-              <th>Status</th>
-              <th>Reason</th>
-            </tr>
-
-            {/* Row 2: search inputs directly under each corresponding column */}
             <tr className="filters-row">
-              {/* S.No - no filter */}
-              <th></th>
+
+              {/* S.No */}
+              <th>
+                <div className="filter-input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="S.No"
+                    value={filters.sno}
+                    onChange={(e) => setFilters({ ...filters, sno: e.target.value })}
+                  />
+                  <FaSearch className="filter-search-icon" />
+                </div>
+              </th>
 
               {/* Applicant ID */}
               <th>
-                <input
-                  type="text"
-                  className="column-filter-input-onhold"
-                  placeholder="Search Applicant ID"
-                  value={filters.applicantId}
-                  onChange={(e) => setFilters({ ...filters, applicantId: e.target.value })}
-                />
+                <div className="filter-input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Applicant ID"
+                    value={filters.applicantId}
+                    onChange={(e) => setFilters({ ...filters, applicantId: e.target.value })}
+                  />
+                  <FaSearch className="filter-search-icon" />
+                </div>
               </th>
 
-              {/* Name */}
+              {/* Applicant Name */}
               <th>
-                <input
-                  type="text"
-                  className="column-filter-input"
-                  placeholder="Search Applicant"
-                  value={filters.name}
-                  onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-                />
+                <div className="filter-input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Applicant"
+                    value={filters.name}
+                    onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+                  />
+                  <FaSearch className="filter-search-icon" />
+                </div>
               </th>
 
               {/* Job Title */}
               <th>
-                <input
-                  type="text"
-                  className="column-filter-input"
-                  placeholder="Search Job Title"
-                  value={filters.jobTitle}
-                  onChange={(e) => setFilters({ ...filters, jobTitle: e.target.value })}
-                />
+                <div className="filter-input-wrapper">
+                  <select
+                    className="job-filter-dropdown"
+                    value={filters.jobTitle}
+                    onChange={(e) => setFilters({ ...filters, jobTitle: e.target.value })}
+                  >
+                    <option value="">Job Title</option>
+                    <option value="Frontend Developer">Frontend Developer</option>
+                    <option value="Backend Developer">Backend Developer</option>
+                    <option value="UI/UX Designer">UI/UX Designer</option>
+                    <option value="Full Stack Developer">Full Stack Developer</option>
+                    <option value="Software Tester">Software Tester</option>
+                    <option value="HR Recruiter">HR Recruiter</option>
+                  </select>
+                </div>
               </th>
 
-              {/* Contact - no filter */}
-              <th></th>
+              {/* Contact */}
+              <th>
+                <div className="filter-input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Contact"
+                    value={filters.contact}
+                    onChange={(e) => setFilters({ ...filters, contact: e.target.value })}
+                  />
+                </div>
+              </th>
 
-              {/* Email - no filter */}
-              <th></th>
+              {/* Email */}
+              <th>
+                <div className="filter-input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Email"
+                    value={filters.email}
+                    onChange={(e) => setFilters({ ...filters, email: e.target.value })}
+                  />
+                </div>
+              </th>
 
-              {/* DOA (date picker) */}
+              {/* Date */}
               <th>
                 <input
                   type="date"
-                  className="column-filter-input"
                   value={filters.date}
                   onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+                  className="date-box"
                 />
               </th>
 
               {/* Skills */}
               <th>
-                <input
-                  type="text"
-                  className="column-filter-input"
-                  placeholder="Search Skills"
-                  value={filters.skills}
-                  onChange={(e) => setFilters({ ...filters, skills: e.target.value })}
-                />
+                <div className="filter-input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Skills"
+                    value={filters.skills}
+                    onChange={(e) => setFilters({ ...filters, skills: e.target.value })}
+                  />
+                  <FaSearch className="filter-search-icon" />
+                </div>
               </th>
 
               {/* Experience */}
               <th>
-                <input
-                  type="text"
-                  className="column-filter-input"
-                  placeholder="Search Experience"
-                  value={filters.experience}
-                  onChange={(e) => setFilters({ ...filters, experience: e.target.value })}
-                />
+                <div className="filter-input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Experience"
+                    value={filters.experience}
+                    onChange={(e) => setFilters({ ...filters, experience: e.target.value })}
+                  />
+                  <FaSearch className="filter-search-icon" />
+                </div>
               </th>
 
               {/* Location */}
               <th>
-                <input
-                  type="text"
-                  className="column-filter-input"
-                  placeholder="Search Location"
-                  value={filters.location}
-                  onChange={(e) => setFilters({ ...filters, location: e.target.value })}
-                />
+                <div className="filter-input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Location"
+                    value={filters.location}
+                    onChange={(e) => setFilters({ ...filters, location: e.target.value })}
+                  />
+                  <FaSearch className="filter-search-icon" />
+                </div>
               </th>
 
-              {/* Status - no filter */}
-              <th></th>
+              {/* Resume */}
+              <th>
+                <div className="filter-input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Resume"
+                    value={filters.resume}
+                    onChange={(e) => setFilters({ ...filters, resume: e.target.value })}
+                  />
+                </div>
+              </th>
 
-              {/* Reason - no filter */}
-              <th></th>
+              {/* Status */}
+              <th>
+                <select
+                  className="status-box"
+                  value={filters.status}
+                  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                >
+                  <option value="Hold">Hold</option>
+                  {/* <option value="Hold">Hold</option> */}
+                  <option value="Selected">Selected</option>
+                  <option value="Rejected">Rejected</option>
+                </select>
+              </th>
+
+              {/* Reason */}
+              <th>
+                <div className="filter-input-wrapper">
+                  <input
+                    type="text"
+                    placeholder="Reason"
+                    value={filters.reason}
+                    onChange={(e) => setFilters({ ...filters, reason: e.target.value })}
+                  />
+                  <FaSearch className="filter-search-icon" />
+                </div>
+              </th>
+
             </tr>
           </thead>
 
@@ -251,20 +381,33 @@ const Hold = () => {
                   <td>{a.experience}</td>
                   <td>{a.location}</td>
 
+                  {/* Resume */}
+                  <td>
+                      <button
+                        onClick={() => navigate(`/admin/resume/${a.id}`)}
+                        className="resume-icon-btn"
+                      >
+                        📄
+                      </button>
+                    </td>
+
+
+                  {/* Status */}
                   <td>
                     <select
-                      value={a.status || "On Hold"}
+                      value={a.status}
                       onChange={(e) => handleStatusChange(a.id, e.target.value)}
                     >
-                      <option value="On Hold">On Hold</option>
+                      <option value="On Hold">Hold</option>
                       <option value="Selected">Selected</option>
                       <option value="Rejected">Rejected</option>
                     </select>
+
                     {a.status === "Selected" && <FaUserCheck className="selected-icon" />}
                   </td>
 
+                  {/* Reason */}
                   <td>
-                    {/* Reason textarea - horizontal scroll when long */}
                     <textarea
                       className="reason-textarea"
                       value={a.reason}
@@ -277,7 +420,7 @@ const Hold = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="12" className="no-data">
+                <td colSpan="13" className="no-data">
                   No applicants found
                 </td>
               </tr>
@@ -286,10 +429,24 @@ const Hold = () => {
         </table>
       </div>
 
-      {/* Footer */}
+      {/* FOOTER */}
       <div className="onhold-footer">
         <p>Total Applicants: <strong>{filteredApplicants.length}</strong></p>
+
+        <div className="footer-buttons">
+
+          {/* Excel Export */}
+          <button className="export-btn" onClick={exportToExcel}>
+            Export to Excel
+          </button>
+
+          {/* SAVE — Saves Status + Reason */}
+          <button className="save-btn" onClick={saveData}>
+            Save
+          </button>
+        </div>
       </div>
+
     </div>
   );
 };

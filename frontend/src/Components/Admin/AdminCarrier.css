@@ -20,11 +20,7 @@
   border-radius: 12px;
   padding: 20px 25px;
   flex: 1;
-<<<<<<< HEAD
-  min-width: 220px;
-=======
   min-width: 200px;
->>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
   cursor: pointer;
@@ -38,12 +34,8 @@
 .summary-card h4 {
   font-size: 16px;
   color: #374151;
-<<<<<<< HEAD
-  margin-bottom: 6px;
-=======
   margin-bottom: 1px;
   margin-left: 0;
->>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4
 }
 
 .summary-card p {
@@ -158,6 +150,7 @@
   color: #111827;
   font-weight: 600;
   margin-bottom: 6px;
+  margin-left: 2px;
 }
 
 /* ===== Job Info (icons row) ===== */
@@ -231,7 +224,7 @@
   }
 
   .summary-card {
-    width: 100%;
+    width: 90%;
   }
 
   .job-info {
@@ -239,7 +232,3 @@
     align-items: flex-start;
   }
 }
-<<<<<<< HEAD
-=======
-
->>>>>>> f4766d00b3e29c544d478223a031b506a2f4e6c4

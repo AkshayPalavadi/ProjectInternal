@@ -1,6 +1,7 @@
 import React from "react";
 import "./AdminJobApplicants.css";
 import JobApplicants from "./JobApplicants";
+import EducationDetails from "../../carrier/carriercomponents/EducationDetails";
 
 const AdminJobApplicants = () => {
   const allApplicants = [
@@ -19,6 +20,7 @@ const AdminJobApplicants = () => {
       contact: "9000000001",
       month: "september",
       resume: "/resumes/gangadhar_resume.pdf",
+      Education: "B.Tech in Computer Science",
     },
 
     {
@@ -37,6 +39,7 @@ const AdminJobApplicants = () => {
       contact: "9000000002",
       month: "september",
       resume: "/resumes/jagadeesh_resume.pdf",
+      Education: "M.Sc in Information Technology",
     },
 
     {
@@ -54,6 +57,7 @@ const AdminJobApplicants = () => {
       contact: "9000000003",
       month: "october",
       resume: "/resumes/tatajii_resume.pdf",
+      Education: "B.Sc in Computer Applications",
     },
 
     {
@@ -71,6 +75,7 @@ const AdminJobApplicants = () => {
       contact: "9000000004",
       month: "october",
       resume: "/resumes/likhith_resume.pdf",
+      Education: "B.Tech in Information Technology",
     },
 
     {
@@ -88,6 +93,7 @@ const AdminJobApplicants = () => {
       contact: "9000000005",
       month: "october",
       resume: "/resumes/sushma_resume.pdf",
+        Education: "B.Tech in Computer Science",  
     },
 
     {
@@ -105,6 +111,7 @@ const AdminJobApplicants = () => {
       contact: "9000000006",
       month: "January",
       resume: "/resumes/devi_resume.pdf",
+      Education: "B.Des in Visual Communication",
     },
 
     {
@@ -122,6 +129,7 @@ const AdminJobApplicants = () => {
       contact: "9000000007",
       month: "February",
       resume: "/resumes/sravani_resume.pdf",
+      Education: "B.Tech in Computer Science",
     },
 
     {
@@ -139,6 +147,7 @@ const AdminJobApplicants = () => {
       contact: "9000000008",
       month: "February",
       resume: "/resumes/karthik_resume.pdf",
+      Education: "M.Sc in Information Technology",
     },
 
     {
@@ -156,6 +165,8 @@ const AdminJobApplicants = () => {
       contact: "9000000009",
       month: "April",
       resume: "/resumes/madhu_resume.pdf",
+      Education: "B.Sc in Computer Applications",
+
     },
 
     {
@@ -173,6 +184,7 @@ const AdminJobApplicants = () => {
       contact: "9000000010",
       month: "April",
       resume: "/resumes/mahindra_resume.pdf",
+      Education: "B.Tech in Information Technology",
     },
 
     {
@@ -190,6 +202,7 @@ const AdminJobApplicants = () => {
       contact: "9000000011",
       month: "May",
       resume: "/resumes/rohith_resume.pdf",
+      Education: "B.Tech in Computer Science",
     },
 
     {
@@ -207,6 +220,7 @@ const AdminJobApplicants = () => {
       contact: "9000000012",
       month: "June",
       resume: "/resumes/akshay_resume.pdf",
+      Education: "B.Des in Visual Communication",
     },
 
     {
@@ -224,6 +238,7 @@ const AdminJobApplicants = () => {
       contact: "9000000013",
       month: "June",
       resume: "/resumes/vaishnavi_resume.pdf",
+      Education: "B.Tech in Information Technology",  
     },
 
     {
@@ -241,6 +256,7 @@ const AdminJobApplicants = () => {
       contact: "9000000014",
       month: "July",
       resume: "/resumes/lavanya_resume.pdf",
+      Education: "B.Tech in Computer Science",
     },
 
     {
@@ -258,6 +274,7 @@ const AdminJobApplicants = () => {
       contact: "9000000015",
       month: "August",
       resume: "/resumes/sathvika_resume.pdf",
+      Education: "B.Des in Visual Communication",
     },
 
     {
@@ -275,6 +292,7 @@ const AdminJobApplicants = () => {
       contact: "9000000010",
       month: "August",
       resume: "/resumes/suji_resume.pdf",
+      Education: "B.Tech in Information Technology",
     },
 
     {
@@ -292,6 +310,7 @@ const AdminJobApplicants = () => {
       contact: "9000000011",
       month: "March",
       resume: "/resumes/eswari_resume.pdf",
+      Education: "B.Tech in Computer Science",
     },
 
     {
@@ -309,12 +328,14 @@ const AdminJobApplicants = () => {
       contact: "9000000012",
       month: "March",
       resume: "/resumes/bhargavi_resume.pdf",
+      Education: "B.Des in Visual Communication",
     },
   ];
 
   return (
     <div>
-      <JobApplicants data={allApplicants} onAdminJobApplicants />
+    <JobApplicants data={allApplicants} />
+
     </div>
   );
 };
