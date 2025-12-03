@@ -1,479 +1,1230 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { FiSearch, FiCheckCircle } from "react-icons/fi";
+import React, { useState, useEffect, useMemo } from "react";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend,
+  Tooltip,
+} from "recharts";
+
 import "./TrainingAssignment.css";
 
-const LS_KEY = "training_assignments_v1";
+const LS_KEY = "multiple_training_v2";
 
-const employees = [
-  { id: "EMP001", name: "Likith Reddy" },
-  { id: "EMP024", name: "Sravani kalisetti" },
-  { id: "EMP057", name: "Akshay Kumar" },
-  { id: "EMP079", name: " Balaji" },
-  { id: "EMP105", name: "Manoj Reddy" },
-  { id: "EMP128", name: "Lavanya" },
-  { id: "EMP148", name: "Arjun Sai" },
-  { id: "EMP171", name: "Eswari" },
-  { id: "EMP193", name: "Sushma" },
-  { id: "EMP204", name: "Sunita Devi" },
-   { id: "EMP215", name: "Vaishnavi" },
-  { id: "EMP226", name: "Sudha Rani" },
-  { id: "EMP237", name: " Gangadhar" },
-  { id: "EMP248", name: " Tataji" },
-  { id: "EMP259", name: "Likith" },
-  { id: "EMP270", name: "Vignish" },
-  { id: "EMP281", name: "Bhargavi" },
-  { id: "EMP292", name: "Devi palanati" },
-  { id: "EMP303", name: "Somu Sunder" },
-  { id: "EMP314", name: "Jagadesh" },
-  { id: "EMP325", name: "Karthik" },
-  { id: "EMP336", name: "Mahendra" },
-  { id: "EMP347", name: "Rohit Sai" },
-  { id: "EMP358", name: "Likitha" },
-  { id: "EMP369", name: "Deepak Malhotra" },
-  { id: "EMP380", name: "Anjali Verma"} ,
-  { id: "EMP391", name: "Rajesh Khanna"},
-  { id: "EMP402", name: "Sunil Grover"} ,
-  { id: "EMP413", name: "Mira Nair"} ,
-  { id: "EMP424", name: "Ayesha Takia"} ,
-  { id: "EMP435", name: "Karan Johar"} ,
-  { id: "EMP446", name: "Priyanka Chopra"} ,
-  { id: "EMP457", name: "Salman Khan"} , 
-  { id: "EMP468", name: "Alia Bhatt"} ,
-  { id: "EMP479", name: "Shah Rukh Khan"} ,
-  { id: "EMP490", name: "Katrina Kaif"} ,
+const STATUS_OPTIONS = ["Not Started", "In Progress", "Completed"];
+
+const MONTHS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
 ];
-// 🔹 Department → Projects
-const PROJECTS = {
-  Engineering: [
-    "Website Revamp",
-    "API Development",
-    "Mobile App",
-    "AI Dashboard",
-    "System Migration",
-    "Automation Script",
-  ],
-  Finance: [
-    "Audit Automation",
-    "Billing Optimization",
-    "Payroll Accuracy",
-    "Budget Forecast Tool",
-  ],
-  HR: [
-    "Recruitment Portal",
-    "Employee Survey System",
-    "HR Compliance Monitoring",
-  ],
-  Marketing: [
-    "Ad Campaign",
-    "SEO Optimization",
-    "Brand Redesign",
-    "Email Automation",
-  ],
-  Design: [
-    "UI Redesign",
-    "Dashboard Prototype",
-    "Illustration Pack",
-    "Theme Revamp",
-  ],
-};
 
-// 🔹 Project → Allowed Employees
-const PROJECT_EMPLOYEES = {
-  "Website Revamp": ["EMP001", "EMP057", "EMP148","EMP215" ],
-  "API Development": ["EMP024", "EMP171", "EMP226"],
-  "Mobile App": ["EMP105", "EMP128", "EMP237", "EMP358", "EMP369", "EMP380", "EMP391"],
-  "AI Dashboard": ["EMP193", "EMP204","EMP248", "EMP259", "EMP270"],
-  "System Migration": ["EMP001", "EMP105"],
-  "Automation Script": ["EMP057", "EMP193"],
+// const DEPARTMENTS = ["Frontend", "Backend", "UI/UX", "Design"];
+const TRAINING_NAMES = ["ReactJS", "React Native", "UI/UX Design", "Node.js"];
 
-  "Audit Automation": ["EMP193", "EMP281"],
-  "Billing Optimization": ["EMP204", "EMP292"],
-  "Payroll Accuracy": ["EMP079","EMP303"],
-  "Budget Forecast Tool": ["EMP204", "EMP057", "EMP314", "EMP325", "EMP336", "EMP347"],
+const LEVELS = ["Beginner", "Intermediate", "Advanced"];
 
-  "Recruitment Portal": ["EMP128", "EMP402", "EMP413", "EMP424", "EMP435"],
-  "Employee Survey System": ["EMP079", "EMP171"],
-  "HR Compliance Monitoring": ["EMP024"],
+const TRAINERS = [
+  "Vijay Kumar",
+  "Jaswanth Kumar",
+  "Ajay Kumar",
+  "Divya Shree",
+  "Manoj Reddy",
+];
 
-  "Ad Campaign": ["EMP057", "EMP204"],
-  "SEO Optimization": ["EMP105"],
-  "Brand Redesign": ["EMP171", "EMP001"],
-  "Email Automation": ["EMP193", "EMP435", "EMP446"],
+// const ALL_EMPLOYEES = [
+//   /* Frontend */
+//   { id: "F001", name: "Ravi Kumar", batchMonth: 0, yearOffset: 0, durationMonths: 1 },
+//   { id: "F002", name: "Anita Verma", batchMonth: 1, yearOffset: 0, durationMonths: 2 },
+//   { id: "F003", name: "Srikanth R", batchMonth: 2, yearOffset: 0, durationMonths: 1 },
+//   { id: "F004", name: "Kavya Das", batchMonth: 3, yearOffset: 0, durationMonths: 2 },
+//   { id: "F005", name: "Harish G", batchMonth: 4, yearOffset: 0, durationMonths: 1 },
+//   { id: "F006", name: "Lohit Sai", batchMonth: 0, yearOffset: 1, durationMonths: 2 },
+//   { id: "F007", name: "Ayesha Fatima", batchMonth: 1, yearOffset: 1, durationMonths: 3 },
+//   { id: "F008", name: "Vishal Sharma", batchMonth: 2, yearOffset: 1, durationMonths: 1 },
+//   { id: "F009", name: "Praneeth", batchMonth: 5, yearOffset: 0, durationMonths: 2 },
+//   { id: "F010", name: "Charitha", batchMonth: 6, yearOffset: 0, durationMonths: 1 },
 
-  "UI Redesign": ["EMP001", "EMP128", "EMP457", "EMP468"],
-  "Dashboard Prototype": ["EMP148", "EMP479", "EMP490"],
-  "Illustration Pack": ["EMP171"],
-  "Theme Revamp": ["EMP024", "EMP079"],
-};
-// 🔹 Training → Auto-fill Values
-// 🔹 Training → Auto-fill Values (Trainer, Level, Dates, Mode)
-const TRAINING_AUTO = {
-  "React Basics": {
-    trainer: "Vijay Kumar",
-    level: "Beginner",
-    from: "2025-02-01",
-    to: "2025-02-05",
-    mode: "Online",
-  },
-  "Advanced React": {
-    trainer: "Jaswanth Kumar",
-    level: "Advanced",
-    from: "2025-03-10",
-    to: "2025-03-15",
-    mode: "Offline",
-  },
-  "JavaScript Essentials": {
-    trainer: "Ajay Kumar",
-    level: "Intermediate",
-    from: "2025-04-01",
-    to: "2025-04-05",
-    mode: "Online",
-  },
-  "Communication Skills": {
-    trainer: "Divya shree",
-    level: "Beginner",
-    from: "2025-02-20",
-    to: "2025-02-22",
-    mode: "Offline",
-  },
-  "UI/UX Fundamentals": {
-    trainer: "Manoj Reddy",
-    level: "Intermediate",
-    from: "2025-05-01",
-    to: "2025-05-05",
-    mode: "Online",
-  },
-};
+//   /* Backend */
+//   { id: "B001", name: "Kiran Kumar", batchMonth: 0, yearOffset: 0, durationMonths: 3 },
+//   { id: "B002", name: "Meghana T", batchMonth: 3, yearOffset: 0, durationMonths: 2 },
+//   { id: "B003", name: "Naveen R", batchMonth: 4, yearOffset: 0, durationMonths: 2 },
+//   { id: "B004", name: "Sunitha A", batchMonth: 1, yearOffset: 0, durationMonths: 3 },
+//   { id: "B005", name: "Rohit S", batchMonth: 2, yearOffset: 1, durationMonths: 2 },
+//   { id: "B006", name: "Dharani", batchMonth: 0, yearOffset: 1, durationMonths: 3 },
+//   { id: "B007", name: "Yogesh", batchMonth: 10, yearOffset: 0, durationMonths: 1 },
+//   { id: "B008", name: "Mounika", batchMonth: 11, yearOffset: 0, durationMonths: 2 },
 
+//   /* UI/UX */
+//   { id: "U001", name: "Harsha UI", batchMonth: 1, yearOffset: 0, durationMonths: 2 },
+//   { id: "U002", name: "Deepika UX", batchMonth: 2, yearOffset: 0, durationMonths: 1 },
+//   { id: "U003", name: "Vamshi UI", batchMonth: 0, yearOffset: 1, durationMonths: 2 },
+//   { id: "U004", name: "Hema UX", batchMonth: 4, yearOffset: 1, durationMonths: 2 },
+//   { id: "U005", name: "Tarun UI", batchMonth: 7, yearOffset: 0, durationMonths: 1 },
+//   { id: "U006", name: "Ananya UX", batchMonth: 8, yearOffset: 0, durationMonths: 1 },
+// ];
+
+// const EMPLOYEE_MASTER = {
+//   Frontend: ALL_EMPLOYEES.filter((e) => e.id.startsWith("F")),
+//   Backend: ALL_EMPLOYEES.filter((e) => e.id.startsWith("B")),
+//   "UI/UX": ALL_EMPLOYEES.filter((e) => e.id.startsWith("U")),
+//   Design: ALL_EMPLOYEES.filter((e) => e.id.startsWith("U")),
+// };
+
+function buildEmployeeDerivedFields(emp) {
+  const now = new Date();
+  const year = now.getFullYear() + (emp.yearOffset || 0);
+  const monthIndex =
+    typeof emp.batchMonth === "number" ? emp.batchMonth : now.getMonth();
+
+  const batch = `${MONTHS[monthIndex]} ${year}`;
+
+  const startDate = new Date();
+  const endDate = new Date(startDate);
+  endDate.setMonth(endDate.getMonth() + (emp.durationMonths || 1));
+
+  const durationDays = Math.ceil(
+    (endDate - startDate) / (1000 * 60 * 60 * 24)
+  );
+
+  return {
+    batch,
+    trainingStartDate: startDate.toISOString().slice(0, 10),
+    trainingEndDate: endDate.toISOString().slice(0, 10),
+    durationDays,
+  };
+}
+
+function progressFromStatus(status) {
+  if (status === "Completed") return 100;
+  if (status === "In Progress") return 50;
+  return 0;
+}
+
+function calculateTimeBasedProgress(startDateStr, endDateStr) {
+  if (!startDateStr || !endDateStr) return 0;
+
+  const start = new Date(startDateStr);
+  const end = new Date(endDateStr);
+  const today = new Date();
+
+  if (isNaN(start) || isNaN(end) || end <= start) return 0;
+
+  const total = end - start;
+  const elapsed = today - start;
+
+  let p = Math.round((elapsed / total) * 100);
+  if (p < 0) p = 0;
+  if (p > 100) p = 100;
+
+  return p;
+}
 
 export default function TrainingAssignment() {
-  const [formData, setFormData] = useState({
-    title: "",
+  const [form, setForm] = useState({
+    Name: "",
+    Id: "",
+    batch: "",
+    trainingCategory: "",
+    selectedCourses: [],
+    trainingStartDate: "",
+    trainingEndDate: "",
+    durationDays: 0,
+    Mode: "",
+    trainingName: "",
     level: "",
-    department: "",
-    project: "",
     trainer: "",
-    fromDate: "",
-    toDate: "",
-    mode: "",
   });
 
-  const [selectedEmployees, setSelectedEmployees] = useState([]);
-  const [searchEmp, setSearchEmp] = useState("");
-  const [errors, setErrors] = useState({});
+  const [assignments, setAssignments] = useState([]);
+  const [search, setSearch] = useState("");
+  const [employeeSearch, setEmployeeSearch] = useState("");
 
-  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
-  const [showCancelWarning, setShowCancelWarning] = useState(false);
-  const [skipSecondCancel, setSkipSecondCancel] = useState(false);
-  const [blurActive, setBlurActive] = useState(false);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [showConfirm, setShowConfirm] = useState(false);
 
-  const [assignedList, setAssignedList] = useState([]);
+  const [bulkAssignCategory, setBulkAssignCategory] = useState("");
+  const [bulkTrainingName, setBulkTrainingName] = useState("");
+  const [bulkLevel, setBulkLevel] = useState("");
+  const [bulkTrainer, setBulkTrainer] = useState("");
 
-  const [tableSearch, setTableSearch] = useState("");
-  const [sortBy, setSortBy] = useState(null);
-  const [sortDir, setSortDir] = useState("asc");
+  const [selectedBulkEmployees, setSelectedBulkEmployees] = useState([]);
+  const [bulkSearch, setBulkSearch] = useState("");
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const PAGE_SIZE = 10;
+  const [bulkStartDate, setBulkStartDate] = useState("");
+  const [bulkEndDate, setBulkEndDate] = useState("");
+  const [bulkDurationDays, setBulkDurationDays] = useState(0);
+  const [bulkBatch, setBulkBatch] = useState("");
+  const [bulkMode, setBulkMode] = useState("");
 
-  const [editingAssignedAt, setEditingAssignedAt] = useState(null);
+  const [categoryFilter, setCategoryFilter] = useState("All");
+
+    // ⭐ Fetch departments from API
+  const [DEPARTMENTS, setDEPARTMENTS] = useState([]);
 
   useEffect(() => {
+    async function loadDepartments() {
+      try {
+        const res = await fetch(
+          "https://internal-website-rho.vercel.app/api/training/departments"
+        );
+        const data = await res.json();
+        if (data.departments) {
+          setDEPARTMENTS(data.departments);
+        }
+      } catch (err) {
+        console.error("Department fetch error:", err);
+      }
+    }
+
+    loadDepartments();
+  }, []);
+
+  const [employees, setEmployees] = useState([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(false);
+
+useEffect(() => {
+  if (!bulkAssignCategory) return;
+
+  async function loadEmployees() {
     try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (raw) setAssignedList(JSON.parse(raw));
-      else localStorage.setItem(LS_KEY, JSON.stringify([]));
-    } catch (e) {}
+      setLoadingEmployees(true);
+
+      const res = await fetch(
+        `https://internal-website-rho.vercel.app/api/training/departments/${bulkAssignCategory}`
+      );
+      const data = await res.json();
+
+      console.log("Employee API response:", data);
+
+      if (data.employees && data.employees.length > 0) {
+        const mapped = data.employees.map((emp) => ({
+          id: emp.employeeId,
+          name: emp.employeeName,
+          department: emp.department,
+          manager: emp.managerName,
+        }));
+
+        setEmployees(mapped);
+      } else {
+        setEmployees([]);
+      }
+    } catch (err) {
+      console.error("Employee fetch error:", err);
+      setEmployees([]);
+    } finally {
+      setLoadingEmployees(false);
+    }
+  }
+
+  loadEmployees();
+}, [bulkAssignCategory]);
+
+  // ⭐ Marks / Performance popup state (exam + marks)
+  const [showMarksPopup, setShowMarksPopup] = useState(false);
+  const [activeMarksIndex, setActiveMarksIndex] = useState(null);
+  const [marksRows, setMarksRows] = useState([
+    { id: 1, exam: "", marks: "" },
+  ]);
+
+  useEffect(() => {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+
+    try {
+      const parsed = JSON.parse(raw) || [];
+
+      const migrated = parsed.map((a) => {
+        const progress = calculateTimeBasedProgress(
+          a.trainingStartDate,
+          a.trainingEndDate
+        );
+
+        let status = a.status || "Not Started";
+        if (!a.status) {
+          if (progress >= 100) status = "Completed";
+          else if (progress > 0) status = "In Progress";
+        }
+
+        return { ...a, progress, status };
+      });
+
+      setAssignments(migrated);
+    } catch {
+      setAssignments([]);
+    }
   }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(LS_KEY, JSON.stringify(assignedList));
-    } catch (e) {}
-  }, [assignedList]);
+    localStorage.setItem(LS_KEY, JSON.stringify(assignments));
+  }, [assignments]);
 
-  const pushToast = (msg) => setTimeout(() => alert(msg), 50);
+  // ⭐ AUTO UPDATE PROGRESS WHEN PAGE LOADS
+  useEffect(() => {
+    const updated = assignments.map((a) => {
+      const progress = calculateTimeBasedProgress(
+        a.trainingStartDate,
+        a.trainingEndDate
+      );
+
+      let status = "Not Started";
+      if (progress >= 100) status = "Completed";
+      else if (progress > 0) status = "In Progress";
+
+      return { ...a, progress, status };
+    });
+
+    setAssignments(updated);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ⭐ AUTO UPDATE PROGRESS DAILY (24 hours)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const updated = assignments.map((a) => {
+        const progress = calculateTimeBasedProgress(
+          a.trainingStartDate,
+          a.trainingEndDate
+        );
+
+        let status = "Not Started";
+        if (progress >= 100) status = "Completed";
+        else if (progress > 0) status = "In Progress";
+
+        return { ...a, progress, status };
+      });
+
+      setAssignments(updated);
+    }, 86400000); // 24 hours
+
+    return () => clearInterval(interval);
+  }, [assignments]);
+
+  // const employeesForCategory = useMemo(() => {
+  //   return EMPLOYEE_MASTER[form.trainingCategory] || [];
+  // }, [form.trainingCategory]);
+  const employeesForCategory = employees || [];
+
+const filteredEmployeeOptions = useMemo(() => {
+  const search = (employeeSearch || "").toLowerCase();
+
+  return employees.filter((emp) => {
+    const name = (emp?.name || "").toLowerCase();
+    const id = (emp?.id || "").toLowerCase();
+
+    return name.includes(search) || id.includes(search);
+  });
+}, [employees, employeeSearch]);
 
   const handleChange = (e) => {
-  const { name, value } = e.target;
+    const { name, value } = e.target;
 
-  setFormData((prev) => ({ ...prev, [name]: value }));
-  // 🔹 Auto-fill fields based on Training Title
-if (name === "title") {
-  const auto = TRAINING_AUTO[value];
-  if (auto) {
-    setFormData((prev) => ({
+    setForm((prev) => {
+      let updated = { ...prev, [name]: value };
+
+      if (name === "trainingCategory") {
+        updated.selectedCourses = [];
+        updated.Id = "";
+        updated.Name = "";
+        updated.batch = "";
+        updated.trainingStartDate = "";
+        updated.trainingEndDate = "";
+        updated.durationDays = 0;
+        setEmployeeSearch("");
+      }
+
+      if (name === "trainingStartDate" || name === "trainingEndDate") {
+        if (updated.trainingStartDate && updated.trainingEndDate) {
+          const d1 = new Date(updated.trainingStartDate);
+          const d2 = new Date(updated.trainingEndDate);
+
+          updated.durationDays = Math.ceil(
+            (d2 - d1) / (1000 * 60 * 60 * 24)
+          );
+        } else {
+          updated.durationDays = 0;
+        }
+      }
+
+      return updated;
+    });
+  };
+
+const handleEmployeeSelect = async (e) => {
+  const id = e.target.value;
+
+  try {
+    const res = await fetch(
+      `https://internal-website-rho.vercel.app/api/training/departments/${bulkAssignCategory}/${id}`
+    );
+    const data = await res.json();
+
+    if (!data.employee) return;
+
+    const emp = data.employee;
+
+    setForm((prev) => ({
       ...prev,
-      level: auto.level,
-      trainer: auto.trainer,
-      fromDate: auto.from,
-      toDate: auto.to,
-      mode: auto.mode, // 🔹 NEW AUTO-FILL FIELD
+      Id: emp.employeeId,
+      Name: emp.employeeName,
+      batch: "",
+      trainingStartDate: "",
+      trainingEndDate: "",
+      durationDays: 0,
     }));
-  }
-}
-
-
-  // 🔹 Reset project when department changes
-  if (name === "department") {
-    setFormData((prev) => ({ ...prev, project: "" }));
-    setSelectedEmployees([]);
-  }
-
-  // 🔹 When project selected → filter employees
-  if (name === "project") {
-    const allowed = PROJECT_EMPLOYEES[value] || [];
-    setSelectedEmployees(allowed);
+  } catch (err) {
+    console.error("Employee fetch error:", err);
   }
 };
 
-  const handleCheckboxChange = (id) => {
-    setSelectedEmployees((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.title) newErrors.title = "Training Title is required";
-    if (!formData.level) newErrors.level = "Select a level";
-    if (!formData.department) newErrors.department = "Department is required";
-    if (!formData.trainer) newErrors.trainer = "Trainer/Manager is required";
-    if (!formData.fromDate) newErrors.fromDate = "From Date required";
-    if (!formData.toDate) newErrors.toDate = "To Date required";
-    if (selectedEmployees.length === 0)
-      newErrors.employees = "Select at least one employee";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  const validateSingle = () =>
+    form.Name &&
+    form.Id &&
+    form.batch &&
+    form.trainingCategory &&
+    form.trainingStartDate &&
+    form.trainingEndDate &&
+    form.Mode &&
+    form.trainingName &&
+    form.level &&
+    form.trainer;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!validateForm()) {
-      pushToast("Fix validation errors");
+    if (!validateSingle()) {
+      alert("Please fill all required fields");
       return;
     }
-    setShowConfirmPopup(true);
-    setBlurActive(true);
+    setShowConfirm(true);
   };
 
-  const handleCancelClick = () => {
-    if (skipSecondCancel) {
-      resetAll();
-      pushToast("Assignment cancelled");
-      return;
-    }
-
-    setShowConfirmPopup(false);
-    setShowCancelWarning(true);
-    setBlurActive(true);
-  };
-
-  const confirmCancel = () => {
-    resetAll();
-    pushToast("Assignment cancelled");
-  };
-
-  const closeWarning = () => {
-    setShowCancelWarning(false);
-    setShowConfirmPopup(true);
-    setSkipSecondCancel(true);
-    setBlurActive(true);
-  };
-
-  const resetAll = () => {
-    setShowConfirmPopup(false);
-    setShowCancelWarning(false);
-    setBlurActive(false);
-    setSkipSecondCancel(false);
-    setEditingAssignedAt(null);
-    setFormData({
-      title: "",
-      level: "",
-      department: "",
-      trainer: "",
-      fromDate: "",
-      toDate: "",
-    });
-    setSelectedEmployees([]);
-  };
-
-  const confirmAndSave = () => {
-    try {
-      const now = new Date().toISOString();
-
-      if (editingAssignedAt) {
-        const updated = assignedList.map((item) =>
-          item.assignedAt === editingAssignedAt
-            ? {
-                ...item,
-                id: selectedEmployees[0] || item.id,
-                name:
-                  employees.find(
-                    (e) => e.id === (selectedEmployees[0] || item.id)
-                  )?.name || item.name,
-                trainingTitle: formData.title,
-                level: formData.level,
-                department: formData.department,
-                trainer: formData.trainer,
-                from: formData.fromDate,
-                to: formData.toDate,
-              }
-            : item
-        );
-        setAssignedList(updated);
-        pushToast("Assignment updated");
-      } else {
-        const newEntries = selectedEmployees.map((id) => {
-          const emp = employees.find((e) => e.id === id);
-          return {
-            id: emp.id,
-            name: emp.name,
-            trainingTitle: formData.title,
-            level: formData.level,
-            department: formData.department,
-            trainer: formData.trainer,
-            from: formData.fromDate,
-            to: formData.toDate,
-            assignedAt: now + "-" + id,
-          };
-        });
-        setAssignedList((prev) => [...newEntries, ...prev]);
-        pushToast("Training assigned successfully");
-      }
-    } catch (err) {}
-
-    resetAll();
-  };
-
-  const handleEdit = (item) => {
-    setEditingAssignedAt(item.assignedAt);
-    setFormData({
-      title: item.trainingTitle,
-      level: item.level,
-      department: item.department,
-      trainer: item.trainer,
-      fromDate: item.from,
-      toDate: item.to,
-    });
-    setSelectedEmployees([item.id]);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    pushToast("Editing mode enabled");
-  };
-
-  const handleDelete = (item) => {
-    if (!window.confirm(`Delete ${item.id} - ${item.name}?`)) return;
-    setAssignedList((prev) =>
-      prev.filter((e) => e.assignedAt !== item.assignedAt)
-    );
-    pushToast("Assignment deleted");
-  };
-
-  const filteredAndSorted = useMemo(() => {
-    const q = tableSearch.toLowerCase();
-    let f = assignedList.filter((it) =>
-      `${it.id} ${it.name} ${it.trainingTitle} ${it.level} ${it.department}`
-        .toLowerCase()
-        .includes(q)
-    );
-
-    if (sortBy) {
-      f.sort((a, b) => {
-        let A = a[sortBy] ?? "";
-        let B = b[sortBy] ?? "";
-
-        if (sortBy === "from" || sortBy === "to") {
-          A = new Date(A).getTime();
-          B = new Date(B).getTime();
-        } else {
-          A = String(A).toLowerCase();
-          B = String(B).toLowerCase();
-        }
-
-        if (A < B) return sortDir === "asc" ? -1 : 1;
-        if (A > B) return sortDir === "asc" ? 1 : -1;
-        return 0;
-      });
-    }
-
-    return f;
-  }, [assignedList, tableSearch, sortBy, sortDir]);
-
-  const totalPages = Math.max(
-    1,
-    Math.ceil(filteredAndSorted.length / PAGE_SIZE)
+  const confirmAssignment = async () => {
+  const progress = calculateTimeBasedProgress(
+    form.trainingStartDate,
+    form.trainingEndDate
   );
 
-  useEffect(() => {
-    if (currentPage > totalPages) setCurrentPage(1);
-  }, [filteredAndSorted.length, totalPages]);
+  let status = "Not Started";
+  if (progress >= 100) status = "Completed";
+  else if (progress > 0) status = "In Progress";
 
-  const pageData = useMemo(() => {
-    const start = (currentPage - 1) * PAGE_SIZE;
-    return filteredAndSorted.slice(start, start + PAGE_SIZE);
-  }, [filteredAndSorted, currentPage]);
-
-  const handleSort = (col) => {
-    if (sortBy === col) {
-      setSortDir((s) => (s === "asc" ? "desc" : "asc"));
-    } else {
-      setSortBy(col);
-      setSortDir("asc");
-    }
+  const data = {
+    ...form,
+    progress,
+    status,
+    isBulk: false,
+    assignedDate: new Date().toISOString(),
   };
 
+  try {
+    const res = await fetch(
+      "https://internal-website-rho.vercel.app/api/training/create",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    );
+
+    const result = await res.json();
+    console.log("CREATE API RESPONSE:", result);
+  } catch (err) {
+    console.error("Create API error:", err);
+  }
+
+  if (editingIndex !== null) {
+    const updated = [...assignments];
+    updated[editingIndex] = data;
+    setAssignments(updated);
+    setEditingIndex(null);
+  } else {
+    setAssignments((prev) => [data, ...prev]);
+  }
+
+  setShowConfirm(false);
+
+  setForm({
+    Name: "",
+    Id: "",
+    batch: "",
+    trainingCategory: "",
+    selectedCourses: [],
+    trainingStartDate: "",
+    trainingEndDate: "",
+    durationDays: 0,
+    Mode: "",
+    trainingName: "",
+    level: "",
+    trainer: "",
+  });
+};
+
+const bulkEmployeesForCategory = useMemo(() => {
+  if (!bulkAssignCategory || employees.length === 0) return [];
+  
+
+ const filtered = employees.filter((e) => {
+  const dept = e.department || ""; // safe fallback
+  const cat = bulkAssignCategory || ""; // safe fallback
+  return dept.toLowerCase().includes(cat.toLowerCase());
+});
+
+  // Remove duplicates by id
+  const uniqueMap = new Map();
+  filtered.forEach((e) => {
+    if (!uniqueMap.has(e.id)) {
+      uniqueMap.set(e.id, {
+        id: e.id,
+        name: e.name,
+        department: e.department,
+        manager: e.manager,
+      });
+    }
+  });
+
+  return Array.from(uniqueMap.values());
+}, [employees, bulkAssignCategory]);
+
+const bulkFilteredEmployees = useMemo(() => {
+  const s = bulkSearch.toLowerCase();
+  return bulkEmployeesForCategory.filter(
+    (e) =>
+      e.id.toLowerCase().includes(s) ||
+      e.name.toLowerCase().includes(s)
+  );
+}, [bulkSearch, bulkEmployeesForCategory]);
+
+  useEffect(() => {
+    if (bulkStartDate && bulkEndDate) {
+      const d1 = new Date(bulkStartDate);
+      const d2 = new Date(bulkEndDate);
+      if (!isNaN(d1) && !isNaN(d2) && d2 >= d1) {
+        const days = Math.ceil(
+          (d2 - d1) / (1000 * 60 * 60 * 24)
+        );
+        setBulkDurationDays(days);
+      } else {
+        setBulkDurationDays(0);
+      }
+    } else {
+      setBulkDurationDays(0);
+    }
+
+    if (bulkStartDate) {
+      const d = new Date(bulkStartDate);
+      if (!isNaN(d)) {
+        const monthName = MONTHS[d.getMonth()];
+        const year = d.getFullYear();
+        setBulkBatch(`${monthName} ${year}`);
+      } else {
+        setBulkBatch("");
+      }
+    } else {
+      setBulkBatch("");
+    }
+  }, [bulkStartDate, bulkEndDate]);
+
+ const handleBulkAutoAssign = async () => {
+  if (!bulkAssignCategory)
+    return alert("Please select Department");
+  if (!bulkTrainingName)
+    return alert("Please select Training");
+  if (!bulkLevel)
+    return alert("Please select Level");
+  if (!bulkTrainer)
+    return alert("Please select Trainer");
+  if (!bulkStartDate || !bulkEndDate)
+    return alert("Please select Start Date and End Date");
+  if (!bulkMode)
+    return alert("Please select Mode");
+  if (selectedBulkEmployees.length === 0)
+    return alert("Please select employees");
+
+  const d1 = new Date(bulkStartDate);
+  const d2 = new Date(bulkEndDate);
+  if (d2 < d1) {
+    alert("End Date should be after Start Date");
+    return;
+  }
+
+  const empList = bulkEmployeesForCategory;
+
+  const progress = calculateTimeBasedProgress(bulkStartDate, bulkEndDate);
+
+  let status = "Not Started";
+  if (progress >= 100) status = "Completed";
+  else if (progress > 0) status = "In Progress";
+
+  const newItems = selectedBulkEmployees
+    .map((id) => {
+      const emp = empList.find((e) => e.id === id);
+      if (!emp) return null;
+
+      return {
+        Id: emp.id,
+        Name: emp.name,
+        trainingCategory: bulkAssignCategory,
+        trainingName: bulkTrainingName,
+        level: bulkLevel,
+        trainer: bulkTrainer,
+        batch: bulkBatch,
+        selectedCourses: [],
+        progress,
+        status,
+        isBulk: true,
+        Mode: bulkMode,
+        assignedDate: new Date().toISOString(),
+        trainingStartDate: bulkStartDate,
+        trainingEndDate: bulkEndDate,
+        durationDays: bulkDurationDays,
+      };
+    })
+    .filter(Boolean);
+
+  if (newItems.length === 0) {
+    return alert("No valid employees selected for assignment.");
+  }
+
+  // ⭐ SEND EACH EMPLOYEE TO CREATE API
+  for (const item of newItems) {
+    try {
+      const resp = await fetch(
+        "https://internal-website-rho.vercel.app/api/training/create",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(item),
+        }
+      );
+
+      const result = await resp.json();
+      console.log("BULK CREATE RESPONSE:", result);
+    } catch (err) {
+      console.error("Bulk create error:", err);
+    }
+  }
+
+  // Add locally
+  setAssignments((prev) => [...newItems, ...prev]);
+
+  setSelectedBulkEmployees([]);
+  setBulkSearch("");
+  setBulkMode("");
+  setBulkTrainingName("");
+  setBulkLevel("");
+  setBulkTrainer("");
+
+  alert("Bulk Assigned Successfully!");
+};
+
+
+
+  const updateStatus = (index, status) => {
+    const updated = [...assignments];
+    updated[index].status = status;
+    updated[index].progress = progressFromStatus(status);
+    setAssignments(updated);
+  };
+
+  const startEdit = (index) => {
+    const a = assignments[index];
+
+    setForm({
+      Name: a.Name,
+      Id: a.Id,
+      batch: a.batch,
+      trainingCategory: a.trainingCategory,
+      selectedCourses: a.selectedCourses || [],
+      trainingStartDate: a.trainingStartDate || "",
+      trainingEndDate: a.trainingEndDate || "",
+      durationDays: a.durationDays || 0,
+      Mode: a.Mode || "",
+      trainingName: a.trainingName || "",
+      level: a.level || "",
+      trainer: a.trainer || "",
+    });
+
+    setEmployeeSearch(a.Id || "");
+    setEditingIndex(index);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // ⭐ filtered now keeps original index as _index
+  const filtered = assignments
+    .map((a, idx) => ({ ...a, _index: idx }))
+    .filter((a) => {
+      const s = search.toLowerCase();
+
+      const matchesSearch =
+        a.Name.toLowerCase().includes(s) ||
+        a.Id.toLowerCase().includes(s) ||
+        (a.trainingCategory || "").toLowerCase().includes(s) ||
+        (a.trainingName || "").toLowerCase().includes(s);
+
+      const matchesCategory =
+        categoryFilter === "All" || a.trainingCategory === categoryFilter;
+
+      return matchesSearch && matchesCategory;
+    });
+
+  const avgProgressByCategory = useMemo(() => {
+    const categoryMap = {};
+
+    assignments.forEach((record) => {
+      const cat = record.trainingCategory;
+      if (!cat) return;
+
+      if (!categoryMap[cat]) {
+        categoryMap[cat] = {
+          totalProgress: 0,
+          totalEmployees: 0,
+        };
+      }
+
+      categoryMap[cat].totalProgress += record.progress || 0;
+      categoryMap[cat].totalEmployees++;
+    });
+
+    return Object.keys(categoryMap).map((cat) => {
+      const { totalProgress, totalEmployees } = categoryMap[cat];
+      return {
+        category: cat,
+        avg: Math.round(totalProgress / totalEmployees) || 0,
+      };
+    });
+  }, [assignments]);
+
+  const exportToExcel = () => {
+    if (assignments.length === 0) {
+      alert("No data to export!");
+      return;
+    }
+
+    const exportData = assignments.map((a, index) => ({
+      S_No: index + 1,
+      ID: a.Id,
+      Name: a.Name,
+      Department: a.trainingCategory,
+      Training_Name: a.trainingName,
+      Level: a.level,
+      Trainer: a.trainer,
+      Batch: a.batch,
+      Start_Date: a.trainingStartDate,
+      End_Date: a.trainingEndDate,
+      Duration_Days: a.durationDays,
+      Mode: a.Mode,
+      Progress: (a.progress ?? 0) + "%",
+      Status: a.status,
+      Assigned_Date: a.assignedDate
+        ? new Date(a.assignedDate).toLocaleDateString()
+        : "",
+      Assigned_Type: a.isBulk ? "Bulk" : "Single",
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Training_Assignments");
+
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], {
+      type: "application/octet-stream",
+    });
+
+    saveAs(blob, "Training_Assignments.xlsx");
+  };
+
+  const downloadBlankTemplate = () => {
+    const template = [
+      {
+        "S.No": "",
+        " ID": "",
+        " Name": "",
+        "Department": "",
+        "Training Name": "",
+        "Level": "",
+        "Trainer": "",
+        "Batch": "",
+        "Start Date": "",
+        "End Date": "",
+        "Duration (Days)": "",
+        "Progress (%)": "",
+        "Status": "",
+        "Assigned Date": "",
+        "Assigned Type": "",
+        "Mode": "",
+      },
+    ];
+
+    const ws = XLSX.utils.json_to_sheet(template);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Blank Template");
+
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], {
+      type: "application/octet-stream",
+    });
+
+    // saveAs(blob, "Multiple_Training_Blank_Template.xlsx");
+  };
+
+  /* ===================== MARKS POPUP HELPERS (exam + marks) ===================== */
+
+  const openMarksPopup = (assignmentIndex) => {
+    const rec = assignments[assignmentIndex];
+    if (!rec) return;
+
+    setActiveMarksIndex(assignmentIndex);
+
+    if (Array.isArray(rec.marksData) && rec.marksData.length > 0) {
+      // Support old structure (course/marks/remarks) & new (exam/marks)
+      const mapped = rec.marksData.map((row, idx) => ({
+        id: row.id ?? idx + 1,
+        exam: row.exam ?? row.course ?? "",
+        marks: row.marks ?? "",
+      }));
+      setMarksRows(mapped);
+    } else {
+      setMarksRows([{ id: 1, exam: "", marks: "" }]);
+    }
+
+    setShowMarksPopup(true);
+  };
+
+  const addMarksRow = () => {
+    setMarksRows((prev) => {
+      const nextId =
+        prev.length > 0 ? Math.max(...prev.map((r) => r.id || 0)) + 1 : 1;
+      return [...prev, { id: nextId, exam: "", marks: "" }];
+    });
+  };
+
+  const updateMarksRow = (rowId, field, value) => {
+    setMarksRows((prev) =>
+      prev.map((row) =>
+        row.id === rowId ? { ...row, [field]: value } : row
+      )
+    );
+  };
+
+  const removeMarksRow = (rowId) => {
+    setMarksRows((prev) => {
+      const filtered = prev.filter((row) => row.id !== rowId);
+      // Keep at least one row
+      return filtered.length > 0 ? filtered : prev;
+    });
+  };
+
+  const saveMarks = () => {
+    if (activeMarksIndex === null) return;
+
+    setAssignments((prev) =>
+      prev.map((item, idx) =>
+        idx === activeMarksIndex ? { ...item, marksData: marksRows } : item
+      )
+    );
+
+    setShowMarksPopup(false);
+    setActiveMarksIndex(null);
+  };
+
+  /* =======================  UI START  ======================= */
+
   return (
-    <div className="training-assignment-container">
-      {(showConfirmPopup || showCancelWarning) && (
-        <div className="blur-overlay" />
-      )}
+    <div className="ftd-root">
+      <h1 className="heading"> Training Assigned (Multiple)</h1>
 
-      {/* POPUP */}
-      {showConfirmPopup && (
-        <div className="success-overlay">
-          <div className="success-popup-big">
-            <FiCheckCircle className="popup-icon-big" />
-            <h3 className="success-title-big">Confirm Training Assignment</h3>
+      {/* =================== BULK ASSIGN =================== */}
+      <div className="ftd-bulk-card">
+        <h3> – Select Employees (Multiple)</h3>
 
-            <div className="popup-details-big">
-              <p>
-                <strong>Training:</strong> {formData.title}
-              </p>
-              <p>
-                <strong>Level:</strong> {formData.level}
-              </p>
-              <p>
-                <strong>Department:</strong> {formData.department}
-              </p>
-              <p>
-                <strong>Trainer:</strong> {formData.trainer}
-              </p>
-              <p>
-                <strong>From:</strong> {formData.fromDate}
-              </p>
-              <p>
-                <strong>To:</strong> {formData.toDate}
-              </p>
+        <div
+          className="ftd-grid"
+          style={{ gridTemplateColumns: "repeat(3, 1fr)" }}
+        >
+          <div>
+            <label>
+              <b>Department</b>
+            </label>
+            <select
+              value={bulkAssignCategory}
+              onChange={(e) => {
+                setBulkAssignCategory(e.target.value);
+                setSelectedBulkEmployees([]);
+                setBulkSearch("");
+              }}
+            >
+              <option value="">-- Select Department --</option>
+              {DEPARTMENTS.map((dep) => (
+                <option key={dep} value={dep}>
+                  {dep}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
+  <label>Select Employee</label>
+
+  {loadingEmployees ? (
+    <p>Loading employees...</p>
+  ) : (
+    <select value={form.Id} onChange={handleEmployeeSelect}>
+      <option value="">-- Select Employee --</option>
+      console.log("FILTERED EMPLOYEE OPTIONS =", filteredEmployeeOptions);
+
+
+      {filteredEmployeeOptions.map((emp) => (
+        
+        <option key={emp.id} value={emp.id}>
+          {emp.name !== "Unknown" ? emp.name : emp.id} — {emp.id}
+        </option>
+      ))}
+    </select>
+  )}
+</div>
+
+
+          <div>
+            <label> Start Date</label>
+            <input
+              type="date"
+              value={bulkStartDate}
+              onChange={(e) => setBulkStartDate(e.target.value)}
+              disabled={!bulkAssignCategory}
+            />
+          </div>
+
+          <div>
+            <label>End Date</label>
+            <input
+              type="date"
+              value={bulkEndDate}
+              onChange={(e) => setBulkEndDate(e.target.value)}
+              disabled={!bulkAssignCategory}
+            />
+          </div>
+        </div>
+
+        {bulkAssignCategory && (
+          <div
+            className="ftd-grid"
+            style={{ gridTemplateColumns: "repeat(3, 1fr)", marginTop: 10 }}
+          >
+            <div>
+              <label>Batch (Month Year)</label>
+              <input value={bulkBatch} readOnly />
             </div>
 
-            <div className="assigned-list-big">
-              <h4>Employees</h4>
-              {selectedEmployees.map((id) => {
-                const emp = employees.find((e) => e.id === id);
-                return (
-                  <div key={id} className="assigned-emp-row">
-                    {emp.id} — {emp.name}
-                  </div>
-                );
-              })}
+            <div>
+              <label>Duration (Days)</label>
+              <input value={bulkDurationDays} readOnly />
             </div>
 
-            <div className="popup-buttons">
-              <button className="ok-btn-big" onClick={confirmAndSave}>
-                OK
+            <div>
+              <label>Mode</label>
+              <select
+                value={bulkMode}
+                onChange={(e) => setBulkMode(e.target.value)}
+              >
+                <option value="">-- Select Mode --</option>
+                <option value="Online">Online</option>
+                <option value="Offline">Offline</option>
+                <option value="Hybrid">Hybrid</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {bulkAssignCategory && (
+          <div
+            className="ftd-grid"
+            style={{ gridTemplateColumns: "repeat(3, 1fr)", marginTop: 10 }}
+          >
+            <div>
+              <label>Trainer</label>
+              <select
+                value={bulkTrainer}
+                onChange={(e) => setBulkTrainer(e.target.value)}
+              >
+                <option value="">-- Select Trainer --</option>
+                {TRAINERS.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label>Training</label>
+              <select
+                value={bulkTrainingName}
+                onChange={(e) => setBulkTrainingName(e.target.value)}
+              >
+                <option value="">-- Select Training --</option>
+                {TRAINING_NAMES.map((t) => (
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label>Level</label>
+              <select
+                value={bulkLevel}
+                onChange={(e) => setBulkLevel(e.target.value)}
+              >
+                <option value="">-- Select Level --</option>
+                {LEVELS.map((lvl) => (
+                  <option key={lvl} value={lvl}>
+                    {lvl}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+        {bulkAssignCategory && (
+          <>
+            <div className="bulk-emp-list">
+              <label>
+                <b>Select Employees</b>
+              </label>
+
+              <input
+                type="text"
+                placeholder="Search employees..."
+                value={bulkSearch}
+                onChange={(e) => setBulkSearch(e.target.value)}
+                className="bulk-search"
+              />
+
+              <div className="bulk-actions">
+                <button
+                  type="button"
+                  className="bulk-small-btn"
+                  onClick={() =>
+                    setSelectedBulkEmployees(
+                      bulkFilteredEmployees.map((e) => e.id)
+                    )
+                  }
+                >
+                  Select All
+                </button>
+
+                <button
+                  type="button"
+                  className="bulk-small-btn clear"
+                  onClick={() => setSelectedBulkEmployees([])}
+                >
+                  Clear All
+                </button>
+              </div>
+
+{bulkFilteredEmployees.map((emp) => (
+  <div key={emp.id} className="bulk-emp-item">
+    <input
+      type="checkbox"
+      value={emp.id}
+      checked={selectedBulkEmployees.includes(emp.id)}
+      onChange={(e) => {
+        if (e.target.checked) {
+          setSelectedBulkEmployees((prev) => [...prev, emp.id]);
+        } else {
+          setSelectedBulkEmployees((prev) =>
+            prev.filter((id) => id !== emp.id)
+          );
+        }
+      }}
+    />
+    <span className="bulk-emp-text">
+      {emp.name !== "Unknown" ? emp.name : emp.id} – {emp.id}
+    </span>
+  </div>
+))}
+
+              {bulkFilteredEmployees.length === 0 && (
+                <div style={{ fontSize: 12, color: "#666", marginTop: 8 }}>
+                  No employees found for this search.
+                </div>
+              )}
+            </div>
+
+            <button
+              className="primary"
+              type="button"
+              onClick={handleBulkAutoAssign}
+              disabled={
+                selectedBulkEmployees.length === 0 ||
+                !bulkStartDate ||
+                !bulkEndDate ||
+                !bulkMode ||
+                !bulkAssignCategory ||
+                !bulkTrainingName ||
+                !bulkLevel ||
+                !bulkTrainer
+              }
+              style={{ marginTop: "15px" }}
+            >
+              Assign Selected Employees
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* SEARCH BAR */}
+      <div className="ftd-search-row">
+        <input
+          placeholder="Search..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className="category-filter"
+        >
+          <option value="All">All Departments</option>
+          {DEPARTMENTS.map((dep) => (
+            <option key={dep} value={dep}>
+              {dep}
+            </option>
+          ))}
+        </select>
+
+        <div className="counts">
+          Total Assignments: <strong>{assignments.length}</strong>
+        </div>
+      </div>
+
+      {/* ================= TABLE ================= */}
+      <div className="ftd-table-wrap">
+        <table className="ftd-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Department</th>
+              <th>Training</th>
+              <th>Level</th>
+              <th>Trainer</th>
+              <th>Batch</th>
+              <th>Start</th>
+              <th>End</th>
+              <th>Days</th>
+              <th>Mode</th>
+              <th>Progress</th>
+              <th>Assigned</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan="15" style={{ textAlign: "center", padding: 20 }}>
+                  No results found
+                </td>
+              </tr>
+            ) : (
+              filtered.map((a) => (
+                <tr key={a._index}>
+                  <td>{a.Id}</td>
+
+                  <td>
+                    <button
+                      type="button"
+                      className="name-link"
+                      onClick={() => openMarksPopup(a._index)}
+                    >
+                      {a.Name}
+                    </button>
+                    {a.isBulk && <span className="bulk-tag"> (Bulk)</span>}
+                  </td>
+
+                  <td>{a.trainingCategory}</td>
+                  <td>{a.trainingName || "-"}</td>
+                  <td>{a.level || "-"}</td>
+                  <td>{a.trainer || "-"}</td>
+                  <td>{a.batch}</td>
+
+                  <td>{a.trainingStartDate}</td>
+                  <td>{a.trainingEndDate}</td>
+                  <td>{a.durationDays}</td>
+                  <td>{a.Mode}</td>
+
+                  <td style={{ minWidth: "150px" }}>
+                    <div className="progress-line">
+                      <div
+                        className="progress-fill"
+                        style={{ width: `${a.progress || 0}%` }}
+                      ></div>
+                    </div>
+                    <div className="progress-number">
+                      {a.progress || 0}%
+                    </div>
+                  </td>
+
+                  <td>
+                    {a.assignedDate
+                      ? new Date(a.assignedDate).toLocaleDateString()
+                      : ""}
+                  </td>
+
+                  <td className="actions">
+                    <button onClick={() => startEdit(a._index)}>Edit</button>
+                    <button
+                      className="danger"
+                      onClick={() => {
+                        if (window.confirm("Delete?")) {
+                          setAssignments((prev) =>
+                            prev.filter((_, idx) => idx !== a._index)
+                          );
+                        }
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* CONFIRM POPUP */}
+      {showConfirm && (
+        <div className="ftd-popup">
+          <div className="ftd-popup-box">
+            <h3>Confirm Assignment</h3>
+
+            <p>
+              <strong>{form.Name}</strong> →{" "}
+              <em>
+                {form.trainingName} ({form.trainingCategory})
+              </em>{" "}
+              ({form.Mode})
+            </p>
+
+            <div className="popup-actions" style={{ marginTop: 15 }}>
+              <button className="primary" onClick={confirmAssignment}>
+                Confirm
               </button>
-              <button className="cancel-btn" onClick={handleCancelClick}>
+
+              <button
+                className="secondary"
+                onClick={() => setShowConfirm(false)}
+              >
                 Cancel
               </button>
             </div>
@@ -481,302 +1232,85 @@ if (name === "title") {
         </div>
       )}
 
-      {/* SECOND CANCEL POPUP */}
-      {showCancelWarning && (
-        <div className="center-warning-box">
-          <div className="warning-inner">
-            <h3>Are you sure?</h3>
-            <p>You want to cancel this training?</p>
+      {/* ⭐ MARKS / PERFORMANCE POPUP ⭐ (Exam + Marks) */}
+      {showMarksPopup && (
+        <>
+          <div className="marks-overlay"></div>
 
-            <div className="popup-buttons">
-              <button className="ok-btn" onClick={confirmCancel}>
-                Yes
+          <div className="marks-popup">
+            <h2>
+              Performance Marks —{" "}
+              {activeMarksIndex !== null
+                ? assignments[activeMarksIndex]?.Name
+                : ""}
+            </h2>
+
+            <p className="marks-subtitle">
+              Department:{" "}
+              {activeMarksIndex !== null
+                ? assignments[activeMarksIndex]?.trainingCategory
+                : "-"}{" "}
+              | Training:{" "}
+              {activeMarksIndex !== null
+                ? assignments[activeMarksIndex]?.trainingName
+                : "-"}
+            </p>
+
+            {marksRows.map((row) => (
+              <div key={row.id} className="marks-row">
+                <input
+                  placeholder="Exam / Topic"
+                  value={row.exam}
+                  onChange={(e) =>
+                    updateMarksRow(row.id, "exam", e.target.value)
+                  }
+                />
+
+                <input
+                  placeholder="Marks"
+                  type="number"
+                  value={row.marks}
+                  onChange={(e) =>
+                    updateMarksRow(row.id, "marks", e.target.value)
+                  }
+                />
+
+                <button
+                  type="button"
+                  className="remove-row"
+                  onClick={() => removeMarksRow(row.id)}
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            <button type="button" className="add-row" onClick={addMarksRow}>
+              + Add Exam & Marks
+            </button>
+
+            <div className="marks-actions">
+              <button type="button" className="primary" onClick={saveMarks}>
+                Save Marks
               </button>
-              <button className="cancel-btn" onClick={closeWarning}>
-                No
+
+              <button
+                type="button"
+                className="secondary"
+                onClick={() => setShowMarksPopup(false)}
+              >
+                Close
               </button>
             </div>
           </div>
-        </div>
+        </>
       )}
-
-      {/* FORM */}
-      <form className={`training-form ${blurActive ? "blur-bg" : ""}`} onSubmit={handleSubmit}>
-        <h2>Training Assignment (Multiple Employees)</h2>
-
-        <div className="form-grid">
-
-          {/* TRAINING TITLE DROPDOWN */}
-          <div className="form-group">
-            <label>Training Title</label>
-            <select name="title" value={formData.title} onChange={handleChange}>
-              <option value="">Select Training</option>
-              <option value="React Basics">React Basics</option>
-              <option value="Advanced React">Advanced React</option>
-              <option value="JavaScript Essentials">JavaScript Essentials</option>
-              <option value="Communication Skills">Communication Skills</option>
-              <option value="UI/UX Fundamentals">UI/UX Fundamentals</option>
-            </select>
-            {errors.title && <span className="error">{errors.title}</span>}
-          </div>
-
-          {/* LEVEL */}
-          <div className="form-group">
-            <label>Level</label>
-           <input type="text" name="level" value={formData.level} onChange={handleChange} />
-            {errors.level && <span className="error-text">{errors.level}</span>}
-          </div>
-
-          {/* DEPARTMENT DROPDOWN */}
-          <div className="form-group">
-            <label>Department</label>
-            <select
-              name="department"
-              value={formData.department}
-              onChange={handleChange}
-            >
-              <option value="">Select Department</option>
-              <option>Engineering</option>
-              <option>Finance</option>
-              <option>HR</option>
-              <option>Marketing</option>
-              <option>Design</option>
-            </select>
-            {errors.department && (
-              <span className="error">{errors.department}</span>
-            )}
-          </div>
-          {/* PROJECT DROPDOWN */}
-<div className="form-group">
-  <label>Project</label>
-  <select
-    name="project"
-    value={formData.project}
-    disabled={!formData.department}
-    onChange={handleChange}
-  >
-    <option value="">Select Project</option>
-
-    {formData.department &&
-      PROJECTS[formData.department]?.map((p) => (
-        <option key={p} value={p}>
-          {p}
-        </option>
-      ))}
-  </select>
-</div>
-
-
-          {/* TRAINER DROPDOWN */}
-          <div className="form-group">
-            <label>Trainer / Manager</label>
-            <input type="text" name="trainer" value={formData.trainer} onChange={handleChange} />
-            {errors.trainer && <span className="error-text">{errors.trainer}</span>}
-          </div>
-          {/* MODE */}
-           <div className="form-group">
-            <label>Mode</label>
-            <input type="text" name="mode" value={formData.mode} onChange={handleChange} />
-            {errors.mode && <span className="error-text">{errors.mode}</span>}
-          </div>
-          {/* FROM */}
-          <div className="form-group">
-            <label>From Date</label>
-            <input
-              type="date"
-              name="fromDate"
-              value={formData.fromDate}
-              onChange={handleChange}
-            />
-            {errors.fromDate && (
-              <span className="error">{errors.fromDate}</span>
-            )}
-          </div>
-
-          {/* TO */}
-          <div className="form-group">
-            <label>To Date</label>
-            <input
-              type="date"
-              name="toDate"
-              value={formData.toDate}
-              onChange={handleChange}
-            />
-            {errors.toDate && <span className="error">{errors.toDate}</span>}
-          </div>
-        </div>
-
-        {/* EMPLOYEE SELECT */}
-        <div className="employee-list">
-          <h3>Select Employees (Multiple)</h3>
-
-          <div className="employee-search-box">
-            <FiSearch />
-            <input
-              type="text"
-              placeholder="Search employee..."
-              value={searchEmp}
-              onChange={(e) => setSearchEmp(e.target.value)}
-            />
-          </div>
-
-          <div className="employee-checkboxes">
-           {formData.department &&
- formData.project &&
- employees
-  .filter((emp) =>
-    PROJECT_EMPLOYEES[formData.project]?.includes(emp.id)
-  )
-  .filter((emp) =>
-
-                (emp.id + " " + emp.name)
-                  .toLowerCase()
-                  .includes(searchEmp.toLowerCase())
-              )
-              .map((emp) => {
-                const selected = selectedEmployees.includes(emp.id);
-                return (
-                  <label
-                    key={emp.id}
-                    className={`employee-row ${selected ? "selected" : ""}`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selected}
-                      onChange={() => handleCheckboxChange(emp.id)}
-                    />
-                    <span className="emp-id">
-                      {emp.id} - {emp.name}
-                    </span>
-                  </label>
-                );
-              })}
-          </div>
-
-          {errors.employees && (
-            <span className="error">{errors.employees}</span>
-          )}
-        </div>
-
-        <div className="button-group">
-          <button
-            type="button"
-            className="cancel-btn"
-            onClick={() => {
-              setShowCancelWarning(true);
-              setBlurActive(true);
-            }}
-          >
-            Cancel
-          </button>
-
-          <button type="submit" className="assign-btn">
-            {editingAssignedAt ? "Update" : "Assign"}
-          </button>
-        </div>
-      </form>
-
-      {/* TABLE SECTION */}
-      <div className="assigned-output">
-        <div className="assigned-head">
-          <h3>Assigned Trainings</h3>
-
-          <div className="table-search-wrap">
-            <FiSearch />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={tableSearch}
-              onChange={(e) => {
-                setTableSearch(e.target.value);
-                setCurrentPage(1);
-              }}
-            />
-          </div>
-        </div>
-
-        {assignedList.length === 0 ? (
-          <p>No assignments yet.</p>
-        ) : (
-          <>
-            <table className="assigned-table">
-              <thead>
-                <tr>
-                  <th onClick={() => handleSort("id")}>ID</th>
-                  <th onClick={() => handleSort("name")}>Name</th>
-                  <th onClick={() => handleSort("trainingTitle")}>
-                    Training
-                  </th>
-                  <th onClick={() => handleSort("level")}>Level</th>
-                  <th onClick={() => handleSort("department")}>
-                    Department
-                  </th>
-                  <th onClick={() => handleSort("from")}>From</th>
-                  <th onClick={() => handleSort("to")}>To</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {pageData.map((item) => (
-                  <tr key={item.assignedAt}>
-                    <td>{item.id}</td>
-                    <td>{item.name}</td>
-                    <td>{item.trainingTitle}</td>
-                    <td>{item.level}</td>
-                    <td>{item.department}</td>
-                    <td>{new Date(item.from).toLocaleDateString()}</td>
-                    <td>{new Date(item.to).toLocaleDateString()}</td>
-                    <td>
-                      <button
-                        className="edit-btn"
-                        onClick={() => handleEdit(item)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDelete(item)}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {/* <div className="pagination">
-
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage((p) => p - 1)}
-              >
-                Previous
-              </button>
-
-              {[...Array(totalPages)].map((_, i) => (
-                <button
-                  key={i}
-                  className={currentPage === i + 1 ? "active" : ""}
-                  onClick={() => setCurrentPage(i + 1)}
-                >
-                  {i + 1}
-                </button>
-              ))}
-
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage((p) => p + 1)}
-              >
-                Next
-              </button>
-            </div> */}
-          </>
-        )}
-      </div>
     </div>
   );
 }
+
+
+
 
 
 

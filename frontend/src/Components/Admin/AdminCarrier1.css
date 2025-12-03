@@ -1,3 +1,142 @@
+/* ====== Responsive ====== */
+
+/* 📌 TABLET VIEW (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .career-container {
+    padding: 26px;
+    margin: 30px auto;
+  }
+
+  .career-header h1 {
+    font-size: 2rem;
+  }
+
+  .career-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    font-size: 0.9rem;
+    padding: 7px 10px;
+  }
+
+  .career-info {
+    gap: 10px;
+    font-size: 0.9rem;
+  }
+}
+
+/* 📌 MOBILE VIEW (max-width: 768px) */
+@media (max-width: 768px) {
+  .career-container {
+    padding: 20px;
+    margin: 20px auto;
+  }
+
+  .career-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .career-header h1 {
+    font-size: 1.8rem;
+    text-align: left;
+  }
+
+  .career-role-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .career-role-buttons button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    width: 120px;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .career-info {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .career-section {
+    padding: 18px;
+  }
+
+  .career-tags span {
+    font-size: 0.85rem;
+    padding: 6px 10px;
+  }
+
+  .career-back {
+    justify-content: center;
+    width: 100%;
+    margin-top: 25px;
+  }
+
+  .back-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* 📌 EXTRA-SMALL MOBILE VIEW (max-width: 480px) */
+@media (max-width: 480px) {
+  .career-header h1 {
+    font-size: 1.55rem;
+  }
+
+  .career-section h2 {
+    font-size: 1.15rem;
+  }
+
+  .career-tags {
+    gap: 8px;
+  }
+
+  input,
+  textarea {
+    font-size: 0.9rem;
+    padding: 8px;
+  }
+
+  .edit-btn,
+  .delete-btn {
+    width: 100%;
+    margin: 6px 0;
+  }
+}
+
+/* 📌 SMALL DEVICES (max-width: 380px) */
+@media (max-width: 380px) {
+  .career-container {
+    padding: 16px;
+  }
+
+  .career-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .career-section {
+    padding: 14px;
+  }
+
+  .career-section p,
+  .career-section li {
+    font-size: 0.9rem;
+  }
+}
+
+
 /* ====== Container ====== */
 .career-container {
   margin: 40px auto;
@@ -65,10 +204,10 @@
 
 /* ====== Edit Buttons ====== */
 .edit-btn {
-  background: #007bff;
+  background: #6cb3ff;
   border: none;
-  border-radius: 8px;
-  padding: 8px 14px;
+  border-radius: 20px;
+  padding: 8px 12px;
   cursor: pointer;
   font-size: 1rem;
   color: #ffffff;
@@ -78,36 +217,80 @@
 }
 
 .edit-btn:hover {
-  background: #0056b3;
+  background: #2a8ffc;
+}
+
+.delete-btn {
+  background: #fcaab4;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #ffffff;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 600;
+  transition: 0.3s ease;
+  margin-left: 10px;
+}
+.delete-btn :hover {
+  background: #fa5869;
+
 }
 
 /* ====== Save / Cancel Buttons ====== */
-.save-btn,
+/* .save-btn-hr
 .cancel-btn {
   border: none;
+  background: #1f2937;
+  border: none;
+  border-radius: 20px;
   padding: 8px 12px;
-  margin-left: 8px;
-  border-radius: 8px;
+  margin-right: 80px;
+  /* border-radius: 8px; */
+  /* cursor: pointer;
+  color: rgb(7, 7, 7);
+  font-weight: 600;
+  font-family: "Montserrat", sans-serif;
+  transition: background 0.3s ease; */
+/* } */ */
+
+/* ====== Save / Cancel Buttons ====== */
+
+.save-btn-rh {
+  background-color: #28a745;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 12px;
+  margin-right: 80px;
   cursor: pointer;
-  color: white;
+  color: rgb(7, 7, 7);
   font-weight: 600;
   font-family: "Montserrat", sans-serif;
   transition: background 0.3s ease;
+
 }
 
-.save-btn {
-  background-color: #28a745;
-}
-
-.cancel-btn {
+.cancel-btn-hr {
   background-color: #dc3545;
+  /* background-color: #28a745; */
+  border: none;
+  border-radius: 20px;
+  padding: 8px 12px;
+  margin-left: 950px;
+  cursor: pointer;
+  color: rgb(7, 7, 7);
+  font-weight: 800;
+  font-family: "Montserrat", sans-serif;
+  transition: background 0.3s ease;
+  /* width: 90px; */
 }
 
-.save-btn:hover {
+.save-btn-rh:hover {
   background-color: #218838;
 }
 
-.cancel-btn:hover {
+.cancel-btn-hr:hover {
   background-color: #c82333;
 }
 
@@ -148,7 +331,7 @@
   color: #000000;
   margin-bottom: 12px;
   font-weight: 700;
-  border-left: 4px solid #0f766e;
+  border-left: 4px solid #0a2ab6;
   padding-left: 10px;
 }
 
@@ -172,7 +355,7 @@
 }
 
 .career-section li svg {
-  color: #0f766e;
+  color: #0a2ab6;
   font-size: 1rem;
 }
 

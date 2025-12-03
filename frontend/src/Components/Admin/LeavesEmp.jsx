@@ -35,19 +35,17 @@ export default function LeavesEmp() {
   });
 
   const totalEmployees = 20;
-
 useEffect(() => {
   const fetchLeaves = async () => {
     try {
-      const res = await fetch("https://internal-website-rho.vercel.app/api/leaves");
+      const res = await fetch("https://internal-website-rho.vercel.app/api/hrleaves/hr");
       const data = await res.json();
 
       if (!Array.isArray(data)) {
-        console.error("Unexpected data format:", data);
+        console.error("Unexpected HR data:", data);
         return;
       }
 
-      // Sort by latest createdAt
       const sortedRequests = [...data].sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
       );
@@ -55,28 +53,71 @@ useEffect(() => {
       setLeaveRequests(sortedRequests);
       setFilteredData(sortedRequests);
     } catch (err) {
-      console.error("Error fetching leaves:", err);
+      console.error("Error fetching HR leaves:", err);
     }
   };
 
   fetchLeaves();
 }, []);
 
+
   // Filter table data only
   const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    const updatedFilters = { ...filters, [name]: value };
-    setFilters(updatedFilters);
+  const { name, value } = e.target;
 
-    const filtered = leaveRequests.filter((row) =>
-      Object.keys(updatedFilters).every((key) => {
-        const filterVal = updatedFilters[key].toString().toLowerCase();
-        const cellVal = (row[key] ?? "").toString().toLowerCase();
-        return filterVal === "" || cellVal.includes(filterVal);
-      })
-    );
-    setFilteredData(filtered);
-  };
+  // IMPORTANT FIX: Reset filteredData first before applying new filter
+  let updatedFilters;
+
+  if (name === "fromDate" || name === "toDate") {
+    updatedFilters = {
+      ...filters,
+      [name]: value,        // update only the selected date
+      // remove the previous date filters to prevent mixed results
+      ...(name === "fromDate" && { toDate: "" }),
+      ...(name === "toDate" && { fromDate: "" }),
+    };
+  } else {
+    updatedFilters = { ...filters, [name]: value };
+  }
+
+  setFilters(updatedFilters);
+
+  // Apply filters
+  const filtered = leaveRequests.filter((row) => {
+    const matchesTextFilters = Object.keys(updatedFilters).every((key) => {
+      if (key === "fromDate" || key === "toDate") return true;
+      const filterVal = updatedFilters[key].toString().toLowerCase();
+      const cellVal = (row[key] ?? "").toString().toLowerCase();
+      return filterVal === "" || cellVal.includes(filterVal);
+    });
+
+    if (!matchesTextFilters) return false;
+
+    const rowFrom = new Date(row.fromDate);
+    const rowTo = new Date(row.toDate);
+    const filterFrom = updatedFilters.fromDate ? new Date(updatedFilters.fromDate) : null;
+    const filterTo = updatedFilters.toDate ? new Date(updatedFilters.toDate) : null;
+
+   // DATE FILTERING (fixed)
+// DATE FILTERING (overlap logic)
+if (filterFrom && !filterTo) {
+    // Only From Date selected → show leaves that cover this date
+    if (!(rowFrom <= filterFrom && rowTo >= filterFrom)) return false;
+}
+if (!filterFrom && filterTo) {
+    // Only To Date selected → show leaves that cover this date
+    if (!(rowFrom <= filterTo && rowTo >= filterTo)) return false;
+}
+if (filterFrom && filterTo) {
+    // Both From & To selected → show leaves overlapping the range
+    if (!(rowFrom <= filterTo && rowTo >= filterFrom)) return false;
+}
+
+  return true;
+});
+
+  setFilteredData(filtered);
+};
 
 
 const handleFilterReset = () => {
@@ -171,50 +212,99 @@ const leavesCount = leaveRequests.filter((l) => {
     return data;
   };
 
-  const weekData = getWeekData();
+  const [weekData, setWeekData] = useState([]);
+
+useEffect(() => {
+  const fetchWeeklyAnalytics = async () => {
+    try {
+      const res = await fetch("https://internal-website-rho.vercel.app/api/hrleaves/analytics/weekly");
+      const data = await res.json();
+
+      setWeekData(data); // data = [{date:"2025-01-05", leaves:4, totalEmployees:20}, ...]
+    } catch (err) {
+      console.error("Error fetching weekly analytics:", err);
+    }
+  };
+
+  fetchWeeklyAnalytics();
+}, []);
+
 
 // Verify leave - binary flag (0 = Unverified, 1 = Verified)
-const verifyLeave = (leave) => {
-  setPendingChanges((prev) => ({
-    ...prev,
-    [leave._id]: {
-      ...(prev[leave._id] || {}),
-      verified: 1,
-      status: "Approved",
-    },
-  }));
+const verifyLeave = async (leave) => {
+  try {
+    const res = await fetch(
+      `https://internal-website-rho.vercel.app/api/hrleaves/hr/verify/employee/${leave.employeeId}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ verified: 1 }),
+      }
+    );
 
-  const updatedRequests = leaveRequests.map((l) =>
-    l._id === leave._id ? { ...l, verified: 1, status: "Approved" } : l
-  );
+    const updated = await res.json();
 
-  setLeaveRequests(updatedRequests);
-  setFilteredData(updatedRequests);
+    setLeaveRequests((prev) =>
+      prev.map((l) =>
+        l._id === leave._id
+          ? { ...l, verified: 1, status: "Approved" }
+          : l
+      )
+    );
+    setFilteredData((prev) =>
+      prev.map((l) =>
+        l._id === leave._id
+          ? { ...l, verified: 1, status: "Approved" }
+          : l
+      )
+    );
+  } catch (err) {
+    console.error("Error verifying leave:", err);
+  }
 };
+
 // Submit HR Reason and store in backend
-const handleHRReasonSubmit = (leave, hrReason) => {
+const handleHRReasonSubmit = async (leave, hrReason) => {
   if (!hrReason.trim()) {
-    alert("Please enter a valid HR reason before submitting.");
+    alert("Please enter a valid HR reason.");
     return;
   }
 
-  // Save locally
-  setPendingChanges((prev) => ({
-    ...prev,
-    [leave._id]: {
-      ...(prev[leave._id] || {}),
-      hrReason,
-    },
-  }));
+  try {
+    const token = localStorage.getItem("token");
+    console.log("token", token)
 
-  const updatedRequests = leaveRequests.map((l) =>
-    l._id === leave._id ? { ...l, hrReason } : l
-  );
+    const res = await fetch(
+      `https://internal-website-rho.vercel.app/api/hrleaves/hr/reason/employee/${leave._id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json",Authorization:`Bearer ${token}` },
+        body: JSON.stringify({ hrReason }),
+      }
+    );
 
-  setLeaveRequests(updatedRequests);
-  setFilteredData(updatedRequests);
-  alert("HR Reason saved locally!");
+    const updated = await res.json();
+    console.log("HR Reason API Response:", updated);
+    console.log("leave data", leave)
+
+    // Update UI
+    setLeaveRequests((prev) =>
+      prev.map((l) =>
+        l._id === leave._id ? { ...l, hrReason } : l
+      )
+    );
+    setFilteredData((prev) =>
+      prev.map((l) =>
+        l._id === leave._id ? { ...l, hrReason } : l
+      )
+    );
+
+    alert("HR reason saved!");
+  } catch (err) {
+    console.error("Error updating HR reason:", err);
+  }
 };
+
 
 useEffect(() => {
   console.log("🔹 All Leave Requests:", leaveRequests);
@@ -222,16 +312,74 @@ useEffect(() => {
   console.log("🔹 Pending Local Changes (Not yet sent to backend):", pendingChanges);
 }, [leaveRequests, filteredData, pendingChanges]);
 
+// STEP 5️⃣ — HR STATUS UPDATE
+const updateHRStatus = async (leave, status) => {
+  try {
+    await fetch(
+      `https://internal-website-rho.vercel.app/api/hrleaves/hr/status/employee/${leave.employeeId}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      }
+    );
+
+    // Update UI
+    setLeaveRequests((prev) =>
+      prev.map((l) =>
+        l._id === leave._id ? { ...l, status } : l
+      )
+    );
+    setFilteredData((prev) =>
+      prev.map((l) =>
+        l._id === leave._id ? { ...l, status } : l
+      )
+    );
+  } catch (err) {
+    console.error("Error updating status:", err);
+  }
+};
+
+// STEP 6️⃣ — REJECT LEAVE
+const rejectLeave = async (leave) => {
+  try {
+    await fetch(
+      `https://internal-website-rho.vercel.app/api/hrleaves/reject/${leave.employeeId}`,
+      {
+        method: "PUT",
+      }
+    );
+
+    setLeaveRequests((prev) =>
+      prev.map((l) =>
+        l._id === leave._id
+          ? { ...l, status: "Rejected" }
+          : l
+      )
+    );
+    setFilteredData((prev) =>
+      prev.map((l) =>
+        l._id === leave._id
+          ? { ...l, status: "Rejected" }
+          : l
+      )
+    );
+  } catch (err) {
+    console.error("Error rejecting leave:", err);
+  }
+};
+
+console.log("weekData", weekData)
 
   return (
     <div className="leavesAdmin-emp">
       {/* Header */}
       <div className="table-header">
         <h3>Employee Leave Requests</h3>
-        <FaFilter
+        {/* <FaFilter
           className="filter-icon"
           onClick={() => setShowFilterPanel(!showFilterPanel)}
-        />
+        /> */}
       </div>
 
       {/* Weekly Graph */}
@@ -244,7 +392,7 @@ useEffect(() => {
     >
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis
-        dataKey="date"
+        dataKey="_id"
         angle={-30}
         textAnchor="end"
         interval={0}
@@ -263,7 +411,13 @@ useEffect(() => {
     </LineChart>
   </ResponsiveContainer>
 </div>
-
+      <div className="table-header">
+        <h3>Employee Leaves Table</h3>
+        <FaFilter
+          className="filter-icon"
+          onClick={() => setShowFilterPanel(!showFilterPanel)}
+        />
+      </div>
 
       {/* Filter Panel */}
       {showFilterPanel && (
@@ -375,7 +529,7 @@ useEffect(() => {
         <th><div style={{ width: "30px" }}>ID</div></th>
         <th><div style={{width: "80px"}}>Name</div></th>
         <th>
-          <div className="header-inline" style={{ justifyContent: "space-between" }}>
+          <div className="header-inline" style={{ justifyContent: "space-between", width: "130px" }}>
             <select
               name="employeeDesignation"
               value={filters.employeeDesignation}
@@ -390,7 +544,7 @@ useEffect(() => {
           </div>
         </th>
         <th>
-          <div className="header-inline" style={{ justifyContent: "space-between" }}>
+          <div className="header-inline" style={{ justifyContent: "space-between", width: "120px" }}>
             <select
               name="employeeDepartment"
               value={filters.employeeDepartment}
@@ -442,8 +596,8 @@ useEffect(() => {
         />
       )}
     </th>
-        <th style={{ width: "100px" }}>
-          <div className="header-inline" style={{ justifyContent: "space-between" }}>
+        <th>
+          <div className="header-inline" style={{ justifyContent: "space-between", width: "100px" }}>
             <select
               name="leaveType"
               value={filters.leaveType}
@@ -474,7 +628,9 @@ useEffect(() => {
             </select>
           </div>
         </th>
-        <th><div style={{ width: "120px" }}>Reason (HR)</div></th>
+        <th><div style={{ width: "140px" }}>Comment (Manager)</div></th>
+
+        <th><div style={{ width: "120px" }}>Comment (HR)</div></th>
         <th>Verify</th>
       </tr>
     </thead>
@@ -504,9 +660,13 @@ useEffect(() => {
                   </td>
                   <td>
                     <span className={`status ${leave.status?.toLowerCase() || ""}`}>
-                      {leave.status ?? "Pending"}
+                      {leave.status ?? "Sent"}
                     </span>
                   </td>
+                  <td className="reason-box">
+  {leave.managerReason ?? "—"}
+</td>
+
 <td>
   <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
     <textarea
@@ -556,7 +716,6 @@ useEffect(() => {
     </button>
   )}
 </td>
-
                 </tr>
               ))
             ) : (

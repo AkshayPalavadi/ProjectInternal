@@ -1,3 +1,274 @@
+// import React, { useState, useEffect } from "react";
+// import {
+//   BarChart,
+//   Bar,
+//   XAxis,
+//   Tooltip,
+//   ResponsiveContainer,
+// } from "recharts";
+// import { FiPlus } from "react-icons/fi";
+// import { useNavigate } from "react-router-dom";
+// import "./AdminCarrier.css";
+// import AdminJobform from "./AdminJobform";
+
+// const AdminCareer = () => {
+//   const navigate = useNavigate();
+//   const [activeStatTab] = useState("applied");
+//   const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
+//   const [selectedMonth, setSelectedMonth] = useState(null);
+
+//   const [appliedData, setAppliedData] = useState([]);       // ← API monthly data
+//   const [totalApplied, setTotalApplied] = useState(0);      // ← API total count
+//   const [jobs, setJobs] = useState([]);
+
+//   /* 🔹 Fetch Job List */
+//   useEffect(() => {
+//     fetch("https://internal-website-rho.vercel.app/api/jobs")
+//       .then((res) => res.json())
+//       .then((data) => setJobs(data))
+//       .catch((err) => console.error("Error fetching jobs:", err));
+//   }, []);
+
+//   /* 🔹 Fetch total applied jobs */
+//   // useEffect(() => {
+//   //   fetch("https://internal-website-rho.vercel.app/api/applications/stats/summary")
+//   //     .then((res) => res.json())
+//   //     .then((data) => setTotalApplied(data.totalApplications))
+//   //     .catch((err) => console.error("Error fetching summary:", err));
+//   // }, []);
+
+//   /* 🔹 Fetch total applied jobs */
+// useEffect(() => {
+//   fetch("https://public-website-drab-ten.vercel.app/api/applications/stats/summary")
+//     .then((res) => res.json())
+//     .then((data) => {
+//       const total =
+//         data.totalApplied ??
+//         data.totalApplications ??
+//         data.count ??
+//         0;
+
+//       setTotalApplied(total);
+//     })
+//     .catch((err) => console.error("Error fetching stats:", err));
+// }, []);
+
+
+//   /* 🔹 Fetch monthly applied graph data */
+//   // useEffect(() => {
+//   //   fetch("https://internal-website-rho.vercel.app/api/applications/stats/monthly")
+//   //     .then((res) => res.json())
+//   //     .then((data) => {
+//   //       const formatted = data.monthlyStats.map((m) => ({
+//   //         month: m.month,
+//   //         applied: m.count,
+//   //       }));
+//   //       setAppliedData(formatted);
+//   //     })
+//   //     .catch((err) => console.error("Error fetching monthly stats:", err));
+//   // }, []);
+
+//   useEffect(() => {
+//   fetch("https://public-website-drab-ten.vercel.app/api/applications/stats/monthly")
+//     .then((res) => res.json())
+//     .then((data) => {
+//       const formatted = data.monthlyStats.map((m) => ({
+//         month: m.month,
+//         applied: m.count,
+//       }));
+//       setAppliedData(formatted);
+//     })
+//     .catch((err) => console.error("Error fetching monthly stats:", err));
+// }, []);
+
+
+//   /* 🔹 Fetch total applied jobs */
+// useEffect(() => {
+//   fetch("https://public-website-drab-ten.vercel.app/api/applications/stats/summary")
+//     .then((res) => res.json())
+//     .then((data) => {
+//       const total =
+//         data.totalApplied ??
+//         data.totalApplications ??
+//         data.count ??
+//         0;
+//       setTotalApplied(total);
+//     })
+//     .catch((err) => console.error("Error fetching stats:", err));
+// }, []);
+
+// /* 🔹 Fetch monthly applied graph data */
+// useEffect(() => {
+//   fetch("https://public-website-drab-ten.vercel.app/api/applications/stats/monthly")
+//     .then((res) => res.json())
+//     .then((data) => {
+//       const formatted = data.monthlyStats.map((m) => ({
+//         month: m.month,
+//         applied: m.count,
+//       }));
+//       setAppliedData(formatted);
+//     })
+//     .catch((err) => console.error("Error fetching monthly stats:", err));
+// }, []);
+
+
+//   /* 🔹 Auto–select last month on graph */
+//   useEffect(() => {
+//     if (appliedData.length > 0) {
+//       const lastIndex = appliedData.length - 1;
+//       setSelectedMonthIndex(lastIndex);
+//       setSelectedMonth(appliedData[lastIndex].month);
+//     }
+//   }, [appliedData]);
+
+//   /* 🔹 Job Form Handler */
+//   const [showJobForm, setShowJobForm] = useState(false);
+
+//   const getDaysAgo = (postedDate) => {
+//     const now = new Date();
+//     const diffTime = Math.abs(now - new Date(postedDate));
+//     return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+//   };
+
+//   const onHold = 6; // temporary static
+//   const hired = 7;  // temporary static
+
+//   return (
+//     <div className="carriers-page">
+//       {showJobForm ? (
+//         <div className="job-form-wrapper">
+//           <AdminJobform onSubmitJob={() => setShowJobForm(false)} />
+//         </div>
+//       ) : (
+//         <>
+//           {/* Summary Section */}
+//           <div className="carriers-summary">
+//             <div
+//               className="summary-card clickable-total-container"
+//               onClick={() =>
+//                 navigate("/admin/jobApplicants", {
+//                   state: { selectedMonth, totalJobs: true },
+//                 })
+//               }
+//             >
+//               <h4>Total Applied Jobs</h4>
+//               <p>{totalApplied}</p>
+//             </div>
+
+//             <div
+//               className="summary-card clickable-monthly-container"
+//               onClick={() =>
+//                 navigate("/admin/monthjobs", {
+//                   state: { selectedMonth },
+//                 })
+//               }
+//             >
+//               <h4>
+//                 Monthly Total Applicants{" "}
+//                 {selectedMonth && <span>({selectedMonth})</span>}
+//               </h4>
+//               <p>Applied: {appliedData[selectedMonthIndex]?.applied || 0}</p>
+//             </div>
+
+//             <div
+//               className="summary-card clickable-onhold-container"
+//               onClick={() => navigate("/admin/onhold")}
+//             >
+//               <h4>On Hold</h4>
+//               <p>{onHold}</p>
+//             </div>
+
+//             <div
+//               className="summary-card clickable-hired-container"
+//               onClick={() => navigate("/admin/hired")}
+//             >
+//               <h4>Hired</h4>
+//               <p>{hired}</p>
+//             </div>
+//           </div>
+
+//           {/* Job Statistics */}
+//           <div className="job-statistics">
+//             <h3>Job Statistics</h3>
+
+//             <div className="stat-tabs">
+//               <button className="active">Job Applied</button>
+//             </div>
+
+//             <ResponsiveContainer width="100%" height={250}>
+//               <BarChart data={appliedData}>
+//                 <XAxis dataKey="month" />
+//                 <Tooltip />
+//                 <Bar
+//                   dataKey="applied"
+//                   fill="#2563eb"
+//                   radius={[6, 6, 0, 0]}
+//                   onClick={(data, index) => {
+//                     setSelectedMonthIndex(index);
+//                     setSelectedMonth(data.month);
+//                   }}
+//                 />
+//               </BarChart>
+//             </ResponsiveContainer>
+//           </div>
+
+//           {/* Current Openings */}
+//           <div className="current-openings">
+//             <div className="openings-header">
+//               <h3>Current Openings</h3>
+//               <button className="post-job-btn" onClick={() => setShowJobForm(true)}>
+//                 <FiPlus /> Post New Job
+//               </button>
+//             </div>
+
+//             <div className="jobs-list">
+//               {jobs.map((job) => (
+//                 <div key={job._id} className="job-card">
+//                   <h4>{job.jobTitle}</h4>
+//                   <p className="job-main-line">
+//                     {job.jobType} | {job.experience} | ₹{job.salary} |{" "}
+//                     {Array.isArray(job.location)
+//                       ? job.location.join(", ")
+//                       : job.location}{" "}
+//                     | Posted {getDaysAgo(job.createdAt)} days ago
+//                   </p>
+
+//                   {job.roleOverview && (
+//                     <p className="job-desc-line">
+//                       <strong>Description:</strong>{" "}
+//                       {job.roleOverview.length > 90
+//                         ? job.roleOverview.slice(0, 90) + "..."
+//                         : job.roleOverview}
+//                     </p>
+//                   )}
+
+//                   {job.preferredSkills && (
+//                     <p className="job-skills-line">
+//                       <strong>Skills:</strong> {job.preferredSkills}
+//                     </p>
+//                   )}
+
+//                   <div className="job-actions">
+//                     <button
+//                       className="btn-details"
+//                       onClick={() => navigate(`/admin/job/${job._id}`)}
+//                     >
+//                       Job Details
+//                     </button>
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//         </>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default AdminCareer;
+
+
 import React, { useState, useEffect } from "react";
 import {
   BarChart,
@@ -6,375 +277,213 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import { FiPlus, FiMapPin, FiClock, FiBriefcase } from "react-icons/fi";
+import { FiPlus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import "./AdminCarrier.css";
 import AdminJobform from "./AdminJobform";
-
+ 
 const AdminCareer = () => {
   const navigate = useNavigate();
-  const [activeStatTab, setActiveStatTab] = useState("applied");
+ 
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
-
-  const monthNames = [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  ];
-
-  // ✅ Initial chart data
-  // ✅ Chart data
-  const [appliedData, setAppliedData] = useState([
-    { month: "Jan", applied: 1 },
-    { month: "Feb", applied: 2 },
-    { month: "Mar", applied: 2 },
-    { month: "Apr", applied: 2 },
-    { month: "May", applied: 1 },
-    { month: "Jun", applied: 2 },
-    { month: "Jul", applied: 1 },
-    { month: "Aug", applied: 2 },
-    { month: "Sep", applied: 2 },
-    { month: "Oct", applied: 3 },
-  ]);
-
-  const [viewData, setViewData] = useState([
-    { month: "Jan", views: 120 },
-    { month: "Feb", views: 140 },
-    { month: "Mar", views: 110 },
-    { month: "Apr", views: 160 },
-    { month: "May", views: 130 },
-    { month: "Jun", views: 150 },
-    { month: "Jul", views: 135 },
-    { month: "Aug", views: 170 },
-    { month: "Sep", views: 120 },
-    { month: "Oct", views: 155 },
-  ]);
-
-  // ✅ Ensure data for current month exists
-  const ensureCurrentMonthData = () => {
-    const now = new Date();
-    const currentMonth = monthNames[now.getMonth()];
-
-    setAppliedData((prev) => {
-      const lastMonth = prev[prev.length - 1]?.month;
-      if (lastMonth !== currentMonth) {
-        return [...prev, { month: currentMonth, applied: 0 }];
-      }
-      return prev;
-    });
-
-    setViewData((prev) => {
-      const lastMonth = prev[prev.length - 1]?.month;
-      if (lastMonth !== currentMonth) {
-        return [...prev, { month: currentMonth, views: 0 }];
-      }
-      return prev;
-    });
-  };
-
-  // ✅ Run once on mount + daily check
+ 
+  // ✅ DASHBOARD STATES
+  const [appliedData, setAppliedData] = useState([]);   
+  const [totalApplied, setTotalApplied] = useState(0);
+  const [onHold, setOnHold] = useState(0);
+  const [hired, setHired] = useState(0);
+  const [jobs, setJobs] = useState([]);
+ 
+  /* ✅ FETCH JOB LIST */
   useEffect(() => {
-    ensureCurrentMonthData();
-    const interval = setInterval(ensureCurrentMonthData, 24 * 60 * 60 * 1000);
-    return () => clearInterval(interval);
+    fetch("https://internal-website-rho.vercel.app/api/jobs")
+      .then((res) => res.json())
+      .then((data) => setJobs(data))
+      .catch((err) => console.error("Error fetching jobs:", err));
   }, []);
-
-  // ✅ Show latest month by default
-  // ✅ Default to last month
+ 
+  /* ✅ FETCH SUMMARY STATS (TOTAL / ONHOLD / HIRED) */
   useEffect(() => {
-    const lastIndex = appliedData.length - 1;
-    setSelectedMonthIndex(lastIndex);
-    setSelectedMonth(appliedData[lastIndex]?.month);
+    fetch("https://public-website-drab-ten.vercel.app/api/applications/stats/summary")
+      .then((res) => res.json())
+      .then((data) => {
+        setTotalApplied(data.totalApplied || 0);
+        setOnHold(data.onHold || 0);
+        setHired(data.hired || 0);
+      })
+      .catch((err) => console.error("Error fetching summary:", err));
+  }, []);
+ 
+  /* ✅ FETCH MONTHLY GRAPH DATA */
+  useEffect(() => {
+    fetch("https://public-website-drab-ten.vercel.app/api/applications/stats/monthly")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("MONTHLY API RAW RESPONSE:", data);
+ 
+        const formatted = (data.data || []).map((m) => ({
+          month: m.month,
+          applied: m.applied,
+        }));
+ 
+        setAppliedData(formatted);
+      })
+      .catch((err) => console.error("Error fetching monthly stats:", err));
+  }, []);
+ 
+  /* ✅ AUTO SELECT LAST MONTH */
+  useEffect(() => {
+    if (appliedData.length > 0) {
+      const lastIndex = appliedData.length - 1;
+      setSelectedMonthIndex(lastIndex);
+      setSelectedMonth(appliedData[lastIndex].month);
+    }
   }, [appliedData]);
-
-  // ✅ Job list
-  const [jobs, setJobs] = useState([
-    {
-      id: 1,
-      title: "Frontend Developer",
-      type: "Full-time",
-      exp: "Fresher",
-      salary: "₹4,00,000 - ₹6,00,000",
-      location: "Hyderabad",
-      description:
-        "Responsible for building responsive UI components using React, HTML, CSS, and JavaScript.",
-      skills: "ReactJS, HTML5, CSS3, JavaScript",
-      postedOn: new Date("2025-11-03"),
-    },
-    {
-      id: 2,
-      title: "Backend Developer",
-      type: "Full-time",
-      exp: "2 yrs Experience",
-      salary: "₹5,00,000 - ₹8,00,000",
-      location: "Bangalore",
-      description: "Develop and maintain scalable APIs using Node.js and Express.",
-      skills: "Node.js, Express.js, MongoDB, SQL",
-      postedOn: new Date("2025-11-04"),
-    },
-    {
-      id: 3,
-      title: "Web Developer",
-      type: "Full-time",
-      exp: "1 yr Experience",
-      salary: "₹3,60,000 - ₹6,00,000",
-      location: "Chennai",
-      description: "Build and optimize web applications using HTML, CSS, and JavaScript.",
-      skills: "HTML, CSS, JavaScript, React",
-      postedOn: new Date("2025-11-01"),
-    },
-    {
-      id: 4,
-      title: "UI/UX Designer",
-      type: "Full-time",
-      exp: "Fresher",
-      salary: "₹4,00,000 - ₹9,00,000",
-      location: "Pune",
-      description: "Create intuitive and attractive designs using Figma and Adobe XD.",
-      skills: "Figma, Adobe XD, Prototyping, UX Research",
-      postedOn: new Date("2025-11-02"),
-    },
-    {
-      id: 5,
-      title: "Content Writer",
-      type: "Remote",
-      exp: "Fresher",
-      salary: "₹3,00,000 - ₹6,00,000",
-      location: "Mumbai",
-      description: "Write engaging and SEO-friendly content for websites and blogs.",
-      skills: "Content Writing, SEO, Grammar, Research",
-      postedOn: new Date("2025-11-01"),
-    },
-  ]);
-
+ 
+  /* ✅ JOB FORM TOGGLE */
   const [showJobForm, setShowJobForm] = useState(false);
-
-  // ✅ Add new job
-  const handleAddJob = (jobData) => {
-    const newJob = {
-      id: Date.now(),
-      title: jobData.jobTitle,
-      type: jobData.employmentType,
-      exp: jobData.experience || "Fresher",
-      salary: jobData.salary || "Not Mentioned",
-      location: jobData.location,
-      description: jobData.jobDescription,
-      skills: jobData.requiredSkills,
-      postedOn: new Date(),
-    };
-
-    setJobs((prev) => [...prev, newJob]);
-
-    const now = new Date();
-    const currentMonth = monthNames[now.getMonth()];
-
-    setAppliedData((prev) =>
-      prev.map((d) =>
-        d.month === currentMonth ? { ...d, applied: d.applied + 1 } : d
-      )
-    );
-
-    setViewData((prev) =>
-      prev.map((d) =>
-        d.month === currentMonth
-          ? { ...d, views: d.views + Math.floor(Math.random() * 50 + 10) }
-          : d
-      )
-    );
-
-    setShowJobForm(false);
-  };
-
-  const getRoleFromTitle = (title) => {
-    const lower = title.toLowerCase();
-    if (lower.includes("frontend")) return "frontend";
-    if (lower.includes("backend")) return "backend";
-    if (lower.includes("web")) return "webdev";
-    if (lower.includes("ui")) return "uiux";
-    if (lower.includes("content")) return "content";
-    return "frontend";
-  };
-
-  const selectedIndex =
-    selectedMonthIndex !== null ? selectedMonthIndex : appliedData.length - 1;
-  const appliedToShow = appliedData[selectedIndex]?.applied || 0;
-  const totalApplied = appliedData
-    .slice(0, selectedIndex + 1)
-    .reduce((sum, item) => sum + item.applied, 0);
-  const onHold = Math.floor(6);
-  const hired = Math.floor(6 + Math.random());
-  const percentageChange =
-    selectedIndex > 0
-      ? (
-          ((appliedData[selectedIndex].applied -
-            appliedData[selectedIndex - 1].applied) /
-            (appliedData[selectedIndex - 1].applied || 1)) *
-          100
-        ).toFixed(0)
-      : "+0";
-
+ 
   const getDaysAgo = (postedDate) => {
     const now = new Date();
     const diffTime = Math.abs(now - new Date(postedDate));
     return Math.floor(diffTime / (1000 * 60 * 60 * 24));
   };
-
+ 
   return (
-    <div className="carriers-page">
+<div className="carriers-page">
       {showJobForm ? (
-        <div className="job-form-wrapper">
-          <AdminJobform onSubmitJob={handleAddJob} />
-        </div>
+<div className="job-form-wrapper">
+<AdminJobform onSubmitJob={() => setShowJobForm(false)} />
+</div>
       ) : (
-        <>
-          {/* ===== Summary Section ===== */}
-          <div className="carriers-summary">
-            {/* ✅ Send selectedMonth to JobApplicants page */}
-            <div
-              className="summary-card clickable"
+<>
+          {/* ✅ ✅ SUMMARY SECTION */}
+<div className="carriers-summary">
+<div
+              className="summary-card clickable-total-container"
               onClick={() =>
                 navigate("/admin/jobApplicants", {
-                  state: { selectedMonth, totalJobs:true },
+                  state: { selectedMonth, totalJobs: true },
                 })
               }
-            >
-              <h4>Total Applied Jobs</h4>
-              <p>{totalApplied}</p>
-            </div>
-
+>
+<h4>Total Applied Jobs</h4>
+<p>{totalApplied}</p>
+</div>
+ 
             <div
-              className="summary-card clickable"
+              className="summary-card clickable-monthly-container"
               onClick={() =>
                 navigate("/admin/monthjobs", {
                   state: { selectedMonth },
                 })
               }
-            >
-              <h4>
-                Monthly Total Applicants
-                {selectedMonth && (
-                  <span style={{ fontSize: "1.2rem", color: "#555" }}>
-                    {" "}
-                    ({selectedMonth})
-                  </span>
-                )}
-              </h4>
-              <p>Applied: {appliedToShow}</p>
-            </div>
-
+>
+<h4>
+                Monthly Total Applicants{" "}
+                {selectedMonth && <span>({selectedMonth})</span>}
+</h4>
+<p>Applied: {appliedData[selectedMonthIndex]?.applied || 0}</p>
+</div>
+ 
             <div
-              className="summary-card clickable"
+              className="summary-card clickable-onhold-container"
               onClick={() => navigate("/admin/onhold")}
-            >
-              <h4>On Hold</h4>
-              <p>{onHold}</p>
-            </div>
-
+>
+<h4>On Hold</h4>
+<p>{onHold}</p>
+</div>
+ 
             <div
-              className="summary-card clickable"
+              className="summary-card clickable-hired-container"
               onClick={() => navigate("/admin/hired")}
-            >
-              <h4>Hired</h4>
-              <p>{hired}</p>
-            </div>
-          </div>
-
-          {/* ===== Job Statistics ===== */}
-          <div className="job-statistics">
-            <h3>Job Statistics</h3>
+>
+<h4>Hired</h4>
+<p>{hired}</p>
+</div>
+</div>
+ 
+          {/* ✅ ✅ JOB STATISTICS GRAPH */}
+<div className="job-statistics">
+<h3>Job Statistics</h3>
+ 
             <div className="stat-tabs">
-              <button
-                className={activeStatTab === "applied" ? "active" : ""}
-                onClick={() => setActiveStatTab("applied")}
-              >
-                Job Applied
-              </button>
-              <button
-                className={activeStatTab === "view" ? "active" : ""}
-                onClick={() => setActiveStatTab("view")}
-              >
-                Job View
-              </button>
-            </div>
-
+<button className="active">Job Applied</button>
+</div>
+ 
             <ResponsiveContainer width="100%" height={250}>
-              <BarChart
-                data={activeStatTab === "applied" ? appliedData : viewData}
-              >
-                <XAxis dataKey="month" />
-                <Tooltip />
-                {activeStatTab === "applied" ? (
-                  <Bar
-                    dataKey="applied"
-                    fill="#2563eb"
-                    radius={[6, 6, 0, 0]}
-                    onClick={(data, index) => {
-                      setSelectedMonthIndex(index);
-                      setSelectedMonth(data.month);
-                      setActiveStatTab("applied");
-                    }}
-                  />
-                ) : (
-                  <Bar dataKey="views" fill="#1d4ed8" radius={[6, 6, 0, 0]} />
-                )}
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* ===== Current Openings ===== */}
-          <div className="current-openings">
-            <div className="openings-header">
-              <h3>Current Openings</h3>
-              <button className="post-job-btn" onClick={() => setShowJobForm(true)}>
-                <FiPlus /> Post New Job
-              </button>
-            </div>
-
+<BarChart data={appliedData}>
+<XAxis dataKey="month" />
+<Tooltip />
+<Bar
+                  dataKey="applied"
+                  fill="#2563eb"
+                  radius={[6, 6, 0, 0]}
+                  onClick={(data, index) => {
+                    setSelectedMonthIndex(index);
+                    setSelectedMonth(data.month);
+                  }}
+                />
+</BarChart>
+</ResponsiveContainer>
+</div>
+ 
+          {/* ✅ ✅ CURRENT OPENINGS */}
+<div className="current-openings">
+<div className="openings-header">
+<h3>Current Openings</h3>
+<button
+                className="post-job-btn"
+                onClick={() => setShowJobForm(true)}
+>
+<FiPlus /> Post New Job
+</button>
+</div>
+ 
             <div className="jobs-list">
               {jobs.map((job) => (
-                <div key={job.id} className="job-card">
-                  <h4>{job.title}</h4>
-
-                  <p className="job-main-line">
-                    {job.type} | {job.exp} | {job.salary} | {job.location} | Posted{" "}
-                    {getDaysAgo(job.postedOn)} days ago
-                  </p>
-
-                  {job.description && (
-                    <p className="job-desc-line">
-                      <strong>Description:</strong>{" "}
-                      {job.description.length > 90
-                        ? job.description.slice(0, 90) + "..."
-                        : job.description}
-                    </p>
+<div key={job._id} className="job-card">
+<h4>{job.jobTitle}</h4>
+<p className="job-main-line">
+                    {job.jobType} | {job.experience} | ₹{job.salary} |{" "}
+                    {Array.isArray(job.location)
+                      ? job.location.join(", ")
+                      : job.location}{" "}
+                    | Posted {getDaysAgo(job.createdAt)} days ago
+</p>
+ 
+                  {job.roleOverview && (
+<p className="job-desc-line">
+<strong>Description:</strong>{" "}
+                      {job.roleOverview.length > 90
+                        ? job.roleOverview.slice(0, 90) + "..."
+                        : job.roleOverview}
+</p>
                   )}
-
-                  {job.skills && job.skills.trim() !== "" && (
-                    <p className="job-skills-line">
-                      <strong>Skills:</strong> {job.skills}
-                    </p>
+ 
+                  {job.preferredSkills && (
+<p className="job-skills-line">
+<strong>Skills:</strong> {job.preferredSkills}
+</p>
                   )}
-
+ 
                   <div className="job-actions">
-                    <button
+<button
                       className="btn-details"
-                      onClick={() =>
-                        navigate("/admin/carriers1", {
-                          state: { role: getRoleFromTitle(job.title) },
-                        })
-                      }
-                    >
+                      onClick={() => navigate(`/admin/job/${job._id}`)}
+>
                       Job Details
-                    </button>
-                  </div>
-                </div>
+</button>
+</div>
+</div>
               ))}
-            </div>
-          </div>
-        </>
+</div>
+</div>
+</>
       )}
-    </div>
+</div>
   );
 };
-
+ 
 export default AdminCareer;

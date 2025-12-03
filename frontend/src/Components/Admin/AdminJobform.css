@@ -1,214 +1,235 @@
-/* ===== Container ===== */
+/* === FORM CONTAINER === */
 .adminjobform-job-form-container {
-  max-width: 1200px;
+  max-width: 950px;
   margin: 40px auto;
-  padding: 20px 30px;
   background: #ffffff;
+  padding: 45px;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-  font-family: "Inter", "Segoe UI", sans-serif;
-  position: relative;
+  border: 1px solid #dfe2e8;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
 }
 
-/* ===== Form Title ===== */
+/* TITLE */
 .adminjobform-form-title {
   text-align: center;
-  font-size: 28px;
-  font-weight: 600;
-  margin-bottom: 5px;
-  color: #111827;
+  font-size: 30px;
+  font-weight: 900;
+  margin-bottom: 32px;
+  color: hsl(220, 87%, 55%);
+  /* text-align: center; */
+  font-family: 'Montserrat', sans-serif;
+
 }
 
-
-
-/* ===== Form Grid ===== */
-.adminjobform-form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-}
-
-/* ===== Form Group ===== */
-.adminjobform-form-group {
+/* FORM GRID */
+.adminjobform-job-form {
   display: flex;
   flex-direction: column;
+  gap: 36px;
 }
 
-.adminjobform-form-group.full-width {
-  grid-column: 1 / -1;
+.adminjobform-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 26px;
 }
 
+.full-width {
+  grid-column: span 2;
+}
+
+/* LABEL */
 .adminjobform-form-group label {
-  font-weight: 500;
-  margin-bottom: 6px;
-  color: #374151;
+  font-weight: 600;
+  /* margin-bottom: 16px; */
+  display: block;
+  font-size: 15px;
+  color: #2d2f33;
 }
 
-/* ===== Inputs & Selects ===== */
+/* INPUTS / SELECT / TEXTAREA */
 .adminjobform-form-group input,
 .adminjobform-form-group select,
 .adminjobform-form-group textarea {
-  padding: 10px 12px;
-  border: 1px solid #d1d5db;
+  width: 90%;
+  padding: 13px 15px;
   border-radius: 8px;
-  font-size: 14px;
-  color: #111827;
-  transition: border-color 0.2s;
+  border: 1px solid #cfd6df;
+  font-size: 15px;
+  background: #fafbff;
+  transition: 0.25s;
+  margin-top: 20px;
 }
+
+
 
 .adminjobform-form-group input:focus,
 .adminjobform-form-group select:focus,
 .adminjobform-form-group textarea:focus {
-  border-color: #2563eb;
-  outline: none;
+
+  width: 90%;
+  padding: 13px 15px;
+  border-radius: 8px;
+  border: 1px solid #cfd6df;
+  font-size: 15px;
+  background: #fafbff;
+  transition: 0.25s;
+  margin-top: 20px;
+  color: #000; /* 🔥 Ensures typed and selected text is black */
 }
 
-/* ===== Error Styles ===== */
-.error {
-  border-color: #dc3545 !important;
+
+
+/* TEXTAREA */
+.adminjobform-form-group textarea {
+  min-height: 70px;
+  resize: none;
 }
 
-.error-text {
-  font-size: 12px;
-  color: #dc3545;
-  margin-top: 4px;
+/* LOCATION + RESPONSIBILITIES ADD GROUP */
+.input-add-wrapper {
+  display: flex;
+  gap: 505px;
+  align-items: center;
 }
 
-/* ===== Submit Button ===== */
-.adminjobform-submit-btn {
-  margin-top: 25px;
-  padding: 12px 25px;
-  background-color: #2563eb;
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 500;
+/* ADD BUTTON */
+.add-btn {
+  background: hsl(220, 87%, 55%);
+  color: rgb(252, 252, 252);
   border: none;
+  border-radius: 6px;
+  padding: 20px 18px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.25s;
+  ;
+}
+
+/* .add-btn:hover {
+  background: #001f63;
+} */
+
+/* CHIPS */
+.chips-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.chip {
+  /* background: #e8f0ff; */
+  color: #002b7f;
+  padding: 7px 15px;
+  border-radius: 30px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #bcd3ff;
+}
+
+.remove-chip {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  color: #002b7f;
+}
+
+/* ERROR MESSAGE */
+.error-text {
+  font-size: 13px;
+  color: #d53032;
+  margin-top: 2px;
+}
+
+/* SUBMIT BUTTON */
+.adminjobform-submit-btn {
+  margin-top: 6px;
+  background: #002b7f;
+  color: white;
+  font-weight: 600;
+  border: none;
+  padding: 15px;
   border-radius: 10px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  font-size: 18px;
+  transition: 0.25s;
+  width: 100%;
 }
 
 .adminjobform-submit-btn:hover {
-  background-color: #1d4ed8;
+  background: #001f63;
+  transform: translateY(-2px);
 }
 
-/* ===== Overlay ===== */
+/* ===== POPUP ===== */
 .adminjobform-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 99;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 999;
 }
 
-/* ===== Popup Box ===== */
 .adminjobform-popup {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   background: #ffffff;
-  padding: 25px 40px;
-  border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-  z-index: 100;
+  padding: 30px 42px;
+  border-radius: 14px;
   display: flex;
+  flex-direction: column;
+  gap: 16px;
   align-items: center;
-  gap: 15px;
-  font-size: 18px;
-  min-width: 320px;
-  justify-content: center;
+  font-size: 19px;
+  font-weight: 600;
+  animation: popupAnim 0.32s ease-out;
 }
 
-/* Success & Error Styles */
 .adminjobform-popup.success {
-  border-left: 6px solid #28a745;
-  color: #28a745;
+  border-left: 6px solid #009c63;
 }
 
 .adminjobform-popup.error {
-  border-left: 6px solid #dc3545;
-  color: #dc3545;
+  border-left: 6px solid #d53032;
 }
 
-/* Popup Icon */
 .popup-icon {
-  font-size: 28px;
+  font-size: 42px;
+  color: #009c63;
 }
 
-/* Popup Animation */
-.adminjobform-popup {
-  animation: popupFade 0.3s ease-in-out;
+.adminjobform-popup.error .popup-icon {
+  color: #d53032;
 }
 
-@keyframes popupFade {
-  0% { transform: translate(-50%, -60%) scale(0.8); opacity: 0; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-}
-.chips-container.column {
-  display: flex;
-  flex-direction: column;   /* <-- one per row */
-  /* gap: 0px; */
-}
-/* ===== Chips Container (side by side) ===== */
-.chips-container {
-  display: flex;
-  flex-wrap: wrap;      /* allow chips to go side-by-side */
-  gap: 8px;
-  margin-top: 8px;
-  align-items: center;
+@keyframes popupAnim {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -44%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
-/* Each chip style */
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  background-color: #f3f4f6;
-  border-radius: 20px;
-  font-size: 14px;
-  color: #111827;
-  white-space: nowrap;   /* keep text in one line */
-  border: 1px solid #d1d5db;
-}
-
-/* Remove button inside chip */
-.remove-chip {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  padding: 0;
-  color: #6b7280;
-}
-
-.remove-chip:hover {
-  color: #dc3545;
-}
-
-/* Input + Add button wrapper */
-.input-add-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* Add button style */
-.add-btn {
-  padding: 8px 16px;
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.add-btn:hover {
-  background-color: #1d4ed8;
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+  .adminjobform-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .full-width {
+    grid-column: 1;
+  }
+  .adminjobform-job-form-container {
+    padding: 25px;
+  }
 }

@@ -17,9 +17,9 @@ function AdminSidebarLayout() {
     { name: "Dashboard", path: "/admin/dashboard" },
     { name: "Employees", path: "/admin/employees" },
     { name: "Carrier", path: "/admin/Carriers" },
-    { name: "Training and Development", path: "/admin/TrainingandDevelopment" },
-    { name: "Projects", path: "/admin/projects" },
-    { name: "Reports", path: "/admin/reports" },
+    { name: "Training and Development", path: "/admin/traininganddevelopment" },
+    // { name: "Projects", path: "/admin/projects" },
+    // { name: "Reports", path: "/admin/reports" },
     { name: "Leaves", path: "/admin/leavesAdmin" }
   ];
 

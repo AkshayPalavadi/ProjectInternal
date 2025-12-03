@@ -20,6 +20,11 @@ export default function AdminEmployees() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const handleSubmit = () => {
+    navigate("/register");
+  };
+
+
   useEffect(() => {
     const fetchEmployees = async () => {
       setLoading(true);
@@ -191,6 +196,11 @@ export default function AdminEmployees() {
                 </button>
               </div> 
             )}
+          </div>
+          <div className="register-container">
+            <button className="adminemployee-add-btn" onClick={handleSubmit}>
+              + Add Employee
+            </button>
           </div>
         </div>
 

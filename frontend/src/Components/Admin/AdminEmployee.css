@@ -90,6 +90,11 @@
   margin-left: 10px;
 }
 
+.register-container {
+  position: relative;
+  margin-left: 10px;
+}
+
 .filter-icon-btn {
   padding: 7px 12px;
   cursor: pointer;

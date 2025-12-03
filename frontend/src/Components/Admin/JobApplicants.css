@@ -1,279 +1,335 @@
-<<<<<<< HEAD
+/* ==========================================================
+   SENIOR LEVEL CLEAN UI — JOB APPLICANTS TABLE STYLING
+   ========================================================== */
+
+:root {
+  --header-bg: #2563eb;
+  --header-text: #ffffff;
+  --row-hover: #f4f7ff;
+  --border: #d9d9d9;
+  --font: "Inter", sans-serif;
+}
+
 /* MAIN CONTAINER */
-.applicants-container {
-  width: 100%;
-  padding: 20px;
-  background: #f5f7fa;
-  min-height: 100vh;
-  font-family: "Poppins", sans-serif;
+.onhold-container {
+  font-family: var(--font);
+  background: #ffffff;
+  padding: 18px;
+  border-radius: 10px;
+}
+
+/* HEADER */
+.onhold-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.onhold-header h2 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+/* RESET FILTERS */
+.reset-btn {
+  background: #ff4747;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.reset-btn:hover {
+  background: #e63b3b;
 }
 
 /* TABLE WRAPPER */
-.table-wrapper {
+.onhold-table-wrapper {
   overflow-x: auto;
-  background: #fff;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
 }
 
 /* TABLE */
-.applicants-table {
-  width: 170%;
+.onhold-table {
+  width: 200%;
   border-collapse: collapse;
+  table-layout: fixed; /* PERFECT column alignment */
+  background: #fff;
+}
+
+/* HEADERS */
+.onhold-table th {
+  background: var(--header-bg);
+  color: var(--header-text);
+  height: 56px;
+  padding: 8px;
   font-size: 14px;
-}
-
-.applicants-table th,
-.applicants-table td {
-  padding: 10px 12px;
-  border: 1px solid #e5e7ef;
+  font-weight: 600;
   text-align: center;
+  border: 1px solid var(--header-bg);
+  white-space: nowrap;
 }
 
-/* BLUE FILTER HEADER */
+/* BODY CELLS */
+.onhold-table td {
+  border: 1px solid var(--border);
+  font-size: 14px;
+  text-align: center;
+  padding: 10px 8px;
+  white-space: nowrap;
+}
+
+/* HOVER EFFECT */
+.onhold-table tbody tr:hover {
+  background: var(--row-hover);
+}
+
+/* FILTER INPUT ROW */
 .filters-row th {
-  background: #2563eb;
-  height: 55px;
-  padding: 0;
+  background: var(--header-bg) !important;
+  padding: 0 !important;
 }
 
-/* FILTER INPUTS */
 .filter-input-wrapper {
-  position: relative;
+  display: flex;
+  align-items: center;
   height: 100%;
 }
 
+/* INPUTS + SELECTS (UNIFORM SHAPE) */
 .filter-input-wrapper input,
-.filter-input-wrapper select {
-  width: 100%;
-  height: 38px;
-  border-radius: 8px;
-  padding: 0 38px 0 12px;
+.filter-input-wrapper select,
+.date-box,
+.status-box {
+  width: 150%;
+  height: 40px;
+  background: var(--header-bg);
   border: none;
+  border-radius: 6px;
   outline: none;
-  font-size: 14px;
-  background: white;
-  color: black;
-  box-shadow: inset 0 0 0 1px #d0d7e2;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  color: #ffffff;
+}
+
+/* PLACEHOLDER FIX */
+.filter-input-wrapper input::placeholder {
+  color: #ffffff;
+  opacity: 1;
+  font-weight: 600;
+}
+
+/* DROPDOWN MENU WHITE */
+select option {
+  background: #ffffff !important;
+  color: #000 !important;
+}
+
+/* DATE ICON */
+.date-box::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
 }
 
 /* SEARCH ICON */
 .filter-search-icon {
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 15px;
-  color: #374151;
-  opacity: 0.8;
+  display: none; /* Clean UI without icons shifting layout */
 }
 
-/* DATE FIELD */
-.date-wrapper {
+/* STATUS SELECTED ICON */
+.selected-icon {
+  color: #13c73f;
+  font-size: 18px;
+  margin-left: 4px;
+}
+
+/* RESUME BUTTON */
+.resume-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+/* REASON FIELD */
+.reason-textarea {
+  width: 100%;
+  height: 42px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  resize: horizontal;
+  font-size: 13px;
+}
+.reason-textarea:focus {
+  border-color: var(--header-bg);
+}
+
+/* FOOTER */
+.onhold-footer {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* EXPORT BUTTON */
+.export-btn {
+  background: #2046cc;
+  color: #fff;
+  padding: 9px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.export-btn:hover {
+  background: #193caf;
+}
+
+/* SAVE BUTTON */
+.save-btn {
+  background: #059669;
+  color: #fff;
+  padding: 9px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.save-btn:hover {
+  background: #047857;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .onhold-table th,
+  .onhold-table td {
+    font-size: 12px;
+    padding: 6px;
+  }
+}
+
+
+/* ===== MAKE HEADER TITLES LOOK LIKE INPUT BOXES (as in screenshot) ===== */
+.onhold-table th {
+  background: var(--header-bg);
+  color: var(--header-text);
+  height: 45px;
+  border: 1px solid #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 8px;  /* 🔥 added rounding like screenshot */
+  padding: 10px;
+}
+
+/* keep spacing equal for all columns */
+.onhold-table th,
+.onhold-table td {
+  width: 150px;    /* 🔥 same width so alignment looks perfect */
+}
+
+/* make filter input wrapper match header shape */
+.filters-row th {
+  background: var(--header-bg) !important;
+  border-radius: 8px !important;
+  padding: 0 !important;
+}
+
+/* ensure input/select fills the rounded box properly */
+.filter-input-wrapper input,
+.filter-input-wrapper select,
+.date-box,
+.status-box {
+  border-radius: 8px;
+  border: 2px solid #ffffff;
+}
+
+/* place header + filter row perfectly stacked */
+.onhold-table thead tr:first-child th {
+  border-bottom: none;  /* removes double border */
+}
+
+.app-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #003c78;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 18px 0 10px;
+  border-left: 4px solid #2563eb;
+  padding-left: 8px;
+  color: #1a3b5a;
+}
+
+.details-table {
+  width: 150%;
+  border-collapse: collapse;
+  margin-bottom: 18px;
+  background: #fff;
+}
+
+.details-table th {
+  width: 240px;
+  text-align: left;
+  padding: 8px 10px;
+  background: #eaf1ff;
+  font-weight: 600;
+  color: #003c78;
+  border: 1px solid #d4e0f7;
+}
+
+.details-table td {
+  padding: 8px 10px;
+  border: 1px solid #d4e0f7;
+  font-size: 14px;
+  color: #333;
+}
+
+.edu-table {
+  margin-bottom: 14px;
+}
+
+.empty-msg {
+  font-style: italic;
+  color: #777;
+}
+
+.exp-list {
+  margin: 0 0 14px 18px;
+}
+
+.filter-input-wrapper {
+  display: flex;
+  align-items: center;
   position: relative;
 }
 
-.date-input {
+.filter-input-wrapper input {
   width: 100%;
-  height: 38px;
-  border-radius: 8px;
-  border: none;
-  padding: 0 40px 0 12px;
-  background: white;
-  box-shadow: inset 0 0 0 1px #d0d7e2;
-  font-size: 14px;
-  color: black;
+  padding: 4px 28px 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
 }
 
-.calendar-icon {
+.filter-search-icon {
   position: absolute;
-  right: 10px;
-  top: 8px;
-  cursor: pointer;
-  font-size: 18px;
+  right: 8px;
+  font-size: 14px;
+  color: #777;
 }
 
-/* CLICKABLE NAME */
-.clickable-name {
-  color: #2563eb;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.clickable-name:hover {
-  text-decoration: underline;
-}
-
-/* RESUME ICON */
-.resume-icon-btn {
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  cursor: pointer;
-}
-=======
-/* ===========================================
-   Job Applicants Page — Senior Dashboard Styling
-   Matches AdminCarrier.css
-   =========================================== */
-
-:root {
-  --bg: #f9fafb;
-  --bg-card: #ffffff;
-  --text: #111827;
-  --text-muted: #6b7280;
-  --border: #e5e7eb;
-  --accent: #7c3aed;
-  --accent-hover: #6d28d9;
-  --shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
-  --radius: 14px;
-}
-
-/* ===== Container ===== */
-.applicants-container {
-  padding: 2rem;
-  background: var(--bg);
-  min-height: 100vh;
-}
-
-/* ===== Back Button ===== */
-.back-btn {
-  background: transparent;
-  border: none;
-  color: var(--accent);
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  margin-bottom: 1rem;
-  transition: color 0.3s ease;
-}
-.back-btn:hover {
-  color: var(--accent-hover);
-}
-
-/* ===== Header ===== */
-.header-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-}
-.header-section h2 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text);
-}
-.settings-icon {
-  font-size: 1.4rem;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-.settings-icon:hover {
-  color: var(--accent);
-}
-
-/* ===== Search Bar ===== */
-.search-bar {
-  display: flex;
-  align-items: center;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.5rem 0.8rem;
-  margin-bottom: 1.5rem;
-  max-width: 400px;
-}
-.search-bar input {
-  border: none;
-  outline: none;
+.filters-row select, .filters-row input, .date-input {
   width: 100%;
-  margin-left: 0.5rem;
-  font-size: 0.95rem;
-  color: var(--text);
+  padding: 4px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 13px;
 }
-.search-icon {
-  font-size: 1.2rem;
-  color: var(--text-muted);
-}
-
-/* ===== Table Wrapper ===== */
-.table-wrapper {
-  overflow-x: auto;
-}
-.applicants-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--bg-card);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-}
-.applicants-table th,
-.applicants-table td {
-  padding: 0.8rem 1rem;
-  text-align: left;
-  font-size: 0.95rem;
-  border-bottom: 1px solid var(--border);
-}
-.applicants-table th {
-  background: var(--bg);
-  color: var(--text);
-  font-weight: 600;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-  cursor: pointer;
-}
-.applicants-table th.sortable:hover {
-  color: var(--accent);
-}
-.applicants-table tr:hover {
-  background: #f1f5ff;
-  transition: background 0.3s ease;
-}
-.selected-row {
-  background: rgba(124, 58, 237, 0.08) !important;
-}
-
-/* ===== Export Button ===== */
-.export-btn-container {
-  margin-top: 1.5rem;
-  text-align: right;
-}
-.export-btn {
-  background: var(--accent);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  padding: 0.6rem 1.5rem;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.export-btn:hover {
-  background: var(--accent-hover);
-  transform: translateY(-2px);
-}
-
-/* ===== Responsive ===== */
-@media (max-width: 768px) {
-  .search-bar {
-    max-width: 100%;
-  }
-
-  .applicants-table th,
-  .applicants-table td {
-    padding: 0.6rem 0.8rem;
-    font-size: 0.85rem;
-  }
-
-  .export-btn {
-    width: 100%;
-    text-align: center;
-  }
-}
->>>>>>> 0b40a69e161d35125ae11544ef3d22f36faae9a6

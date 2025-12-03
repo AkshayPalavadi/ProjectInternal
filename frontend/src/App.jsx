@@ -19,7 +19,7 @@ import CarrierApp from "./carrier/carrierapp.jsx";
 import AdminSidebarLayout from "./Components/Admin/AdminSidebarLayout.jsx";
 import AdminDashboard from "./Components/Admin/AdminDashboard.jsx";
 import AdminEmployees from "./Components/Admin/AdminEmployees.jsx";
-import AdminProjects from "./Components/Admin/AdminProjects.jsx";
+// import AdminProjects from "./Components/Admin/AdminProjects.jsx";
 import AdminCareer from "./Components/Admin/AdminCarrier.jsx";
 import AdminCarrier1 from "./Components/Admin/AdminCarrier1.jsx";
 import AdminJobform from "./Components/Admin/AdminJobform.jsx";
@@ -28,11 +28,22 @@ import MonthJobApplicants from "./Components/Admin/MonthJobApplicants.jsx";
 import AdminJobApplied from "./Components/Admin/AdminJobApplied.jsx";
 import AdminHiredApplicants from "./Components/Admin/AdminHiredApplicants.jsx";
 import AdminOnHold from "./Components/Admin/AdminOnHold.jsx";
-import AdminReports from "./Components/Admin/AdminReports.jsx";
+
+import TrainingDevelopment from "./Components/Admin/TrainingDevelopment.jsx";
+import OnGoing from "./Components/Admin/OnGoing.jsx";
+import InProgress from "./Components/Admin/InProgress.jsx";
+import CompletedTraining from "./Components/Admin/CompletedTraining.jsx";
+import TrainingModule from "./Components/Admin/TrainingModule.jsx";
+import CertificatePage from "./Components/Admin/CertificatePage.jsx";
+import ReportPage from "./Components/Admin/ReportPage.jsx";
+import FreshersTrainingAssignment from "./Components/Admin/FreshersTrainingAssignment.jsx";
+
+// import AdminReports from "./Components/Admin/AdminReports.jsx";
 import LeavesAdmin from "./Components/Admin/LeavesAdmin.jsx";
 import AttendanceEmp from "./Components/Admin/AttendanceEmp.jsx";
 import LeavesEmp from "./Components/Admin/LeavesEmp.jsx";
 import EmployeeDetails from "./Components/Admin/employee/EmployeeDetails.jsx";
+import TrainingAssignment from "./Components/Admin/TrainingAssignment.jsx";
 
 // -----------------------
 // Helpers
@@ -235,11 +246,22 @@ const [applicationSubmitted, setApplicationSubmitted] = useState(false);
           <Route path="jobapplied" element={<AdminJobApplied />} />
           <Route path="hired" element={<AdminHiredApplicants />} />
           <Route path="onhold" element={<AdminOnHold />} />
-          <Route
+          {/* <Route
             path="projects"
             element={<AdminProjects employees={adminEmployees} />}
           />
-          <Route path="reports" element={<AdminReports />} />
+          <Route path="reports" element={<AdminReports />} /> */}
+
+          <Route path="traininganddevelopment" element={<TrainingDevelopment />} />
+          <Route path="onGoing" element={<OnGoing />} />
+          <Route path="InProgress" element={<InProgress />} />
+          <Route path="CompletedTraining" element={<CompletedTraining />} />
+          <Route path="ReportPage" element={<ReportPage />} />
+          <Route path="FreshersTrainingAssignment" element={<FreshersTrainingAssignment />} />
+          <Route path="TrainingModule" element={<TrainingModule />} />
+          <Route path="CertificatePage" element={<CertificatePage />} />
+          <Route path="TrainingAssignment" element={<TrainingAssignment />} />
+
           <Route path="leavesAdmin" element={<LeavesAdmin />} />
           <Route path="leaves" element={<LeavesEmp />} />
           <Route path="attendance" element={<AttendanceEmp />} />

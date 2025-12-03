@@ -1,753 +1,984 @@
-import React, { useMemo, useState, useEffect, useRef } from "react";
-import "./AdminDashboard.css";
-import axios from "axios";
 
+import React, { useState, useRef, useEffect } from "react";
+import "./AdminDashboard.css";
+import { FaBell, FaUserCircle } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import {
-  FiSearch,
-  FiBell,
-  FiChevronDown,
-  FiClock,
-  FiSun,
-  FiMoon,
-  FiPlus,
-  FiEdit2,
-} from "react-icons/fi";
- import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
   CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
 } from "recharts";
 
-/**
- * Advanced Admin Dashboard (full)
- * - Full feature set: stats, attendance pie, training bar, calendar, events, pending, tasks, reminders
- * - Search behavior (MODIFIED): user types full employee name or ID and presses Enter -> selects employee
- *   and auto-scrolls to the charts section (attendance + training) showing that employee's details.
- *
- * Modifications included:
- * - Enter on full name/ID selects employee and auto-scrolls.
- * - Clearing the search input (backspace to empty) clears selection and shows Company overview.
- * - Calendar date clicking is disabled for today & past dates; only future dates can be added/edited.
- * - Attendance month dropdown disables future months.
- * - Chart colors adapt to darkMode for visibility.
- *
- * Replace your AdminDashboard.jsx with this file.
- */
+const AdminDashboard = () => {
+  const navigate = useNavigate();
 
-export default function AdminDashboard() {
-  // ---------- UI state ----------
-  const [search, setSearch] = useState("");
-  const [selectedDate, setSelectedDate] = useState(new Date()); // drives calendar month/year
+  // STATES FOR REMINDERS
+  const [selectedDate, setSelectedDate] = useState("");
+  const [reminder, setReminder] = useState("");
+  const [activeTable, setActiveTable] = useState(1);
+  const token = localStorage.getItem("token");
 
-  // SPLIT the month state: one for calendar navigation, one for attendance/training charts
-  const [calendarMonth, setCalendarMonth] = useState(new Date().getMonth());
-  const [attendanceMonth, setAttendanceMonth] = useState(new Date().getMonth());
-  const [darkMode, setDarkMode] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
+const handleAddReminder = async () => {
+  if (!selectedDate || !reminder) {
+    alert("Select a date and enter a reminder.");
+    return;
+  }
 
-  // ref used for auto-scrolling to chart area
-  const chartsRef = useRef(null);
+  try {
+    const res = await fetch("https://internal-website-rho.vercel.app/api/reminder/add", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        reminderDate: selectedDate,   // FIXED
+        title: reminder               // FIXED
+      })
+    });
 
-  // ---------- Employee dataset (sample) ----------
-  // keep many sample employees as you requested (expand as required)
-  const employees = [
-    { id: "E001", name: "Likith", role: "frontend", attendance: 90 },
-    { id: "E002", name: "Jagadeesh", role: "backend", attendance: 80 },
-    { id: "E003", name: "Tataji", role: "frontend", attendance: 72 },
-    { id: "E004", name: "Rohith", role: "backend", attendance: 85 },
-    { id: "E005", name: "Vignesh", role: "frontend", attendance: 95 },
-    { id: "E006", name: "Balaji", role: "frontend", attendance: 88 },
-    { id: "E007", name: "Karthik", role: "backend", attendance: 82 },
-    { id: "E008", name: "Akashay", role: "frontend", attendance: 76 },
-    { id: "E009", name: "Guru", role: "backend", attendance: 79 },
-    { id: "E010", name: "Devi", role: "UI/UX", attendance: 92 },
-    // add more as needed...
-  ];
+    if (!res.ok) {
+      const errData = await res.json();
+      console.error("Error response from server:", errData);
+      return;
+    }
 
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+    const data = await res.json();
 
-  // ---------- Notifications & pending actions ----------
-  const [notifications] = useState([
-    {
-      title: "Approvals",
-      icon: "✅",
-      items: ["2 new leave approvals", "1 pending expense claim"],
-    },
-    {
-      title: "Requests",
-      icon: "📩",
-      items: ["3 support requests pending", "1 team request"],
-    },
-    {
-      title: "Payroll",
-      icon: "💰",
-      items: ["Payroll review required", "Salary sheet update"],
-    },
-    {
-      title: "Timesheet",
-      icon: "🕒",
-      items: ["5 timesheets need validation"],
-    },
-  ]);
+    if (data.success) {
+      setReminder("");
+      setSelectedDate("");
+      setEvents(prev => [...prev, data.reminder]);
 
-  const [pending] = useState([
-    { id: "approvals", label: "Approvals" },
-    { id: "requests", label: "Requests" },
-    { id: "payroll", label: "Payroll" },
-    { id: "timesheet", label: "Time sheet" },
-  ]);
+      const { monday, sunday } = getWeekRange();
+      const reminderDate = new Date(data.reminder.reminderDate);
 
-  // ---------- Events & tasks ----------
-  const [events, setEvents] = useState([
-    { date: "2025-10-31", label: "Devi Birthday", type: "birthday" },
-    { date: "2025-11-02", label: "Team Outing", type: "custom" },
-    { date: "2025-11-11", label: "Company Meeting", type: "meeting" },
-    { date: "2025-11-15", label: "Client Review Call", type: "meeting" },
-    { date: "2025-11-24", label: "Project Deadline", type: "custom" },
-  ]);
+      if (reminderDate >= monday && reminderDate <= sunday) {
+        setWeeklyReminders(prev => [...prev, data.reminder]);
+      }
+    }
+  } catch (err) {
+    console.error("Error adding reminder:", err);
+  }
+};
 
-  // ---------- Company stats ----------
-  const [stats, setStats] = useState({
-    totalEmployees: 50,
-    jobApplied: 77,
-    leaveRequests: 35,
-    tasks: [],
-    employeesAdded: 0,
-  });
+  // For editing/deleting a stored reminder
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [editText, setEditText] = useState("");
+  const [selectedReminder, setSelectedReminder] = useState(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  // ---------- Months ----------
+// PROFILE POPUP STATE
+const [showProfilePopup, setShowProfilePopup] = useState(false);
+const [profileImage, setProfileImage] = useState(null);
+const profileRef = useRef();
+const performanceTable = [
+  { name: "Sathvika", role: "frontend", score: 3, performance: "good" },
+  { name: "Akshay", role: "designing", score: 4.5, performance: "excellent" },
+  { name: "Balaji", role: "backend", score: 3.4, performance: "Average" },
+  { name: "Sravani", role: "frontend", score: 4.8, performance: "excellent" },
+];
+const [roleFilter, setRoleFilter] = useState("");
+const [scoreFilter, setScoreFilter] = useState("");
+const [performanceFilter, setPerformanceFilter] = useState("");
+const [filters, setFilters] = useState({
+  role: "",
+  performance: "",
+  score: "",
+   projectFrom: "",   // ⬅ ADD THIS
+  projectTo: "",
+});
+const filteredData = performanceTable.filter((row) => {
+  const scoreFilter = filters.score;
+
+  // role filter
+  if (filters.role && row.role !== filters.role) return false;
+
+  // score filter
+  if (scoreFilter === "4-5" && !(row.score >= 4 && row.score <= 5)) return false;
+  if (scoreFilter === "3-4" && !(row.score >= 3 && row.score < 4)) return false;
+  if (scoreFilter === "3-below" && !(row.score < 3)) return false;
+
+  // performance filter
+  if (filters.performance && row.performance !== filters.performance) return false;
+
+  return true;
+});
+
+
+
+// Dummy user details (replace with API data)
+const userDetails = {
+  name: "ShanmukhaPriya",
+  designation: "HR Manager",
+  email: "priya@dhatvibs.com",
+  empId: "EMP1025"
+};
+
+// Handle image upload
+const handleImageUpload = (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const imgURL = URL.createObjectURL(file);
+    setProfileImage(imgURL);
+  }
+};
+
+// Remove image
+const handleRemoveImage = () => {
+  setProfileImage(null);
+};
+
+
+  // FINANCIAL YEAR: default is current FY
+  const today = new Date();
+  const currentFYStart = today.getMonth() >= 3 ? today.getFullYear() : today.getFullYear() - 1;
+  const [selectedFY, setSelectedFY] = useState(currentFYStart);
+  const [fyOffset, setFyOffset] = useState(0);
+
+  // FUTURE FINANCIAL YEARS DROPDOWN
+  const futureFYOptions = Array.from({ length: 10 }, (_, i) => currentFYStart + i);
+// FILTER STATES
+
+
+const [filteredRows, setFilteredRows] = useState([]);
+
+const handleFilterChange = (e) => {
+  const { name, value } = e.target;
+
+  let updated = { ...filters, [name]: value };
+
+
+  // RESET LOGIC (IMPORTANT)
+  if (name === "projectFrom") {
+    updated.projectTo = "";      // clear previous TO date
+    // updated = filters.filter(item=> item.projectFrom === value)
+    setShowProjectToPicker(false);
+  }
+
+  if (name === "projectTo") {
+    updated.projectFrom = "";    // clear previous FROM date
+    // updated = filters.filter(item=> item.projectTo === value)
+    setShowProjectFromPicker(false);
+  }
+  console.log("filters", filters)
+  console.log(value)
+
+  setFilters(updated);
+};
+
+
+const getUniqueValues = (column) => {
+  return [...new Set(performanceTable.map((row) => row[column]))].filter(Boolean);
+};
+
+
+    // YEARLY ATTENDANCE DUMMY DATA
+  const attendanceData = {};
+  for (let i = 0; i < 10; i++) {
+    const fy = currentFYStart + i;
+    attendanceData[fy] = [
+      { month: "Apr", value: 90 + i },
+      { month: "May", value: 92 + i },
+      { month: "Jun", value: 88 + i },
+      { month: "Jul", value: 91 + i },
+      { month: "Aug", value: 93 + i },
+      { month: "Sep", value: 87 + i },
+      { month: "Oct", value: 95 + i },
+      { month: "Nov", value: 90 + i },
+      { month: "Dec", value: 94 + i },
+      { month: "Jan", value: 92 + i },
+      { month: "Feb", value: 89 + i },
+      { month: "Mar", value: 94 + i }
+    ];
+  }
+
+  const yearlyAttendance = attendanceData[selectedFY] || [];
+  // CALENDAR STATES
+  const [calMonth, setCalMonth] = useState(new Date().getMonth());
+  const [calYear, setCalYear] = useState(new Date().getFullYear());
+  const [showYearDropdown, setShowYearDropdown] = useState(false);
+;
+
   const monthNames = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
   ];
-
-  // keep calendarMonth in sync with selectedDate (calendar browsing)
-  useEffect(() => {
-    setCalendarMonth(selectedDate.getMonth());
-  }, [selectedDate]);
-
-  // ensure attendanceMonth is not a future month (run once on mount)
-  useEffect(() => {
-    const current = new Date().getMonth();
-    if (attendanceMonth > current) {
-      setAttendanceMonth(current);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // ---------- COMPANY MONTHLY ATTENDANCE (derived) ----------
-  const monthlyAttendance = useMemo(() => {
-    const baseData = [
-      { present: 65, absent: 35 },
-      { present: 70, absent: 30 },
-      { present: 80, absent: 20 },
-      { present: 60, absent: 40 },
-      { present: 75, absent: 25 },
-      { present: 68, absent: 32 },
-      { present: 85, absent: 15 },
-      { present: 72, absent: 28 },
-      { present: 90, absent: 10 },
-      { present: 65, absent: 35 },
-      { present: 78, absent: 22 },
-      { present: 82, absent: 18 },
-    ];
-
-    return baseData.map((m) => {
-      const presentCount = Math.round((m.present / 100) * stats.totalEmployees);
-      const absentCount = stats.totalEmployees - presentCount;
-      const presentPercent = Math.round((presentCount / stats.totalEmployees) * 100);
-      const absentPercent = 100 - presentPercent;
-      return {
-        present: presentPercent,
-        absent: absentPercent,
-        presentCount,
-        absentCount,
-      };
-    });
-  }, [stats.totalEmployees]);
-
-  // ---------- PIE DATA (attendance) ----------
-  // NOTE: charts use attendanceMonth now (separate from calendarMonth)
-  const pieData = useMemo(() => {
-    if (selectedEmployee) {
-      const att = Math.min(100, Math.max(0, Number(selectedEmployee.attendance || 0)));
-      return [
-        { name: "Present", value: att },
-        { name: "Absent", value: 100 - att },
-      ];
-    }
-    const company = monthlyAttendance[attendanceMonth] || { present: 0, absent: 100 };
-    return [
-      { name: "Present", value: company.present },
-      { name: "Absent", value: company.absent },
-    ];
-  }, [selectedEmployee, monthlyAttendance, attendanceMonth]);
-
-  // ---------- Training / Development ----------
-  const allDevCourses = {
-    frontend: {
-      reactjs: [40, 60, 80, 90],
-      reactnative: [30, 50, 70, 85],
-    },
-    backend: {
-      nodejs: [35, 55, 75, 85],
-    },
-  };
-
-  // default selectedDev will be overwritten when user selects an employee
-  const [selectedDev, setSelectedDev] = useState("frontend");
-  const [selectedCourse, setSelectedCourse] = useState("");
-  
-
-  // When user selects employee, auto-set dev type and clear course
-  useEffect(() => {
-    if (selectedEmployee) {
-      setSelectedDev(selectedEmployee.role);
-      setSelectedCourse("");
-    }
-  }, [selectedEmployee]);
-
-  const trainingBarData = useMemo(() => {
-    const defaultCourse =
-      selectedDev === "frontend" ? allDevCourses.frontend.reactjs : allDevCourses.backend.nodejs;
-
-    const chosenArr = (() => {
-      if (selectedDev === "frontend") {
-        return selectedCourse && allDevCourses.frontend[selectedCourse]
-          ? allDevCourses.frontend[selectedCourse]
-          : allDevCourses.frontend.reactjs;
-      }
-      if (selectedDev === "backend") {
-        return selectedCourse && allDevCourses.backend[selectedCourse]
-          ? allDevCourses.backend[selectedCourse]
-          : allDevCourses.backend.nodejs;
-      }
-      return defaultCourse;
-    })();
-
-    return chosenArr.map((val, idx) => {
-      const prev = idx === 0 ? 0 : chosenArr[idx - 1];
-      const base = prev;
-      const increment = Math.max(0, val - prev);
-      return {
-        name: `Week ${idx + 1}`,
-        base,
-        increment,
-      };
-    });
-  }, [selectedDev, selectedCourse]);
-
-  // ---------- Compose tasks from events ----------
-  useEffect(() => {
-    const today = new Date();
-    const futureEvents = events.filter((ev) => new Date(ev.date) >= today);
-    const sortedEvents = [...futureEvents].sort((a, b) => new Date(a.date) - new Date(b.date));
-    const formattedTasks = sortedEvents.map((ev) => {
-      const d = new Date(ev.date);
-      const options = { month: "short", day: "numeric" };
-      return `${d.toLocaleDateString("en-US", options)} — ${ev.label}`;
-    });
-    setStats((prev) => ({
-      ...prev,
-      tasks: formattedTasks.length > 0 ? formattedTasks : ["No upcoming tasks or events"],
-    }));
-  }, [events]);
-
-  // ---------- Calendar generation ----------
-  const calYear = selectedDate.getFullYear();
-  // calMonth MUST come from calendarMonth (so calendar navigation won't affect charts)
-  const calMonth = calendarMonth;
-
-  const buildCalendar = (year, month) => {
-    const first = new Date(year, month, 1);
-    const startDay = first.getDay(); // 0 (Sun) - 6 (Sat)
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const weeks = [];
-    let week = new Array(7).fill(null);
-    let dayCounter = 1;
-
-    // Fill first week starting at startDay index
-    for (let i = startDay; i < 7; i++) {
-      week[i] = dayCounter++;
-    }
-    weeks.push(week.slice());
-
-    // Continue weeks
-    while (dayCounter <= daysInMonth) {
-      week = new Array(7).fill(null);
-      for (let i = 0; i < 7 && dayCounter <= daysInMonth; i++) {
-        week[i] = dayCounter++;
-      }
-      weeks.push(week.slice());
-    }
-    return weeks;
-  };
-
-  // calendar uses calYear and calMonth (calendarMonth)
-  const calendar = useMemo(() => buildCalendar(calYear, calMonth), [calYear, calMonth]);
 
   const prevMonth = () => {
-    // navigate calendar month by moving selectedDate (keeps calendarMonth in sync via effect)
-    setSelectedDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+    if (calMonth === 0) {
+      setCalMonth(11);
+      setCalYear(calYear - 1);
+    } else {
+      setCalMonth(calMonth - 1);
+    }
   };
 
   const nextMonth = () => {
-    setSelectedDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
-  };
-
-  // handler for clicking a date in calendar
-  // IMPORTANT: only allow adding/editing events for future dates (strictly greater than today)
-  const handleDateClick = (day) => {
-    if (!day) return;
-
-    const dateKey = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    const clickedDate = new Date(`${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`);
-    const todayNoTime = new Date();
-    todayNoTime.setHours(0, 0, 0, 0);
-
-    // disable if clicked date is today or in the past
-    if (clickedDate <= todayNoTime) {
-      // do nothing; past and today's dates are disabled for editing
-      return;
-    }
-
-    const existing = events.find((ev) => ev.date === dateKey);
-    const label = prompt("Enter event label", existing ? existing.label : "");
-    if (label !== null) {
-      const newEvents = events.filter((ev) => ev.date !== dateKey);
-      if (label.trim() !== "") newEvents.push({ date: dateKey, label, type: "custom" });
-      setEvents(newEvents);
-    }
-  };
-
-  const isEvent = (day) => {
-    if (!day) return false;
-    const dateKey = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return events.some((ev) => ev.date === dateKey);
-  };
-
-  // ---------- Update employees prompt ----------
-  const handleUpdateEmployees = () => {
-    const input = prompt("Enter new total employee count", stats.totalEmployees);
-    if (input !== null && !isNaN(input)) {
-      const newCount = parseInt(input, 10);
-      const added = newCount > stats.totalEmployees ? newCount - stats.totalEmployees : 0;
-      setStats((prev) => ({ ...prev, totalEmployees: newCount, employeesAdded: added }));
-    }
-  };
-
-  // ---------- Dark mode side effect ----------
-  useEffect(() => {
-    document.body.setAttribute("data-theme", darkMode ? "dark" : "light");
-  }, [darkMode]);
-
-  // ---------- Auto-scroll helper ----------
-  const scrollToCharts = (delay = 120) => {
-    setTimeout(() => {
-      if (chartsRef.current) chartsRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    }, delay);
-  };
-
-  // ---------- Modified Search handling (ENTER -> select full name / id and scroll) ----------
-  const handleSearchKeyDown = (e) => {
-    if (e.key !== "Enter") return;
-    const value = search.trim();
-    if (!value) {
-      setSelectedEmployee(null);
-      return;
-    }
-
-    // match exact full name (case-insensitive) OR exact id (case-insensitive)
-    const found = employees.find(
-      (emp) => emp.name.toLowerCase() === value.toLowerCase() || emp.id.toLowerCase() === value.toLowerCase()
-    );
-
-    if (found) {
-      setSelectedEmployee(found);
-      setSelectedDev(found.role);
-      setSelectedCourse("");
-      // when selecting employee, keep charts showing attendanceMonth (unchanged)
-      scrollToCharts();
+    if (calMonth === 11) {
+      setCalMonth(0);
+      setCalYear(calYear + 1);
     } else {
-      // not found: alert (or you can show inline message)
-      alert("Employee not found. Please enter the full name or the exact ID and press Enter.");
-      setSelectedEmployee(null);
+      setCalMonth(calMonth + 1);
     }
   };
 
-  // For typing behaviour: update search value.
-  // If the user clears the input (empty), clear selectedEmployee so charts revert to Company view.
-  const handleSearchChange = (value) => {
-    setSearch(value);
-    if (value.trim() === "") {
-      // user cleared the search input -> revert to company view
-      setSelectedEmployee(null);
-      // reset role selection if you want; here we keep selectedDev untouched (it will default)
-      setSelectedCourse("");
+  const generateCalendar = () => {
+    const firstDay = new Date(calYear, calMonth, 1).getDay();
+    const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+    const calendar = [];
+    let week = Array(firstDay).fill(null);
+    for (let day = 1; day <= daysInMonth; day++) {
+      week.push(day);
+      if (week.length === 7) {
+        calendar.push(week);
+        week = [];
+      }
+    }
+    if (week.length) calendar.push(week);
+    return calendar;
+  };
+
+  const calendar = generateCalendar();
+
+const getEventForDate = (day) => {
+  if (!day) return null;
+  const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+  return events.find(ev => ev.reminderDate.split("T")[0] === dateStr) || null;
+};
+
+
+useEffect(() => {
+  const handleOutside = (e) => {
+    const panel = document.querySelector(".profile-side-panel");
+
+    // If clicking outside both icon & panel → close
+    if (
+      showProfilePopup &&
+      panel &&
+      !panel.contains(e.target) &&
+      profileRef.current &&
+      !profileRef.current.contains(e.target)
+    ) {
+      setShowProfilePopup(false);
     }
   };
 
-  // pie colors
-  const pieColors = ["#10b981", "#7c3aed"];
+  document.addEventListener("mousedown", handleOutside);
+  return () => document.removeEventListener("mousedown", handleOutside);
+}, [showProfilePopup]);
+// const [projectFromDate, setProjectFromDate] = useState("");
+// const [projectToDate, setProjectToDate] = useState("");
+const projectData = [
+  { name: "Website Revamp", id: "PRJ101", from: "2025-10-01", to: "2025-12-31", employees: 5 },
+  { name: "Mobile App", id: "PRJ102", from: "2025-11-15", to: "2026-02-15", employees: 3 }
+];
 
-  // today's date for calendar highlight
+const filteredProjects = projectData.filter((p) => {
+  const { projectFrom, projectTo } = filters;
+
+  if (projectFrom && projectTo) {
+    return p.from >= projectFrom && p.to <= projectTo;
+  }
+
+  if (projectFrom) {
+    return p.from == projectFrom;
+  }
+
+  if (projectTo) {
+    return p.to == projectTo;
+  }
+
+  return true;
+});
+
+
+const [showProjectFromPicker, setShowProjectFromPicker] = useState(false);
+const [showProjectToPicker, setShowProjectToPicker] = useState(false);
+// Get Monday–Sunday of current week
+const getWeekRange = () => {
   const today = new Date();
-  const todayDate = today.getDate();
-  // isThisMonth should compare with calendarMonth (for the calendar view)
-  const isThisMonth = today.getFullYear() === calYear && today.getMonth() === calMonth;
+  const dayOfWeek = today.getDay(); // 0 (Sun) - 6 (Sat)
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  monday.setHours(0, 0, 0, 0);
 
-  // helper for upcoming tasks (first 6)
-  const upcomingList = useMemo(() => {
-    const now = new Date();
-    const list = events
-      .map((ev) => ({ ...ev, dateObj: new Date(ev.date) }))
-      .filter((e) => e.dateObj >= now)
-      .sort((a, b) => a.dateObj - b.dateObj)
-      .slice(0, 6)
-      .map((ev) => `${ev.dateObj.toLocaleString("en-US", { month: "short", day: "numeric" })} — ${ev.label}`);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
 
-    if (list.length === 0) {
-      return stats.tasks && stats.tasks.length ? stats.tasks.slice(0, 6) : ["No upcoming events"];
+  return { monday, sunday };
+};
+
+
+const [events, setEvents] = useState([]);        // backend reminders
+const [loadingReminders, setLoadingReminders] = useState(false);
+const userId = JSON.parse(localStorage.getItem("user"))?._id;
+useEffect(() => {
+  console.log(token)
+  fetch("https://internal-website-rho.vercel.app/api/reminder/week", {
+    headers: {
+      Authorization: `Bearer ${token}`,
     }
-    return list;
-  }, [events, stats.tasks]);
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (Array.isArray(data.reminders)) {
+        setWeeklyReminders(data.reminders);
+      } else {
+        setWeeklyReminders([]);
+      }
+    })
+    .catch(err => console.error("Error fetching weekly reminders:", err));
+}, []);
 
-  // sample employee list UI for directory (scroll not to employee card but charts; still show directory)
-  // to indicate selection visually in the employee list we can highlight selectedEmployee's row
-  const employeeList = employees; // alias
 
-  // ---------- Helpers for disabling future months in attendance/training dropdown ----------
-  const currentMonthIndex = new Date().getMonth();
-  const monthOptions = monthNames.map((m, i) => ({ label: m, value: i, disabled: i > currentMonthIndex }));
+const [birthdays, setBirthdays] = useState([]);
+
+useEffect(() => {
+  fetch("https://internal-website-rho.vercel.app/api/birthdays/week", {
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    }
+  })
+    .then(res => res.json())
+    .then(data => {
+      console.log("birthdays", data)
+
+      // if (!Array.isArray(data.birthdays)) {
+      //   setBirthdays([]);
+      //   return;
+      // }
+
+      // const { monday, sunday } = getWeekRange();
+
+      // const filtered = data.birthdays.filter(b => {
+      //   const bDate = new Date(b.dob);   // FIXED FIELD
+      //   return bDate >= monday && bDate <= sunday;
+      // });
+
+      setBirthdays(data.birthdays);
+    })
+    .catch(err => console.error("Error fetching birthdays:", err));
+}, []);
+
+console.log("birthdays",birthdays)
+
+
+
+const [weekEvents, setWeekEvents] = useState([]);
+useEffect(() => {
+  fetch("https://internal-website-rho.vercel.app/api/holidays/hr", {
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    }
+  })
+    .then(res => res.json())
+    .then(data => {
+      console.log("Fetched week events:", data.holidays); // check the array
+      setWeekEvents(Array.isArray(data.holidays) ? data.holidays : []);
+    })
+    .catch(err => console.error("Error fetching week events:", err));
+}, []);
+
+  const [summary, setSummary] = useState({
+  date: "",
+  totalEmployees: 0,
+  presentToday: 0,
+  absentToday: 0,
+  presentEmployees: [],
+  absentEmployees: []
+});
+
+const presentPercentage =
+  summary.totalEmployees > 0
+    ? ((summary.presentToday / summary.totalEmployees) * 100).toFixed(1)
+    : 0;
+
+const onLeavePercent =
+  summary.totalEmployees > 0
+    ? ((summary.absentToday / summary.totalEmployees) * 100).toFixed(1)
+    : 0;
+
+useEffect(() => {
+  async function loadSummary() {
+    try {
+      const res = await fetch("https://internal-website-rho.vercel.app/api/attendance/attendance/today-summary");
+      const data = await res.json();
+      setSummary(data);
+    } catch (error) {
+      console.error("Error loading summary:", error);
+    }
+  }
+
+  loadSummary();
+}, []);
+
+const [weeklyReminders, setWeeklyReminders] = useState([]);
+
+useEffect(() => {
+  if (!events || events.length === 0) {
+    setWeeklyReminders([]);
+    return;
+  }
+
+  const { monday, sunday } = getWeekRange();
+
+  const filtered = events.filter(ev => {
+    const d = new Date(ev.reminderDate);  // FIXED
+    return d >= monday && d <= sunday;
+  });
+
+  setWeeklyReminders(filtered);
+}, [events]);
+
 
   return (
-    <div className="dashboard-wrap">
-      {/* HEADER */}
-      <header className="header">
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <h2>Company Dashboard</h2>
+    <div className="hr-dashboard">
 
-          <div className="search" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <FiSearch color="currentColor" />
-            <input
-              placeholder="Search by full name or ID and press Enter..."
-              value={search}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-            />
+     {/* ===== FIXED TOP BAR ===== */}
+<div className="top-status-bar">
+  <div className="top-left-title"></div>
+
+  <div className="top-right-icons">
+    <FaBell className="top-icon" />
+<div
+  ref={profileRef}
+  onClick={() => setShowProfilePopup((prev) => !prev)}
+>
+  <FaUserCircle className="top-icon" />
+</div>
+
+  </div>
+</div>
+
+      {/* ===== TOP GRID: LEFT (cards + graph) + RIGHT PANEL ===== */}
+      <div className="top-grid">
+
+        {/* LEFT: Summary + Attendance */}
+        <div className="left-top">
+          {/* SUMMARY CARDS */}
+          <div className="summary-cards">
+            <div className="summary-card-emp" onClick={() => navigate("/admin/employees")}>
+              <h3>{summary.totalEmployees}</h3>
+              <p>Total Employees</p>
+            </div>
+            <div className="summary-card-present">
+              <h3>{summary.presentToday}</h3>
+              <p>Present Today ({presentPercentage}%)</p>
+             </div>
+
+            <div className="summary-card-leave">
+           <h3>{summary.absentToday}</h3>
+            <p>On Leave ({onLeavePercent}%)</p>
           </div>
-        </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          {/* Theme toggle */}
-          <button
-            className="mode-toggle"
-            onClick={() => setDarkMode((prev) => !prev)}
-            aria-label="Toggle theme"
-            title={darkMode ? "Switch to light" : "Switch to dark"}
-          >
-            {darkMode ? <FiSun size={16} /> : <FiMoon size={16} />}
-          </button>
-        </div>
-      </header>
-
-      {/* STATS GRID */}
-      <section className="stats-grid">
-        <div className="card">
-          <div className="small">Total Employees</div>
-          <div className="big">{stats.totalEmployees}</div>
-          {/* <button className="btn-update" onClick={handleUpdateEmployees}>Add / Update</button> */}
-          <div className="footer-note" style={{ marginTop: 8 }}>
-            {stats.employeesAdded > 0 ? `${stats.employeesAdded} new employees added` : "No new employees"}
           </div>
-        </div>
 
-        <div className="card">
-          <div className="small">Job Applied</div>
-          <div className="big">{stats.jobApplied}</div>
-          <div className="footer-note">+22.0%</div>
-        </div>
-
-        <div className="card">
-          <div className="small">Leave Request</div>
-          <div className="big">{stats.leaveRequests}</div>
-          <div className="footer-note">+12.0%</div>
-        </div>
-
-        <div className="card upcoming-events">
-          <div className="small">Upcoming Tasks & Events</div>
-          <ol style={{ margin: "8px 0 0 18px", padding: 0 }}>
-            {(stats.tasks || []).slice(0, 5).map((t, i) => (
-              <li key={i} style={{ fontSize: 13 }}>{t}</li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* MAIN GRID */}
-      <div className="main-grid">
-        <div style={{ display: "grid", gridTemplateRows: "auto auto", gap: 18 }}>
-          {/* PENDING ACTIONS */}
-          <div className="card pending">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <div className="title" style={{ fontWeight: 700 }}>Pending Actions</div>
-              </div>
-
-              {/* Notification bell moved next to Pending Actions per request */}
-              <div style={{ position: "relative" }}>
-                <div
-                  className="notification-icon"
-                  onClick={() => setShowNotifications((s) => !s)}
-                  style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}
-                >
-                  <FiBell />
-                  <span className="badge">{notifications.length}</span>
-                </div>
-
-                {showNotifications && (
-                  <div className="notification-dropdown">
-                    {notifications.map((g, i) => (
-                      <div key={i} style={{ marginBottom: 8 }}>
-                        <strong>{g.icon} {g.title}</strong>
-                        <ul style={{ paddingLeft: 16, marginTop: 6 }}>
-                          {g.items.map((it, idx) => <li key={idx} style={{ fontSize: 13, color: "var(--muted)" }}>{it}</li>)}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
+          {/* YEARLY ATTENDANCE BAR GRAPH */}
+          <div className="attendance-graph-box">
+          <div className="attendance-graph-container">
+            <div className="graph-header">
+              <h3 className="graph-title">
+                Attendance Overview - FY {selectedFY}-{selectedFY + 1}
+              </h3>
+              <div className="fy-nav-buttons">
+                {selectedFY > currentFYStart && (
+                  <button
+                    onClick={() => setSelectedFY(selectedFY - 1)}
+                    className="fy-btn"
+                  >
+                    🢀
+                  </button>
+                )}
+                {selectedFY < currentFYStart + 9 && (
+                  <button
+                    onClick={() => setSelectedFY(selectedFY + 1)}
+                    className="fy-btn"
+                  >
+                    🢂
+                  </button>
                 )}
               </div>
             </div>
 
-            <div style={{ marginTop: 12 }}>
-              {pending.map((p) => (
-                <div key={p.id} className="btn" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderTop: "1px solid rgba(0,0,0,0.06)" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                    <FiClock />
-                    <div>
-                      <div style={{ fontWeight: 600 }}>{p.label}</div>
-                      <div style={{ fontSize: 12, color: "var(--muted)" }}>Review</div>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart
+                data={(() => {
+                  const monthlyData = attendanceData[selectedFY] || [];
+
+                  if (selectedFY > currentFYStart) {
+                    // Future FY: display all months but no value
+                    return monthlyData.map(m => ({ month: m.month, value: null }));
+                  }
+
+                  // Current FY: display only months up to current month
+                  const fyStartMonth = 3; // April = index 3
+                  const monthsElapsed =
+                    today.getFullYear() === selectedFY
+                      ? today.getMonth() - fyStartMonth + 1
+                      : 12; // past FY: all months
+                  return monthlyData.slice(0, monthsElapsed);
+                })()}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis domain={[0, 100]} />
+                <Tooltip />
+                <Bar dataKey="value" fill="#4a99f3ff" radius={[2, 2, 0, 0]} barSize={25}/>
+              </BarChart>
+            </ResponsiveContainer>
+
+            {selectedFY > currentFYStart && (
+              <p style={{ textAlign: "center", marginTop: "10px", color: "#777" }}>
+                Attendance data not available for FY {selectedFY}-{selectedFY + 1} yet.
+              </p>
+            )}
+          </div>
+          </div>
+        </div>
+
+        {/* RIGHT PANEL */}
+        <div className="right-fixed-panel">
+          <div className="right-big-box">
+          <div className="right-box">
+  <h3>Events</h3>
+  <div className="right-content">
+
+    {weekEvents.length === 0 ? (
+      <p>No events this week</p>
+    ) : (
+      weekEvents.map((ev, i) => (
+        <p key={i}>
+          {ev.name} – {new Date(ev.date).toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "short"
+          })}
+        </p>
+      ))
+    )}
+
+  </div>
+</div>
+          <div className="right-box">
+            <h3>Reminders</h3>
+            <div className="right-content">
+{weeklyReminders.length === 0 ? (
+  <p>No reminders this week</p>
+) : (
+  weeklyReminders.map((ev, i) => {
+    const d = new Date(ev.reminderDate);
+    return (
+      <p key={i}>
+        {d.getDate()} {d.toLocaleString("en-US", { month: "short" })} - {ev.title}
+      </p>
+    );
+  })
+)}
+            </div>
+          </div>
+<div className="right-box">
+  <h3>Birthdays</h3>
+  <div className="right-content">
+    {birthdays.length === 0 ? (
+      <p>No birthdays this week</p>
+    ) : (
+      birthdays.map((b, i) => (
+        <p key={i}>
+          {b.name} - {new Date(b.dob).toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "short"
+          })}
+        </p>
+      ))
+    )}
+  </div>
+</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ===== BOTTOM SECTION: FOLLOW-UP + CALENDAR + REMINDERS ===== */}
+      <div className="bottom-section">
+        <div className="followup-section">
+
+
+          <div className="followup-main">
+            {/* FOLLOWUP CARDS LEFT SIDE */}
+            <div className="followup-card">
+            <div className="followup-cards">
+              <button className="quick-btn add-emp" onClick={() => navigate("/admin/employees")}>
+                👤 Add Employee
+              </button>
+              <button className="quick-btn training" onClick={() => navigate("/admin/traininganddevelopment")}>
+                🎓 Assign Training
+              </button>
+              <button className="quick-btn leave" onClick={() => navigate("/admin/leaves")}>
+                📝 Leave Request
+              </button>
+              <button className="quick-btn post-job" onClick={() => navigate("/admin/careers")}>
+                💼 Post Job
+              </button>
+              <button className="quick-btn attendance" onClick={() => navigate("/admin/attendance")}>
+              🕒 Attendance
+              </button>
+
+            </div>
+            </div>
+
+            {/* CALENDAR */}
+            <div className="calendar-box">
+              <div className="calendar-header">
+                <button className="cal-btn" onClick={prevMonth}>◀</button>
+                <div className="year-select-box">
+                  <span>{monthNames[calMonth]}</span>
+                  <span
+                    className="year-display"
+                    onClick={() => setShowYearDropdown(!showYearDropdown)}
+                  >
+                    {calYear} ▼
+                  </span>
+                  {showYearDropdown && (
+                    <div className="year-dropdown">
+                      {Array.from({ length: 20 }, (_, i) => calYear - 10 + i).map((yr) => (
+                        <div key={yr} className="year-option">{yr}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <button className="cal-btn" onClick={nextMonth}>▶</button>
+              </div>
+
+              <table className="calendar-table">
+                <thead>
+                  <tr>
+                    {["Sun","Mon","Tue","Wed","Thu","Fri","Sat"].map((d) => (
+                      <th key={d}>{d}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {calendar.map((week, i) => (
+                    <tr key={i}>
+                      {week.map((day, j) => {
+                        const fullDate =
+                          day &&
+                          `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+                        const isPast =
+                          day &&
+                          new Date(calYear, calMonth, day).setHours(0, 0, 0, 0) <
+                            new Date().setHours(0, 0, 0, 0);
+                        return (
+                          <td
+  key={fullDate || `${i}-${j}`}
+  className={`day
+    ${getEventForDate(day) ? "highlight" : ""}
+    ${selectedDate === fullDate ? "selected" : ""}
+    ${isPast ? "past-day" : ""}`}
+  style={{
+    pointerEvents: isPast ? "none" : "auto",
+    opacity: isPast ? 0.4 : 1,
+    position: "relative"
+  }}
+
+  // SINGLE CLICK → select date
+  onClick={() => {
+  if (!isPast && day) {
+    const ev = getEventForDate(day);
+
+    // 🔥 TOGGLE LOGIC
+    if (selectedDate === fullDate) {
+      setSelectedDate("");       // unselect
+      setEditingEvent(null);
+      return;
+    }
+
+    // Select new date
+    setSelectedDate(fullDate);
+
+    if (ev) {
+      setEditingEvent(ev);
+      setEditText(ev.title);
+    } else {
+      setEditingEvent(null);
+    }
+  }
+}}
+>
+  {day}
+</td>
+
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {editingEvent && (
+                <div className="reminder-popup-overlay" onClick={() => setEditingEvent(null)}>
+                  <div className="reminder-popup" onClick={(e) => e.stopPropagation()}>
+                    <h4>Edit Reminder</h4>
+
+                    <input
+                      type="text"
+                      className="edit-input"
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                    />
+
+                    <div className="popup-actions">
+                      <button
+                        className="popup-btn save"
+                        onClick={() => {
+                          setEvents(events.map(ev =>
+                            ev.type === editingEvent.type ? { ...ev, title: editText } : ev
+                          ));
+                          setEditingEvent(null);
+                        }}
+                      >
+                        Save
+                      </button>
+
+                      <button
+                        className="popup-btn delete"
+                        onClick={() => {
+                          setEvents(events.filter(ev => ev.type !== editingEvent.type));
+                          setEditingEvent(null);
+                        }}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
-                  <FiChevronDown />
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Widgets - Attendance & Training */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 18 }}>
-            {/* Attendance */}
-            <div className="widget card" ref={chartsRef}>
-              <h4 style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>
-                  Monthly Attendance Overview
-                  {selectedEmployee ? (
-                    <span style={{ fontSize: 12, color: "var(--muted)", marginLeft: 8 }}>
-                      — {selectedEmployee.name} ({selectedEmployee.id})
-                    </span>
-                  ) : (
-                    <span style={{ fontSize: 12, color: "var(--muted)", marginLeft: 8 }}>
-                      — Company
-                    </span>
-                  )}
-                </span>
-
-                {/* dropdown must control attendanceMonth only (not calendar month) */}
-                <select
-                  value={attendanceMonth}
-                  onChange={(e) => {
-                    const v = Number(e.target.value);
-                    // disallow selecting future months (safety check)
-                    const current = new Date().getMonth();
-                    if (v <= current) setAttendanceMonth(v);
-                    else setAttendanceMonth(current);
-                  }}
-                  style={{ border: "none", background: "transparent", fontWeight: 600 }}
-                >
-                  {monthOptions.map((opt, i) => (
-                    <option key={i} value={opt.value} disabled={opt.disabled}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-              </h4>
-
-              <div style={{ height: 190 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={pieData}
-                      innerRadius={50}
-                      outerRadius={75}
-                      dataKey="value"
-                      label={({ value }) => `${value}%`}
-                      labelLine={false}
-                    >
-                      {pieData.map((entry, idx) => <Cell key={idx} fill={pieColors[idx] || "#ccc"} />)}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div style={{ display: "flex", justifyContent: "center", gap: 20, marginTop: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: pieColors[0] }} />
-                  <small>Present — {Array.isArray(pieData) ? pieData[0].value : "0"}%</small>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: pieColors[1] }} />
-                  <small>Absent — {Array.isArray(pieData) ? pieData[1].value : "0"}%</small>
-                </div>
-              </div>
-
-              <div style={{ textAlign: "center", marginTop: 8, fontSize: 12, color: "var(--muted)" }}>
-                {selectedEmployee ? `Employee Attendance: ${selectedEmployee.attendance}%` : `Total Employees: ${stats.totalEmployees}`}
-              </div>
-            </div>
-
-            {/* Training & Dev */}
-            <div className="widget card">
-              <h4 style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span>
-                  Training and Development — {monthNames[attendanceMonth]}
-                  {selectedEmployee && (
-                    <span style={{ fontSize: 12, color: "var(--muted)", marginLeft: 8 }}>
-                      — {selectedEmployee.role === "frontend" ? "Frontend Developer" : "Backend Developer"} ({selectedEmployee.name})
-                    </span>
-                  )}
-                </span>
-
-                {/* Role selector: disabled when an employee is selected so UI reflects employee's role */}
-                <select
-                  value={selectedDev}
-                  onChange={(e) => setSelectedDev(e.target.value)}
-                  style={{ border: "none", background: "transparent", fontWeight: 600 }}
-                  disabled={!!selectedEmployee}
-                  title={selectedEmployee ? "Role fixed for selected employee" : "Select role"}
-                >
-                  <option value="frontend">Frontend Developer</option>
-                  <option value="backend">Backend Developer</option>
-                </select>
-              </h4>
-
-              <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 12 }}>
-                {/* Show only the course dropdown for the selectedDev (if employee selected, dev matches their role) */}
-                {selectedDev === "frontend" ? (
-                  <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
-                    <option value="">Select Course</option>
-                    <option value="reactjs">React JS</option>
-                    <option value="reactnative">React Native</option>
-                  </select>
-                ) : (
-                  <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}>
-                    <option value="">Select Course</option>
-                    <option value="nodejs">Node.js</option>
-                  </select>
-                )}
-              </div>
-
-              <div style={{ height: 200 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={trainingBarData}>
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    {/* Use colors that remain visible in dark mode */}
-                    <Bar dataKey="base" stackId="a" fill={darkMode ? "#60a5fa" : "#3b82f6"} />
-                    <Bar dataKey="increment" stackId="a" fill={darkMode ? "#34d399" : "#10b981"} />
-                  </BarChart>
-                </ResponsiveContainer>
-
-                <div style={{ display: "flex", justifyContent: "center", gap: 12, marginTop: 8 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ width: 10, height: 10, borderRadius: "50%", background: darkMode ? "#60a5fa" : "#3b82f6" }} />
-                    <small style={{ fontSize: 12 }}>Previous progress</small>
-                  </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ width: 10, height: 10, borderRadius: "50%", background: darkMode ? "#34d399" : "#10b981" }} />
-                    <small style={{ fontSize: 12 }}>New progress</small>
-                  </div>
-                </div>
+              )}
+              <div className="add-reminder-box">
+                <input
+                  type="text"
+                  className="reminder-input"
+                  placeholder="Add reminder..."
+                  value={reminder}
+                  onChange={(e) => setReminder(e.target.value)}
+                />
+                <button className="add-reminder-btn" onClick={handleAddReminder}>
+                  ➕ Add Reminder
+                </button>
               </div>
             </div>
           </div>
         </div>
-
-        {/* CALENDAR / REMINDERS (right column) */}
-        {/* <aside> */}
-          <div className="calendar-card card" style={{ padding: 16 }}>
-            {/* Reminders Title */}
-            <h3 className="reminder-heading" style={{ marginBottom: 10 }}>Reminders</h3>
-
-            {/* Month Navigation */}
-            <div className="calendar-nav" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <button className="cal-btn" onClick={prevMonth} aria-label="Previous month">◀</button>
-              <div style={{ fontWeight: 700 }}>{monthNames[calMonth]} {calYear}</div>
-              <button className="cal-btn" onClick={nextMonth} aria-label="Next month">▶</button>
-            </div>
-
-            {/* Calendar Table */}
-            <table className="calendar-table" style={{ width: "100%", borderCollapse: "collapse" }}>
-              <thead>
-                <tr>
-                  {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d) => (
-                    <th key={d} style={{ fontSize: 12, color: "var(--muted)", paddingBottom: 8 }}>{d}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {calendar.map((week, i) => (
-                  <tr key={i}>
-                    {week.map((day, j) => {
-                      const isTodayCell = isThisMonth && day === todayDate;
-                      const event = isEvent(day);
-                      return (
-                        <td
-                          key={j}
-                          onClick={() => handleDateClick(day)}
-                          className={`day-cell ${!day ? "empty" : ""} ${event ? "event-day" : ""} ${isTodayCell ? "today" : ""}`}
-                          style={{
-                            padding: 8,
-                            textAlign: "center",
-                            cursor: day ? "pointer" : "default",
-                            borderRadius: 6,
-                            userSelect: "none",
-                          }}
-                        >
-                          {day || ""}
-                          {event && <div style={{ fontSize: 10, marginTop: 6, color: "var(--muted)" }}>●</div>}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        {/* </aside> */}
       </div>
+
+      <div className="table-switch-box">
+        {/* Switch buttons */}
+        <div className="switch-buttons">
+          <button
+            className={`switch-btn ${activeTable === 1 ? "active" : ""}`}
+            onClick={() => setActiveTable(1)}
+          >
+            Employee Performance
+          </button>
+          <button
+            className={`switch-btn ${activeTable === 2 ? "active" : ""}`}
+            onClick={() => setActiveTable(2)}
+          >
+            Project Details
+          </button>
+        </div>
+
+        {/* Tables */}
+        <div className="table-container">
+          {activeTable === 1 && (
+            <table className="data-table">
+             <thead>
+  <tr>
+    <th>Name</th>
+
+    <th>
+  <div className="header-inline">
+
+    <select
+      name="role"
+      value={filters.role}
+      onChange={handleFilterChange}
+      className="filter-header-select"
+    >
+      <option value="">Role</option>
+      {getUniqueValues("role").map((val) => (
+        <option key={val} value={val}>
+          {val}
+        </option>
+      ))}
+    </select>
+  </div>
+</th>
+   <th>
+  <div className="header-inline">
+   <select
+  name="score"
+  value={filters.score}
+  onChange={handleFilterChange}
+  className="filter-header-select"
+>
+  <option value="">Rating</option>
+  <option value="4-5">4 - 5</option>
+  <option value="3-4">3 - 4</option>
+  <option value="3-below">Below 3</option>
+</select>
+  </div>
+</th>
+    <th>
+  <div className="header-inline">
+
+    <select
+      name="performance"
+      value={filters.performance}
+      onChange={handleFilterChange}
+      className="filter-header-select"
+    >
+      <option value="">Performance</option>
+      {getUniqueValues("performance").map((val) => (
+        <option key={val} value={val}>
+          {val}
+        </option>
+      ))}
+    </select>
+  </div>
+</th>
+    <th>Action</th>
+  </tr>
+</thead>
+
+              <tbody>
+  {filteredData.map((row, i) => (
+    <tr key={i}>
+      <td>{row.name}</td>
+      <td>{row.role}</td>
+      <td>{row.score}</td>
+      <td>{row.performance}</td>
+      <td>View</td>
+    </tr>
+  ))}
+</tbody>
+
+            </table>
+          )}
+          {activeTable === 2 && (
+            <table className="data-table">
+              <thead>
+  <tr>
+    <th>Project Name</th>
+    <th>Project ID</th>
+
+  {/* FROM DATE HEADER */}
+<th style={{ width: "120px", position: "sticky" }}>
+  <div
+    className="header-inline"
+    onClick={() => setShowProjectFromPicker(!showProjectFromPicker)}
+    style={{
+      cursor: "pointer",
+      justifyContent: "center",
+      width: "100px",
+    }}
+  >
+    From 📅
+  </div>
+
+  {showProjectFromPicker && (
+    <input
+      type="date"
+      className="header-date-picker"
+      name="projectFrom"
+      value={filters.projectFrom}
+      onChange={handleFilterChange}
+    />
+  )}
+</th>
+
+{/* TO DATE HEADER */}
+<th style={{ width: "120px", position: "sticky" }}>
+  <div
+    className="header-inline"
+    onClick={() => setShowProjectToPicker(!showProjectToPicker)}
+    style={{
+      cursor: "pointer",
+      justifyContent: "center",
+      width: "100px",
+    }}
+  >
+    To 📅
+  </div>
+
+  {showProjectToPicker && (
+    <input
+      type="date"
+      className="header-date-picker"
+      name="projectTo"
+      value={filters.projectTo}
+      onChange={handleFilterChange}
+    />
+  )}
+</th>
+
+
+    <th>No. of Employees</th>
+  </tr>
+</thead>
+
+              <tbody>
+  {filteredProjects.map((p, i) => (
+    <tr key={i}>
+      <td>{p.name}</td>
+      <td>{p.id}</td>
+      <td>{p.from}</td>
+      <td>{p.to}</td>
+      <td>{p.employees}</td>
+    </tr>
+  ))}
+</tbody>
+            </table>
+          )}
+        </div>
+      </div>
+      <div className={`profile-side-panel ${showProfilePopup ? "open" : ""}`}>
+  <div className="profile-panel-header">
+    <h3>Profile Details</h3>
+    <span className="hr-close-btn" onClick={() => setShowProfilePopup(false)}>×</span>
+  </div>
+
+  <div className="profile-image-section">
+    {profileImage ? (
+      <>
+        <img src={profileImage} alt="Profile" className="profile-img" />
+        <button className="remove-img-btn" onClick={handleRemoveImage}>
+          Remove
+        </button>
+      </>
+    ) : (
+      <label className="upload-label">
+        Upload Image
+        <input type="file" accept="image/*" onChange={handleImageUpload} hidden />
+      </label>
+    )}
+  </div>
+
+  <div className="profile-details">
+    <p><strong>Name:</strong> {userDetails.name}</p>
+    <p><strong>Designation:</strong> {userDetails.designation}</p>
+    <p><strong>Email:</strong> {userDetails.email}</p>
+    <p><strong>Employee ID:</strong> {userDetails.empId}</p>
+  </div>
+</div>
 
     </div>
   );
-}
+};
 
+export default AdminDashboard;

@@ -1,339 +1,42 @@
-import React from 'react'
-import JobApplicants from './JobApplicants'
-// import JobApplicants from './AdminJobapplicants'
-import { data, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from "react";
+import JobApplicants from "./JobApplicants";
+import { useLocation } from "react-router-dom";
 
 const MonthJobApplicants = () => {
-//     const data = [  { id: "001", name: "N.Gangadhar", skills: "HTML, React JS, Java", experience: "0yrs", salary: "20,000", location: "Hyderabad", contact: "9000000001", month:"sep" },
-//     { id: "002", name: "R.Jagadeesh", skills: "Python, React JS, Java", experience: "2yrs", salary: "35,000", location: "Hyderabad", contact: "9000000002" },
-//     { id: "003", name: "N.Tatajii", skills: "Python, React JS, Java, SQL", experience: "1yr", salary: "25,000", location: "Chennai", contact: "9000000003" },
-//     // { id: "004", name: "A.Likhith", skills: "React Native, JS, NodeJS", experience: "1.5yrs", salary: "30,000", location: "Bangalore", contact: "9000000004" },
-//     // { id: "005", name: "A.Sushma", skills: "MongoDB, NodeJS, React", experience: "0yrs", salary: "15,000", location: "Hyderabad", contact: "9000000005" },
-// //     
-//     ]
-const location = useLocation();
-  const totalJobs = location.state?.totalJobs;
-  const selectedMonth = location.state?.selectedMonth?.toLowerCase();
+  const location = useLocation();
+  const selectedMonth = location.state?.selectedMonth;  // e.g., "January"
+  
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  console.log("selectmonth:", selectedMonth);
- const allApplicants = [
-    {
-      id: "001",
-      name: "N.Gangadhar",
-      appliedPosition: "Frontend Developer",
-      appliedDate: "2025-01-10",
-      email: "gangadhar@example.com",
-      skills: "HTML, React JS, Java",
-      experience: "0yrs",
-      location: "Hyderabad",
-      reference: "LinkedIn",
-      status: "Pending",
-      reason: "N/A",
-      contact: "9000000001",
-      month: "september",
-      resume: "/resumes/gangadhar_resume.pdf",
-    },
+  useEffect(() => {
+    if (!selectedMonth) return;
 
-    {
-      id: "002",
-      name: "R.Jagadeesh",
-      appliedPosition: "Python Developer",
-      appliedDate: "2025-01-12",
-      email: "jagadeesh@example.com",
-      skills: "Python, React JS, Java",
-      experience: "2yrs",
-      location: "Hyderabad",
-      reference: "Employee Referral",
-      status: "Selected",
-      reason: "Good Skills",
-      contact: "9000000002",
-      month: "september",
-      resume: "/resumes/jagadeesh_resume.pdf",
-    },
+    fetch(
+      `https://public-website-drab-ten.vercel.app/api/applications/month/${selectedMonth}`
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        setData(res.applications || []); // <- API expected result
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching month applicants:", err);
+        setLoading(false);
+      });
+  }, [selectedMonth]);
 
-    {
-      id: "003",
-      name: "N.Tatajii",
-      appliedPosition: "Full Stack Developer",
-      appliedDate: "2025-01-05",
-      email: "tataji@example.com",
-      skills: "Python, React JS, Java, SQL",
-      experience: "1yr",
-      location: "Chennai",
-      reference: "Naukri",
-      status: "Rejected",
-      reason: "Insufficient Experience",
-      contact: "9000000003",
-      month: "october",
-      resume: "/resumes/tatajii_resume.pdf",
-    },
+  if (!selectedMonth) return <h2>No month selected ❌</h2>;
+  if (loading) return <h2>Loading applicants...</h2>;
 
-    {
-      id: "004",
-      name: "A.Likhith",
-      appliedPosition: "React Native Developer",
-      appliedDate: "2025-01-07",
-      email: "likhith@example.com",
-      skills: "React Native, JS, NodeJS",
-      experience: "1.5yrs",
-      location: "Bangalore",
-      reference: "LinkedIn",
-      status: "Pending",
-      reason: "N/A",
-      contact: "9000000004",
-      month: "october",
-      resume: "/resumes/likhith_resume.pdf",
-    },
-
-    {
-      id: "005",
-      name: "A.Sushma",
-      appliedPosition: "MERN Stack Developer",
-      appliedDate: "2025-01-18",
-      email: "sushma@example.com",
-      skills: "MongoDB, NodeJS, React",
-      experience: "0yrs",
-      location: "Hyderabad",
-      reference: "Employee Referral",
-      status: "Selected",
-      reason: "Good Learning Ability",
-      contact: "9000000005",
-      month: "october",
-      resume: "/resumes/sushma_resume.pdf",
-    },
-
-    {
-      id: "006",
-      name: "P.Devi",
-      appliedPosition: "UI Developer",
-      appliedDate: "2025-01-20",
-      email: "devi@example.com",
-      skills: "HTML, CSS, JavaScript",
-      experience: "2yrs",
-      location: "Mumbai",
-      reference: "Naukri",
-      status: "Selected",
-      reason: "Good Portfolio",
-      contact: "9000000006",
-      month: "January",
-      resume: "/resumes/devi_resume.pdf",
-    },
-
-    {
-      id: "007",
-      name: "K.Sravani",
-      appliedPosition: "Frontend Developer",
-      appliedDate: "2025-02-01",
-      email: "sravani@example.com",
-      skills: "HTML, React JS, Java",
-      experience: "0yrs",
-      location: "Hyderabad",
-      reference: "LinkedIn",
-      status: "Pending",
-      reason: "N/A",
-      contact: "9000000007",
-      month: "February",
-      resume: "/resumes/sravani_resume.pdf",
-    },
-
-    {
-      id: "008",
-      name: "Karthik",
-      appliedPosition: "Python Developer",
-      appliedDate: "2025-02-04",
-      email: "karthik@example.com",
-      skills: "Python, React JS, Java",
-      experience: "2yrs",
-      location: "Hyderabad",
-      reference: "Naukri",
-      status: "Rejected",
-      reason: "Communication Issues",
-      contact: "9000000008",
-      month: "February",
-      resume: "/resumes/karthik_resume.pdf",
-    },
-
-    {
-      id: "009",
-      name: "N.Madhu",
-      appliedPosition: "Full Stack Developer",
-      appliedDate: "2025-04-01",
-      email: "madhu@example.com",
-      skills: "Python, React JS, Java, SQL",
-      experience: "1yr",
-      location: "Chennai",
-      reference: "LinkedIn",
-      status: "Selected",
-      reason: "Clear Concepts",
-      contact: "9000000009",
-      month: "April",
-      resume: "/resumes/madhu_resume.pdf",
-    },
-
-    {
-      id: "010",
-      name: "Mahindra",
-      appliedPosition: "React Native Developer",
-      appliedDate: "2025-04-08",
-      email: "mahindra@example.com",
-      skills: "React Native, JS, NodeJS",
-      experience: "1.5yrs",
-      location: "Bangalore",
-      reference: "Direct",
-      status: "Pending",
-      reason: "N/A",
-      contact: "9000000010",
-      month: "April",
-      resume: "/resumes/mahindra_resume.pdf",
-    },
-
-    {
-      id: "011",
-      name: "Rohith",
-      appliedPosition: "Backend Developer",
-      appliedDate: "2025-05-12",
-      email: "rohith@example.com",
-      skills: "MongoDB, NodeJS, React",
-      experience: "0yrs",
-      location: "Hyderabad",
-      reference: "Employee Referral",
-      status: "Rejected",
-      reason: "Low Technical Score",
-      contact: "9000000011",
-      month: "May",
-      resume: "/resumes/rohith_resume.pdf",
-    },
-
-    {
-      id: "012",
-      name: "P.Akshay",
-      appliedPosition: "UI Developer",
-      appliedDate: "2025-06-03",
-      email: "akshay@example.com",
-      skills: "HTML, CSS, JavaScript",
-      experience: "2yrs",
-      location: "Mumbai",
-      reference: "LinkedIn",
-      status: "Pending",
-      reason: "N/A",
-      contact: "9000000012",
-      month: "June",
-      resume: "/resumes/akshay_resume.pdf",
-    },
-
-    {
-      id: "013",
-      name: "Vaishnavi",
-      appliedPosition: "React Native Developer",
-      appliedDate: "2025-06-14",
-      email: "vaishnavi@example.com",
-      skills: "React Native, JS, NodeJS",
-      experience: "1.5yrs",
-      location: "Bangalore",
-      reference: "Naukri",
-      status: "Selected",
-      reason: "Strong Skills",
-      contact: "9000000013",
-      month: "June",
-      resume: "/resumes/vaishnavi_resume.pdf",
-    },
-
-    {
-      id: "014",
-      name: "K.Lavanya",
-      appliedPosition: "Backend Developer",
-      appliedDate: "2025-07-01",
-      email: "lavanya@example.com",
-      skills: "MongoDB, NodeJS, React",
-      experience: "0yrs",
-      location: "Hyderabad",
-      reference: "Direct",
-      status: "Pending",
-      reason: "N/A",
-      contact: "9000000014",
-      month: "July",
-      resume: "/resumes/lavanya_resume.pdf",
-    },
-
-    {
-      id: "015",
-      name: "Sathvika",
-      appliedPosition: "UI/UX Developer",
-      appliedDate: "2025-08-05",
-      email: "sathvika@example.com",
-      skills: "HTML, CSS, JavaScript",
-      experience: "2yrs",
-      location: "Mumbai",
-      reference: "LinkedIn",
-      status: "Selected",
-      reason: "Excellent UI Skills",
-      contact: "9000000015",
-      month: "August",
-      resume: "/resumes/sathvika_resume.pdf",
-    },
-
-    {
-      id: "016",
-      name: "Suji",
-      appliedPosition: "React Native Developer",
-      appliedDate: "2025-08-18",
-      email: "suji@example.com",
-      skills: "React Native, JS, NodeJS",
-      experience: "1.5yrs",
-      location: "Bangalore",
-      reference: "Referral",
-      status: "Pending",
-      reason: "N/A",
-      contact: "9000000010",
-      month: "August",
-      resume: "/resumes/suji_resume.pdf",
-    },
-
-    {
-      id: "017",
-      name: "M.Eswari",
-      appliedPosition: "MERN Developer",
-      appliedDate: "2025-03-22",
-      email: "eswari@example.com",
-      skills: "MongoDB, NodeJS, React",
-      experience: "0yrs",
-      location: "Hyderabad",
-      reference: "LinkedIn",
-      status: "Selected",
-      reason: "Good Attitude",
-      contact: "9000000011",
-      month: "March",
-      resume: "/resumes/eswari_resume.pdf",
-    },
-
-    {
-      id: "018",
-      name: "Bhargavi",
-      appliedPosition: "Frontend Developer",
-      appliedDate: "2025-03-28",
-      email: "bhargavi@example.com",
-      skills: "HTML, CSS, JavaScript",
-      experience: "2yrs",
-      location: "Mumbai",
-      reference: "Direct",
-      status: "Rejected",
-      reason: "Not a Match",
-      contact: "9000000012",
-      month: "March",
-      resume: "/resumes/bhargavi_resume.pdf",
-    },
-  ];
-
-  const data = allApplicants.filter((a) =>
-          a.month.toLowerCase().startsWith(selectedMonth.toLowerCase())
-        );
   return (
     <div>
-
-        <JobApplicants data={data}/>
+      <h2 style={{ marginBottom: "10px" }}>
+        Applicants for <span style={{ color: "#2563eb" }}>{selectedMonth}</span>
+      </h2>
+      <JobApplicants data={data} />
     </div>
+  );
+};
 
-  )
-}
-
-export default MonthJobApplicants
+export default MonthJobApplicants;

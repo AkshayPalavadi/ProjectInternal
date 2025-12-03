@@ -1,13 +1,11 @@
 import React, { useState } from "react";
-import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
 import "./AdminJobform.css";
 
 const AdminJobform = ({ onSubmitJob }) => {
   const [formData, setFormData] = useState({
     jobTitle: "",
     department: "",
-    JobType: "",
-    jobCategory: "",
+    jobType: "",
     location: [],
     roleOverview: "",
     responsibilities: [],
@@ -15,120 +13,201 @@ const AdminJobform = ({ onSubmitJob }) => {
     experience: "",
     qualification: "",
     salary: "",
-    Contact: "",
-    deadline: ""   // 👉 ADDED DEADLINE FIELD
+    contactOrEmail: "",
+    deadline: "",
   });
 
   const [locationInput, setLocationInput] = useState("");
   const [responsibilityInput, setResponsibilityInput] = useState("");
-
   const [errors, setErrors] = useState({});
-  const [status, setStatus] = useState(null);
+
+  const validateField = (name, value) => {
+    setErrors((prev) => ({
+      ...prev,
+      [name]: value.trim() ? "" : "This field is required",
+    }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name === "jobTitle") {
-      const lettersOnly = value.replace(/[^a-zA-Z ]/g, "");
-      setFormData({ ...formData, [name]: lettersOnly });
-      return;
-    }
+    let updatedValue = value;
+    if (name === "jobTitle") updatedValue = value.replace(/[^a-zA-Z ]/g, "");
+    if (name === "salary") updatedValue = value.replace(/[^0-9]/g, "");
 
-    if (name === "salary") {
-      const numbersOnly = value.replace(/[^0-9]/g, "");
-      setFormData({ ...formData, [name]: numbersOnly });
-      return;
-    }
-
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: updatedValue }));
+    validateField(name, updatedValue);
   };
 
   const handleAddLocation = () => {
-    if (locationInput.trim() !== "") {
-      setFormData({
-        ...formData,
-        location: [...formData.location, locationInput.trim()],
-      });
-      setLocationInput("");
-    }
+    if (!locationInput.trim()) return;
+    setFormData((prev) => ({
+      ...prev,
+      location: [...prev.location, locationInput.trim()],
+    }));
+    setLocationInput("");
+    setErrors((prev) => ({ ...prev, location: "" }));
   };
 
   const removeLocation = (index) => {
-    const updated = [...formData.location];
-    updated.splice(index, 1);
-    setFormData({ ...formData, location: updated });
+    setFormData((prev) => ({
+      ...prev,
+      location: prev.location.filter((_, i) => i !== index),
+    }));
   };
 
   const handleAddResponsibility = () => {
-    if (responsibilityInput.trim() !== "") {
-      setFormData({
-        ...formData,
-        responsibilities: [...formData.responsibilities, responsibilityInput.trim()],
-      });
-      setResponsibilityInput("");
-    }
+    if (!responsibilityInput.trim()) return;
+    setFormData((prev) => ({
+      ...prev,
+      responsibilities: [...prev.responsibilities, responsibilityInput.trim()],
+    }));
+    setResponsibilityInput("");
+    setErrors((prev) => ({ ...prev, responsibilities: "" }));
   };
 
   const removeResponsibility = (index) => {
-    const updated = [...formData.responsibilities];
-    updated.splice(index, 1);
-    setFormData({ ...formData, responsibilities: updated });
+    setFormData((prev) => ({
+      ...prev,
+      responsibilities: prev.responsibilities.filter((_, i) => i !== index),
+    }));
   };
 
-  const validateForm = () => {
-    const newErrors = {};
+  // const validateForm = () => {
+  //   const required = [
+  //     "jobTitle",
+  //     "department",
+  //     "jobType",
+  //     "location",
+  //     "roleOverview",
+  //     "responsibilities",
+  //     "preferredSkills",
+  //     "experience",
+  //     "qualification",
+  //     "salary",
+  //     "contactOrEmail",
+  //     "deadline",
+  //   ];
 
-    Object.keys(formData).forEach((key) => {
-      if (Array.isArray(formData[key])) {
-        if (formData[key].length === 0) {
-          newErrors[key] = "This field is required";
-        }
-      } else {
-        if (!formData[key].trim()) {
-          newErrors[key] = "This field is required";
-        }
+  //   const newErrors = {};
+  //   let valid = true;
+
+  //   required.forEach((field) => {
+  //     if (!formData[field].trim()) {
+  //       newErrors[field] = "This field is required";
+  //       valid = false;
+  //     }
+  //   });
+
+  //   if (formData.location.length === 0) {
+  //     newErrors.location = "At least one location is required";
+  //     valid = false;
+  //   }
+  //   if (formData.responsibilities.length === 0) {
+  //     newErrors.responsibilities = "At least one responsibility is required";
+  //     valid = false;
+  //   }
+
+  //   setErrors(newErrors);
+  //   return valid;
+  // };
+  const validateForm = () => {
+  const required = [
+    "jobTitle",
+    "department",
+    "jobType",
+    "roleOverview",
+    "preferredSkills",
+    "experience",
+    "qualification",
+    "salary",
+    "contactOrEmail",
+    "deadline",
+  ];
+
+  const newErrors = {};
+  let valid = true;
+
+  required.forEach((field) => {
+    if (
+      formData[field] === "" ||
+      formData[field] === null ||
+      formData[field] === undefined ||
+      (Array.isArray(formData[field]) && formData[field].length === 0)
+    ) {
+      newErrors[field] = "This field is required";
+      valid = false;
+    }
+  });
+
+  if (!formData.location || formData.location.length === 0) {
+    newErrors.location = "At least one location is required";
+    valid = false;
+  }
+
+  if (!formData.responsibilities || formData.responsibilities.length === 0) {
+    newErrors.responsibilities = "At least one responsibility is required";
+    valid = false;
+  }
+
+  setErrors(newErrors);
+  return valid;
+};
+
+
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm()) return;
+
+  try {
+    const response = await fetch(
+      "https://internal-website-rho.vercel.app/api/jobs",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          ...formData,
+          jobType: formData.jobType // ✅ only normalize JobType
+        })
       }
+    );
+
+    if (!response.ok) {
+      console.error("API ERROR:", await response.text());
+      return;
+    }
+
+    const savedJob = await response.json();
+
+    if (onSubmitJob) onSubmitJob(savedJob);
+
+    setFormData({
+      jobTitle: "",
+      department: "",
+      jobType: "",
+      location: [],
+      roleOverview: "",
+      responsibilities: [],
+      preferredSkills: "",
+      experience: "",
+      qualification: "",
+      salary: "",
+      contactOrEmail: "",
+      deadline: ""
     });
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (validateForm()) {
-      if (onSubmitJob) onSubmitJob(formData);
-
-      setStatus("success");
-      setTimeout(() => setStatus(null), 2000);
-
-      setFormData({
-        jobTitle: "",
-        department: "",
-        JobType: "",
-        jobCategory: "",
-        location: [],
-        roleOverview: "",
-        responsibilities: [],
-        preferredSkills: "",
-        experience: "",
-        qualification: "",
-        salary: "",
-        Contact: "",
-        deadline: ""  // RESET DEADLINE
-      });
-    } else {
-      setStatus("error");
-      setTimeout(() => setStatus(null), 2000);
-    }
-  };
+  } catch (err) {
+    console.error("JOB POST ERROR:", err);
+  }
+};
 
   return (
     <div className="adminjobform-job-form-container">
       <h2 className="adminjobform-form-title">Hiring Form</h2>
 
-      <form className="adminjobform-job-form" onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="adminjobform-job-form">
         <div className="adminjobform-form-grid">
           {[
             { label: "Job Title", name: "jobTitle", type: "text" },
@@ -140,23 +219,25 @@ const AdminJobform = ({ onSubmitJob }) => {
             },
             {
               label: "Job Type",
-              name: "Job Type",
+              name: "jobType",
               type: "select",
               options: ["Full-time", "Part-time", "Internship", "Contract"],
             },
-            { label: "Salary Range", name: "salary", type: "number" },
+            { label: "Salary", name: "salary", type: "number" },
             {
               label: "Experience",
               name: "experience",
               type: "select",
               options: ["Fresher", "1-2 yrs", "2-4 yrs", "4-6 yrs", "6+ yrs"],
             },
-            { label: "Qualification", name: "qualification", type: "text" },
-            { label: "Contact / Email", name: "Contact", type: "email" },
-
-            // 👉 ADDED DEADLINE FIELD (CALENDAR POPUP)
+            {
+              label: "Qualification",
+              name: "qualification",
+              type: "select",
+              options: ["Bachelors", "Masters", "PhD"],
+            },
+            { label: "Contact / Email", name: "contactOrEmail", type: "text" },
             { label: "Deadline", name: "deadline", type: "date" },
-
           ].map((field, i) => (
             <div key={i} className="adminjobform-form-group">
               <label>{field.label}</label>
@@ -183,96 +264,111 @@ const AdminJobform = ({ onSubmitJob }) => {
                 />
               )}
 
-              {errors[field.name] && <p className="error-text">{errors[field.name]}</p>}
+              {errors[field.name] && (
+                <p className="error-text">{errors[field.name]}</p>
+              )}
             </div>
           ))}
 
-          {/* MULTIPLE LOCATIONS */}
-          <div className="adminjobform-form-group full-width">
+          {/* LOCATION INPUT */}
+          {/* <div className="adminjobform-form-group full-width">
             <label>Job Location</label>
-
             <div className="input-add-wrapper">
               <input
-                type="text"
                 value={locationInput}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/[^a-zA-Z !@#$%^&*(),.\-_/]/g, "");
-                  setLocationInput(value);
-                }}
+                onChange={(e) => setLocationInput(e.target.value)}
                 placeholder="Enter location"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleAddLocation();
-                  }
-                }}
               />
+              <button type="button" className="add-btn" onClick={handleAddLocation}>
+                Add
+              </button>
             </div>
-
-            <div className="chips-container">
-              {formData.location.map((loc, idx) => (
-                <span key={idx} className="chip">
-                  {loc}
-                  <button className="remove-chip" onClick={() => removeLocation(idx)}>
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-
             {errors.location && <p className="error-text">{errors.location}</p>}
-          </div>
-
-          {/* MULTIPLE RESPONSIBILITIES */}
-          <div className="adminjobform-form-group full-width">
-            <label>Key Responsibilities</label>
-
-            <div className="input-add-wrapper">
-              <input
-                type="text"
-                value={responsibilityInput}
-                onChange={(e) => {
-                  const value = e.target.value.replace(/[^a-zA-Z !@#$%^&*(),.\-_/]/g, "");
-                  setResponsibilityInput(value);
-                }}
-                placeholder="Enter responsibility"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleAddResponsibility();
-                  }
-                }}
-              />
-            </div>
-
             <div className="chips-container">
-              {formData.responsibilities.map((res, idx) => (
-                <span key={idx} className="chip">
-                  {res}
-                  <button className="remove-chip" onClick={() => removeResponsibility(idx)}>
+              {formData.location.map((loc, i) => (
+                <span key={i} className="chip">
+                  {loc}
+                  <button type="button" className="remove-chip" onClick={() => removeLocation(i)}>
                     ×
                   </button>
                 </span>
               ))}
             </div>
+          </div> */}
 
-            {errors.responsibilities && <p className="error-text">{errors.responsibilities}</p>}
-          </div>
-
-          {/* ROLE OVERVIEW */}
           <div className="adminjobform-form-group full-width">
-            <label>Job Description / Role Overview</label>
-            <textarea
-              rows="4"
-              name="roleOverview"
-              value={formData.roleOverview}
-              onChange={handleChange}
-              placeholder="Describe the role"
-            ></textarea>
-            {errors.roleOverview && <p className="error-text">{errors.roleOverview}</p>}
-          </div>
+  <label>Job Location</label>
+  <div className="input-add-wrapper">
+    <input
+      value={locationInput}
+      onChange={(e) => setLocationInput(e.target.value)}
+      placeholder="Enter location and press Enter"
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          handleAddLocation();
+        }
+      }}
+    />
+  </div>
 
-          {/* PREFERRED SKILLS */}
+  {errors.location && <p className="error-text">{errors.location}</p>}
+
+  <div className="chips-container">
+    {formData.location.map((loc, i) => (
+      <span key={i} className="chip">
+        {loc}
+        <button
+          type="button"
+          className="remove-chip"
+          onClick={() => removeLocation(i)}
+        >
+          ×
+        </button>
+      </span>
+    ))}
+  </div>
+</div>
+
+
+          {/* RESPONSIBILITIES INPUT */}
+
+          <div className="adminjobform-form-group full-width">
+  <label>Key Responsibilities</label>
+  <div className="input-add-wrapper">
+    <input
+      value={responsibilityInput}
+      onChange={(e) => setResponsibilityInput(e.target.value)}
+      placeholder="Enter responsibility and press Enter"
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          handleAddResponsibility();
+        }
+      }}
+    />
+  </div>
+
+  {errors.responsibilities && (
+    <p className="error-text">{errors.responsibilities}</p>
+  )}
+
+  <div className="chips-container">
+    {formData.responsibilities.map((res, i) => (
+      <span key={i} className="chip">
+        {res}
+        <button
+          type="button"
+          className="remove-chip"
+          onClick={() => removeResponsibility(i)}
+        >
+          ×
+        </button>
+      </span>
+    ))}
+  </div>
+</div>
+          {/* SKILLS */}
           <div className="adminjobform-form-group full-width">
             <label>Preferred Skills</label>
             <input
@@ -281,38 +377,47 @@ const AdminJobform = ({ onSubmitJob }) => {
               value={formData.preferredSkills}
               onChange={handleChange}
             />
-            {errors.preferredSkills && <p className="error-text">{errors.preferredSkills}</p>}
+            {errors.preferredSkills && (
+              <p className="error-text">{errors.preferredSkills}</p>
+            )}
           </div>
+
+          {/* ROLE OVERVIEW */}
+          <div className="adminjobform-form-group full-width">
+            <label>Job Description / Role Overview</label>
+            <textarea
+              name="roleOverview"
+              rows="4"
+              value={formData.roleOverview}
+              onChange={handleChange}
+              placeholder="Describe the job"
+            />
+            {errors.roleOverview && (
+              <p className="error-text">{errors.roleOverview}</p>
+            )}
+          </div>
+
+          {/* SKILLS
+          <div className="adminjobform-form-group full-width">
+            <label>Preferred Skills</label>
+            <input
+              type="text"
+              name="preferredSkills"
+              value={formData.preferredSkills}
+              onChange={handleChange}
+            />
+            {errors.preferredSkills && (
+              <p className="error-text">{errors.preferredSkills}</p>
+            )}
+          </div> */}
         </div>
 
         <button type="submit" className="adminjobform-submit-btn">
           Post Job
         </button>
       </form>
-
-      {status && <div className="adminjobform-overlay"></div>}
-
-      {status === "success" && (
-        <div className="adminjobform-popup success">
-          <FaCheckCircle className="popup-icon" />
-          <p>Job Posted Successfully!</p>
-        </div>
-      )}
-
-      {status === "error" && (
-        <div className="adminjobform-popup error">
-          <FaExclamationCircle className="popup-icon" />
-          <p>Please fill all required fields!</p>
-        </div>
-      )}
     </div>
   );
 };
 
 export default AdminJobform;
-
-
-
-
-
-
