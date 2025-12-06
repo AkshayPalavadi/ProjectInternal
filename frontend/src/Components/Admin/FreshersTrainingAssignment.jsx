@@ -14,164 +14,96 @@ import {
 } from "recharts";
 
 import "./FreshersTrainingAssignment.css";
+// Fetch all training categories & courses
+async function fetchTrainingPack() {
+  const res = await fetch("https://internal-website-rho.vercel.app/api/training/departments");
+  return res.json();
+}
+
+// Fetch all employees
+async function fetchEmployees() {
+  const res = await fetch(`https://internal-website-rho.vercel.app/api/training/departments/:deparmentname)/employees`);
+  return res.json();
+}
+
+// API: CREATE TRAINING ASSIGNMENT
+async function createTrainingAssignment(payload) {
+  try {
+    const response = await fetch("https://internal-website-rho.vercel.app/api/training/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await response.json();
+    console.log("API RESPONSE:", data);
+
+    if (!response.ok) {
+      throw new Error(data.message || "API error");
+    }
+
+    return data;
+  } catch (err) {
+    console.error("Create Assignment Error:", err);
+    throw err;
+  }
+}
+
 
 const LS_KEY = "freshers_training_v2";
 
-/* TRAINING PACKS */
-const TRAINING_PACK = [
-  {
-    category: "Frontend Training",
-    items: [
-      "HTML Basics",
-      "CSS Basics",
-      "JavaScript Essentials",
-      "Responsive Design",
-      "Git & GitHub",
-      "React Intro (Basics)",
-      "Debugging Basics",
-      "Mini Frontend Project",
-    ],
-  },
-  {
-    category: "Backend Training",
-    items: [
-      "Programming Basics (Python / Java / Node)",
-      "REST API Basics",
-      "SQL / MySQL Basics",
-      "Server Basics",
-      "Express.js / Spring Boot Intro",
-      "Git & GitHub",
-      "API Development Basics",
-      "Small API Project",
-    ],
-  },
-  {
-    category: "UI/UX Training",
-    items: [
-      "Figma Basics",
-      "Design Principles",
-      "Wireframes & Prototypes",
-      "Color Theory",
-      "Typography Basics",
-      "Basic Portfolio Project",
-    ],
-  },
-  {
-    category: "Soft Skills",
-    items: [
-      "Communication Skills",
-      "Email Writing",
-      "Presentation Skills",
-      "Teamwork & Collaboration",
-      "Time Management",
-      "Corporate Etiquette",
-    ],
-  },
-  {
-    category: "Process & Tools",
-    items: [
-      "Company Policies",
-      "SDLC Basics",
-      "Scrum & Agile Overview",
-      "JIRA / Trello Basics",
-      "Documentation Training",
-      "Security Awareness",
-    ],
-  },
-  {
-    category: "Mandatory Training",
-    items: [
-      "Orientation Program",
-      "HR Policies & Compliance",
-      "Company Tools Training",
-      "IT Security & Access Training",
-      "Communication & Soft Skills",
-    ],
-  },
-];
+/* TRAINING PACK */
+
+function getBatchFromDate(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  if (isNaN(d)) return "";
+
+  const MONTHS = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
 
 const STATUS_OPTIONS = ["Not Started", "In Progress", "Completed"];
 
 const MONTHS = [
-  "Jan","Feb","Mar","Apr","May","Jun",
-  "Jul","Aug","Sep","Oct","Nov","Dec"
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
 /* EMPLOYEE MASTER DATA */
-const ALL_EMPLOYEES = [
-  /* Frontend */
-  { id: "F001", name: "Ravi Kumar", batchMonth: 0, yearOffset: 0, durationMonths: 1 },
-  { id: "F002", name: "Anita Verma", batchMonth: 1, yearOffset: 0, durationMonths: 2 },
-  { id: "F003", name: "Srikanth R", batchMonth: 2, yearOffset: 0, durationMonths: 1 },
-  { id: "F004", name: "Kavya Das", batchMonth: 3, yearOffset: 0, durationMonths: 2 },
-  { id: "F005", name: "Harish G", batchMonth: 4, yearOffset: 0, durationMonths: 1 },
-  { id: "F006", name: "Lohit Sai", batchMonth: 0, yearOffset: 1, durationMonths: 2 },
-  { id: "F007", name: "Ayesha Fatima", batchMonth: 1, yearOffset: 1, durationMonths: 3 },
-  { id: "F008", name: "Vishal Sharma", batchMonth: 2, yearOffset: 1, durationMonths: 1 },
-  { id: "F009", name: "Praneeth", batchMonth: 5, yearOffset: 0, durationMonths: 2 },
-  { id: "F010", name: "Charitha", batchMonth: 6, yearOffset: 0, durationMonths: 1 },
+// Dynamic fetched data
+// const [trainingPack, setTrainingPack] = useState([]);
+// const [allEmployees, setAllEmployees] = useState([]);
 
-  /* Backend */
-  { id: "B001", name: "Kiran Kumar", batchMonth: 0, yearOffset: 0, durationMonths: 3 },
-  { id: "B002", name: "Meghana T", batchMonth: 3, yearOffset: 0, durationMonths: 2 },
-  { id: "B003", name: "Naveen R", batchMonth: 4, yearOffset: 0, durationMonths: 2 },
-  { id: "B004", name: "Sunitha A", batchMonth: 1, yearOffset: 0, durationMonths: 3 },
-  { id: "B005", name: "Rohit S", batchMonth: 2, yearOffset: 1, durationMonths: 2 },
-  { id: "B006", name: "Dharani", batchMonth: 0, yearOffset: 1, durationMonths: 3 },
-  { id: "B007", name: "Yogesh", batchMonth: 10, yearOffset: 0, durationMonths: 1 },
-  { id: "B008", name: "Mounika", batchMonth: 11, yearOffset: 0, durationMonths: 2 },
+// Category → employees
 
-  /* UI/UX */
-  { id: "U001", name: "Harsha UI", batchMonth: 1, yearOffset: 0, durationMonths: 2 },
-  { id: "U002", name: "Deepika UX", batchMonth: 2, yearOffset: 0, durationMonths: 1 },
-  { id: "U003", name: "Vamshi UI", batchMonth: 0, yearOffset: 1, durationMonths: 2 },
-  { id: "U004", name: "Hema UX", batchMonth: 4, yearOffset: 1, durationMonths: 2 },
-  { id: "U005", name: "Tarun UI", batchMonth: 7, yearOffset: 0, durationMonths: 1 },
-  { id: "U006", name: "Ananya UX", batchMonth: 8, yearOffset: 0, durationMonths: 1 },
-];
 
-const EMPLOYEE_MASTER = {
-  "Frontend Training": ALL_EMPLOYEES.filter((e) => e.id.startsWith("F")),
-  "Backend Training": ALL_EMPLOYEES.filter((e) => e.id.startsWith("B")),
-  "UI/UX Training": ALL_EMPLOYEES.filter((e) => e.id.startsWith("U")),
-  "Soft Skills": ALL_EMPLOYEES,
-  "Process & Tools": ALL_EMPLOYEES,
-  "Mandatory Training": ALL_EMPLOYEES,
-};
-
-/* AUTO-GENERATE fields for each employee (single assign) */
-function buildEmployeeDerivedFields(emp) {
-  const now = new Date();
-  const year = now.getFullYear() + (emp.yearOffset || 0);
-  const monthIndex =
-    typeof emp.batchMonth === "number" ? emp.batchMonth : now.getMonth();
-
-  const batch = `${MONTHS[monthIndex]} ${year}`;
-
-  const startDate = new Date();
-  const endDate = new Date(startDate);
-  endDate.setMonth(endDate.getMonth() + (emp.durationMonths || 1));
-
-  const durationDays = Math.ceil(
-    (endDate - startDate) / (1000 * 60 * 60 * 24)
-  );
-
-  return {
-    batch,
-    trainingStartDate: startDate.toISOString().slice(0, 10),
-    trainingEndDate: endDate.toISOString().slice(0, 10),
-    durationDays,
-  };
-}
-
-/* Convert status → progress% when updated manually */
-function progressFromStatus(status) {
-  if (status === "Completed") return 100;
-  if (status === "In Progress") return 50;
-  return 0;
-}
-
-/* Auto time-based progress */
+/* Helper – time-based progress */
 function calculateTimeBasedProgress(startDateStr, endDateStr) {
   if (!startDateStr || !endDateStr) return 0;
 
@@ -191,9 +123,38 @@ function calculateTimeBasedProgress(startDateStr, endDateStr) {
   return p;
 }
 
+/* Manual status → progress */
+function progressFromStatus(status) {
+  if (status === "Completed") return 100;
+  if (status === "In Progress") return 50;
+  return 0;
+}
+
 /* ======================= MAIN COMPONENT ======================= */
 export default function FreshersTrainingAssignment() {
+    // Dynamic data
+       const [trainingPack, setTrainingPack] = useState([]);
+  const [allEmployees, setAllEmployees] = useState([]);
 
+  useEffect(() => {
+  async function loadData() {
+    try {
+      const pack = await fetchTrainingPack();
+      const employees = await fetchEmployees();
+
+      console.log("Fetched Training Pack:", pack);
+      console.log("Fetched Employees:", employees);
+
+      setTrainingPack(pack.departments || []);
+      setAllEmployees(employees.data || []);
+    } catch (e) {
+      console.error("Failed loading data:", e);
+    }
+  }
+
+  loadData();
+}, []);
+ 
   /* SINGLE ASSIGN STATE */
   const [form, setForm] = useState({
     fresherName: "",
@@ -227,6 +188,17 @@ export default function FreshersTrainingAssignment() {
 
   const [categoryFilter, setCategoryFilter] = useState("All");
 
+  /* ⭐ MARKS / PERFORMANCE POPUP STATE (Option A) */
+  const [showMarksPopup, setShowMarksPopup] = useState(false);
+  const [activeMarksIndex, setActiveMarksIndex] = useState(null);
+  const [marksRows, setMarksRows] = useState([{ id: 1, exam: "", marks: "" }]);
+  // INSIDE component ↓↓↓
+const employeesForCategory = useMemo(() => {
+  if (!form.trainingCategory) return [];
+  return allEmployees.filter(emp => emp.category === form.trainingCategory);
+}, [form.trainingCategory, allEmployees]);
+
+
   /* LOAD assignments from storage */
   useEffect(() => {
     const raw = localStorage.getItem(LS_KEY);
@@ -256,15 +228,57 @@ export default function FreshersTrainingAssignment() {
     }
   }, []);
 
+  /* AUTO UPDATE PROGRESS EVERY PAGE LOAD */
+  useEffect(() => {
+    const updated = assignments.map((a) => {
+      const progress = calculateTimeBasedProgress(
+        a.trainingStartDate,
+        a.trainingEndDate
+      );
+
+      let status = a.status;
+
+      if (progress >= 100) status = "Completed";
+      else if (progress > 0) status = "In Progress";
+      else status = "Not Started";
+
+      return { ...a, progress, status };
+    });
+
+    if (updated.length > 0) {
+      setAssignments(updated);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /* DAILY PROGRESS RECALCULATION */
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const updated = assignments.map((a) => {
+        const progress = calculateTimeBasedProgress(
+          a.trainingStartDate,
+          a.trainingEndDate
+        );
+
+        let status = "Not Started";
+        if (progress >= 100) status = "Completed";
+        else if (progress > 0) status = "In Progress";
+
+        return { ...a, progress, status };
+      });
+
+      setAssignments(updated);
+    }, 86400000); // every 24 hours
+
+    return () => clearInterval(timer);
+  }, [assignments]);
+
   /* SAVE to LS */
   useEffect(() => {
     localStorage.setItem(LS_KEY, JSON.stringify(assignments));
   }, [assignments]);
 
   /* EMPLOYEE OPTIONS for selected category */
-  const employeesForCategory = useMemo(() => {
-    return EMPLOYEE_MASTER[form.trainingCategory] || [];
-  }, [form.trainingCategory]);
 
   const filteredEmployeeOptions = useMemo(() => {
     const s = employeeSearch.toLowerCase();
@@ -284,7 +298,8 @@ export default function FreshersTrainingAssignment() {
 
       /* RESET when category changes */
       if (name === "trainingCategory") {
-        const pack = TRAINING_PACK.find((p) => p.category === value);
+        const pack = trainingPack.find((p) => p.category === value);
+
 
         updated.selectedCourses = pack ? pack.items : [];
         updated.fresherId = "";
@@ -297,8 +312,12 @@ export default function FreshersTrainingAssignment() {
         setEmployeeSearch("");
       }
 
-      /* Recalculate duration */
+      /* Recalculate duration + batch from dates */
       if (name === "trainingStartDate" || name === "trainingEndDate") {
+        if (name === "trainingStartDate") {
+          updated.batch = getBatchFromDate(value);
+        }
+
         if (updated.trainingStartDate && updated.trainingEndDate) {
           const d1 = new Date(updated.trainingStartDate);
           const d2 = new Date(updated.trainingEndDate);
@@ -322,28 +341,29 @@ export default function FreshersTrainingAssignment() {
     const emp = employeesForCategory.find((x) => x.id === id);
     if (!emp) return;
 
-    const derived = buildEmployeeDerivedFields(emp);
-
+    // ONLY auto-fill ID & NAME
     setForm((prev) => ({
       ...prev,
       fresherId: emp.id,
       fresherName: emp.name,
-      batch: derived.batch,
-      trainingStartDate: derived.trainingStartDate,
-      trainingEndDate: derived.trainingEndDate,
-      durationDays: derived.durationDays,
+      batch: "",
+      trainingStartDate: "",
+      trainingEndDate: "",
+      durationDays: 0,
     }));
   };
 
-  /* VALIDATE SINGLE FORM */
+  /* VALIDATE SINGLE FORM (Mode required) */
   const validateSingle = () =>
-    form.fresherName &&
-    form.fresherId &&
-    form.batch &&
-    form.trainingCategory &&
-    form.trainingStartDate &&
-    form.trainingEndDate;
-    form.Mode;
+    !!(
+      form.fresherName &&
+      form.fresherId &&
+      form.batch &&
+      form.trainingCategory &&
+      form.trainingStartDate &&
+      form.trainingEndDate &&
+      form.Mode
+    );
 
   /* SUBMIT SINGLE ASSIGNMENT */
   const handleSubmit = (e) => {
@@ -356,56 +376,70 @@ export default function FreshersTrainingAssignment() {
   };
 
   /* CONFIRM SINGLE ASSIGN */
-  const confirmAssignment = () => {
-    const progress = calculateTimeBasedProgress(
-      form.trainingStartDate,
-      form.trainingEndDate
-    );
+  const confirmAssignment = async () => {
+  const progress = calculateTimeBasedProgress(
+    form.trainingStartDate,
+    form.trainingEndDate
+  );
 
-    let status = "Not Started";
-    if (progress >= 100) status = "Completed";
-    else if (progress > 0) status = "In Progress";
+  let status = "Not Started";
+  if (progress >= 100) status = "Completed";
+  else if (progress > 0) status = "In Progress";
 
-    const data = {
-      ...form,
-      progress,
-      status,
-      isBulk: false,
-      assignedDate: new Date().toISOString(),
-    };
-
-    if (editingIndex !== null) {
-      const updated = [...assignments];
-      updated[editingIndex] = data;
-      setAssignments(updated);
-      setEditingIndex(null);
-    } else {
-      setAssignments((prev) => [data, ...prev]);
-    }
-
-    setShowConfirm(false);
-
-    setForm({
-      fresherName: "",
-      fresherId: "",
-      batch: "",
-      trainingCategory: "",
-      selectedCourses: [],
-      trainingStartDate: "",
-      trainingEndDate: "",
-      durationDays: 0,
-      Mode:"",
-    });
+  const data = {
+    ...form,
+    progress,
+    status,
+    isBulk: false,
+    assignedDate: new Date().toISOString(),
   };
 
-  /* ================== BULK ASSIGN LOGIC ================== */
+  // 🔥 CALL API
+  try {
+    const apiRes = await createTrainingAssignment(data);
+    console.log("SINGLE CREATE SUCCESS:", apiRes);
+  } catch (err) {
+    alert("API Error: " + err.message);
+    return;
+  }
 
-  /* employees list for bulk category */
+  // Add to UI after API success
+  if (editingIndex !== null) {
+    const updated = [...assignments];
+    updated[editingIndex] = data;
+    setAssignments(updated);
+    setEditingIndex(null);
+  } else {
+    setAssignments((prev) => [data, ...prev]);
+  }
+
+  setShowConfirm(false);
+
+  // Reset form
+  setForm({
+    fresherName: "",
+    fresherId: "",
+    batch: "",
+    trainingCategory: "",
+    selectedCourses: [],
+    trainingStartDate: "",
+    trainingEndDate: "",
+    durationDays: 0,
+    Mode: "",
+  });
+};
+
+
+  /* ========== BULK ASSIGN LOGIC ========== */
+
   const bulkEmployeesForCategory = useMemo(() => {
-    return EMPLOYEE_MASTER[bulkAssignCategory] || [];
-  }, [bulkAssignCategory]);
+  if (!bulkAssignCategory) return [];
+  return allEmployees.filter(
+    emp => emp.category === bulkAssignCategory
+  );
+}, [bulkAssignCategory, allEmployees]);
 
-  /* bulk employees filtered by search */
+
   const bulkFilteredEmployees = useMemo(() => {
     const s = bulkSearch.toLowerCase();
     return bulkEmployeesForCategory.filter(
@@ -415,12 +449,10 @@ export default function FreshersTrainingAssignment() {
     );
   }, [bulkSearch, bulkEmployeesForCategory]);
 
-  /* bulk courses for selected bulk category */
   const bulkCoursesForCategory = useMemo(() => {
     if (!bulkAssignCategory) return [];
-    const pack = TRAINING_PACK.find(
-      (p) => p.category === bulkAssignCategory
-    );
+    const pack = trainingPack.find(p => p.category === bulkAssignCategory);
+
     return pack ? pack.items : [];
   }, [bulkAssignCategory]);
 
@@ -455,8 +487,8 @@ export default function FreshersTrainingAssignment() {
     }
   }, [bulkStartDate, bulkEndDate]);
 
-  /* BULK AUTO ASSIGN (same dates + batch for all selected employees) */
-  const handleBulkAutoAssign = () => {
+  /* BULK AUTO ASSIGN */
+ const handleBulkAutoAssign = () => {
     if (!bulkAssignCategory)
       return alert("Select training category first");
     if (!bulkStartDate || !bulkEndDate)
@@ -473,13 +505,16 @@ export default function FreshersTrainingAssignment() {
       return;
     }
 
-    const empList = EMPLOYEE_MASTER[bulkAssignCategory] || [];
+    const empList = allEmployees.filter(
+  emp => emp.category === bulkAssignCategory
+);
+
+
     const pack =
-      TRAINING_PACK.find((p) => p.category === bulkAssignCategory) || {
+      trainingPack.find((p) => p.category === bulkAssignCategory) || {
         items: [],
       };
 
-    /* same date range → same time-based progress */
     const progress = calculateTimeBasedProgress(
       bulkStartDate,
       bulkEndDate
@@ -497,7 +532,7 @@ export default function FreshersTrainingAssignment() {
         return {
           fresherId: emp.id,
           fresherName: emp.name,
-          batch: bulkBatch, // same for all
+          batch: bulkBatch,
           trainingCategory: bulkAssignCategory,
           selectedCourses: pack.items,
           progress,
@@ -517,9 +552,9 @@ export default function FreshersTrainingAssignment() {
     setBulkSearch("");
     setBulkMode("");
     alert("Bulk Assigned Successfully!");
-  };
+  }; 
 
-  /* UPDATE STATUS (manual) */
+  /* UPDATE STATUS (manual) – not used in UI now, but kept */
   const updateStatus = (index, status) => {
     const updated = [...assignments];
     updated[index].status = status;
@@ -563,7 +598,7 @@ export default function FreshersTrainingAssignment() {
     return matchesSearch && matchesCategory;
   });
 
-  /* ⭐ FINAL: AVG PROGRESS BY CATEGORY (Single + Bulk supported) */
+  /* AVG PROGRESS BY CATEGORY (unused chart) */
   const avgProgressByCategory = useMemo(() => {
     const categoryMap = {};
 
@@ -591,7 +626,7 @@ export default function FreshersTrainingAssignment() {
     });
   }, [assignments]);
 
-  /* ========== EXCEL EXPORT: ALL ASSIGNMENTS ========== */
+  /* EXCEL EXPORT: ALL ASSIGNMENTS */
   const exportToExcel = () => {
     if (assignments.length === 0) {
       alert("No data to export!");
@@ -629,7 +664,7 @@ export default function FreshersTrainingAssignment() {
     saveAs(blob, "Freshers_Training_Assignments.xlsx");
   };
 
-  /* ========== EXCEL EXPORT: BLANK TEMPLATE ========== */
+  /* BLANK TEMPLATE EXPORT – kept if needed */
   const downloadBlankTemplate = () => {
     const template = [
       {
@@ -661,6 +696,81 @@ export default function FreshersTrainingAssignment() {
 
     saveAs(blob, "Freshers_Training_Blank_Template.xlsx");
   };
+
+  /* ================= MARKS POPUP HELPERS (Option A) ================= */
+
+  const openMarksPopup = (assignmentIndex) => {
+    const rec = assignments[assignmentIndex];
+    if (!rec) return;
+
+    setActiveMarksIndex(assignmentIndex);
+
+    if (Array.isArray(rec.marksData) && rec.marksData.length > 0) {
+      const mapped = rec.marksData.map((row, idx) => ({
+        id: row.id ?? idx + 1,
+        exam: row.exam ?? row.course ?? "",
+        marks: row.marks ?? "",
+      }));
+      setMarksRows(mapped);
+    } else {
+      setMarksRows([{ id: 1, exam: "", marks: "" }]);
+    }
+
+    setShowMarksPopup(true);
+  };
+
+  const addMarksRow = () => {
+    setMarksRows((prev) => {
+      const nextId =
+        prev.length > 0 ? Math.max(...prev.map((r) => r.id || 0)) + 1 : 1;
+      return [...prev, { id: nextId, exam: "", marks: "" }];
+    });
+  };
+
+  const updateMarksRow = (rowId, field, value) => {
+    setMarksRows((prev) =>
+      prev.map((row) =>
+        row.id === rowId ? { ...row, [field]: value } : row
+      )
+    );
+  };
+
+  const removeMarksRow = (rowId) => {
+    setMarksRows((prev) => {
+      const filtered = prev.filter((row) => row.id !== rowId);
+      return filtered.length > 0 ? filtered : prev;
+    });
+  };
+
+  const saveMarks = () => {
+    if (activeMarksIndex === null) return;
+
+    const cleaned = marksRows
+      .map((r) => ({
+        id: r.id,
+        exam: (r.exam || "").trim(),
+        marks: (r.marks || "").trim(),
+      }))
+      .filter((r) => r.exam || r.marks);
+
+    setAssignments((prev) =>
+      prev.map((item, idx) =>
+        idx === activeMarksIndex ? { ...item, marksData: cleaned } : item
+      )
+    );
+
+    setShowMarksPopup(false);
+    setActiveMarksIndex(null);
+  };
+
+  const closeMarksPopup = () => {
+    setShowMarksPopup(false);
+    setActiveMarksIndex(null);
+
+    
+  };
+  console.log("TRAINING PACK:", trainingPack);
+
   /* =======================  UI START  ======================= */
   return (
     <div className="ftd-root">
@@ -670,7 +780,6 @@ export default function FreshersTrainingAssignment() {
       <div className="ftd-form-card">
         <form onSubmit={handleSubmit}>
           <div className="ftd-grid">
-
             {/* Category */}
             <div>
               <label>Training Category</label>
@@ -680,9 +789,9 @@ export default function FreshersTrainingAssignment() {
                 onChange={handleChange}
               >
                 <option value="">-- Select Category --</option>
-                {TRAINING_PACK.map((p) => (
-                  <option key={p.category} value={p.category}>
-                    {p.category}
+                {trainingPack.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
                   </option>
                 ))}
               </select>
@@ -710,8 +819,8 @@ export default function FreshersTrainingAssignment() {
               >
                 <option value="">-- Select --</option>
                 {filteredEmployeeOptions.map((emp) => (
-                  <option key={emp.id} value={emp.id}>
-                    {emp.id} - {emp.name}
+                  <option key={emp.id} value={emp.employeeId}>
+                    {emp.employeeId} - {emp.firstName}
                   </option>
                 ))}
               </select>
@@ -757,20 +866,21 @@ export default function FreshersTrainingAssignment() {
               <input value={form.durationDays} readOnly />
             </div>
           </div>
-              {/* Mode */}
-              <div>
-                <label>Mode</label>
-                <select
-                  name="Mode"
-                  value={form.Mode}
-                  onChange={handleChange}
-                >
-                  <option value="">-- Select Mode --</option>
-                  <option value="Online">Online</option>
-                  <option value="Offline">Offline</option>
-                  <option value="Hybrid">Hybrid</option>
-                </select>
-              </div>
+
+          {/* Mode */}
+          <div style={{ marginTop: 16, maxWidth: 260 }}>
+            <label>Mode</label>
+            <select
+              name="Mode"
+              value={form.Mode}
+              onChange={handleChange}
+            >
+              <option value="">-- Select Mode --</option>
+              <option value="Online">Online</option>
+              <option value="Offline">Offline</option>
+              <option value="Hybrid">Hybrid</option>
+            </select>
+          </div>
 
           <div className="ftd-actions">
             <button className="primary" type="submit">
@@ -819,11 +929,15 @@ export default function FreshersTrainingAssignment() {
         <h3>Bulk Assign – Select Employees</h3>
 
         {/* Category + Start/End Dates */}
-        <div className="ftd-grid" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
-
+        <div
+          className="ftd-grid"
+          style={{ gridTemplateColumns: "repeat(3, 1fr)" }}
+        >
           {/* Category */}
           <div>
-            <label><b>Select Training Category</b></label>
+            <label>
+              <b>Select Training Category</b>
+            </label>
             <select
               value={bulkAssignCategory}
               onChange={(e) => {
@@ -833,7 +947,7 @@ export default function FreshersTrainingAssignment() {
               }}
             >
               <option value="">-- Select Category --</option>
-              {TRAINING_PACK.map((p) => (
+              {trainingPack.map((p) => (
                 <option key={p.category} value={p.category}>
                   {p.category}
                 </option>
@@ -864,11 +978,11 @@ export default function FreshersTrainingAssignment() {
           </div>
         </div>
 
-        {/* Batch + Duration */}
+        {/* Batch + Duration + Mode */}
         {bulkAssignCategory && (
           <div
             className="ftd-grid"
-            style={{ gridTemplateColumns: "repeat(2, 1fr)", marginTop: 10 }}
+            style={{ gridTemplateColumns: "repeat(3, 1fr)", marginTop: 10 }}
           >
             <div>
               <label>Batch (Month Year)</label>
@@ -879,12 +993,13 @@ export default function FreshersTrainingAssignment() {
               <label>Duration (Days)</label>
               <input value={bulkDurationDays} readOnly />
             </div>
+
             <div>
               <label>Mode</label>
-              <select  
+              <select
                 value={bulkMode}
                 onChange={(e) => setBulkMode(e.target.value)}
-              > 
+              >
                 <option value="">-- Select Mode --</option>
                 <option value="Online">Online</option>
                 <option value="Offline">Offline</option>
@@ -910,7 +1025,9 @@ export default function FreshersTrainingAssignment() {
         {bulkAssignCategory && (
           <>
             <div className="bulk-emp-list">
-              <label><b>Select Employees</b></label>
+              <label>
+                <b>Select Employees</b>
+              </label>
 
               {/* Search */}
               <input
@@ -992,32 +1109,11 @@ export default function FreshersTrainingAssignment() {
         )}
       </div>
 
-      {/* =================== CHART =================== */}
-      <div className="ftd-charts">
-        <div className="chart-card">
-          <h4>Average Progress by Category</h4>
-          <ResponsiveContainer width="100%" height={220}>
-            <BarChart data={avgProgressByCategory}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="category" />
-              <YAxis domain={[0, 100]} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="avg" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
       {/* =================== EXCEL BUTTONS =================== */}
       <div style={{ display: "flex", gap: "10px", marginBottom: "15px" }}>
         <button className="primary" onClick={exportToExcel}>
           📥 Download Excel (All Assignments)
         </button>
-
-        {/* <button className="secondary" onClick={downloadBlankTemplate}>
-          📄 Download Blank Template
-        </button> */}
       </div>
 
       {/* =================== SEARCH & CATEGORY FILTER =================== */}
@@ -1034,7 +1130,7 @@ export default function FreshersTrainingAssignment() {
           className="category-filter"
         >
           <option value="All">All Categories</option>
-          {TRAINING_PACK.map((p) => (
+          {trainingPack.map((p) => (
             <option key={p.category} value={p.category}>
               {p.category}
             </option>
@@ -1045,6 +1141,7 @@ export default function FreshersTrainingAssignment() {
           Total Assignments: <strong>{assignments.length}</strong>
         </div>
       </div>
+
       {/* =================== TABLE =================== */}
       <div className="ftd-table-wrap">
         <table className="ftd-table">
@@ -1060,7 +1157,6 @@ export default function FreshersTrainingAssignment() {
               <th>Days</th>
               <th>Mode</th>
               <th>Progress</th>
-              <th>Status</th>
               <th>Assigned</th>
               <th>Actions</th>
             </tr>
@@ -1079,7 +1175,19 @@ export default function FreshersTrainingAssignment() {
                   <td>{a.fresherId}</td>
 
                   <td>
-                    {a.fresherName}
+                    <button
+                      type="button"
+                      className="link-button"
+                      onClick={() => openMarksPopup(
+                        assignments.findIndex(
+                          (item) =>
+                            item.fresherId === a.fresherId &&
+                            item.assignedDate === a.assignedDate
+                        ) ?? i
+                      )}
+                    >
+                      {a.fresherName}
+                    </button>
                     {a.isBulk && <span className="bulk-tag"> (Bulk)</span>}
                   </td>
 
@@ -1088,12 +1196,13 @@ export default function FreshersTrainingAssignment() {
 
                   <td>
                     <ul className="mini-list">
-                      {a.selectedCourses.slice(0, 3).map((c, idx) => (
+                      {(a.selectedCourses || []).slice(0, 3).map((c, idx) => (
                         <li key={idx}>{c}</li>
                       ))}
-                      {a.selectedCourses.length > 3 && (
-                        <li>+ {a.selectedCourses.length - 3} more</li>
-                      )}
+                      {a.selectedCourses &&
+                        a.selectedCourses.length > 3 && (
+                          <li>+ {a.selectedCourses.length - 3} more</li>
+                        )}
                     </ul>
                   </td>
 
@@ -1112,19 +1221,6 @@ export default function FreshersTrainingAssignment() {
                     <div className="progress-number">
                       {a.progress || 0}%
                     </div>
-                  </td>
-
-                  <td>
-                    <select
-                      value={a.status}
-                      onChange={(e) => updateStatus(i, e.target.value)}
-                    >
-                      {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
                   </td>
 
                   <td>
@@ -1164,7 +1260,7 @@ export default function FreshersTrainingAssignment() {
             <p>
               <strong>{form.fresherName}</strong> →{" "}
               <em>{form.trainingCategory}</em> (
-                {form.Mode || "No Mode Selected"})
+              {form.Mode || "No Mode Selected"})
             </p>
 
             <div className="popup-actions" style={{ marginTop: 15 }}>
@@ -1183,6 +1279,116 @@ export default function FreshersTrainingAssignment() {
         </div>
       )}
 
+      {/* ⭐ MARKS / PERFORMANCE POPUP (Option A, Glass UI) ⭐ */}
+      {showMarksPopup && activeMarksIndex !== null && (
+        <div className="marks-modal">
+          <div className="marks-modal-content">
+            <div className="marks-modal-header">
+              <div>
+                <h3>Training Performance</h3>
+                <p className="marks-subtitle">
+                  Capture exam-wise marks & evaluation for this fresher.
+                </p>
+              </div>
+              <button
+                className="marks-close-btn"
+                onClick={closeMarksPopup}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Meta info */}
+            <div className="marks-meta">
+              <div>
+                <span className="meta-label">Fresher</span>
+                <span className="meta-value">
+                  {assignments[activeMarksIndex]?.fresherName} (
+                  {assignments[activeMarksIndex]?.fresherId})
+                </span>
+              </div>
+              <div>
+                <span className="meta-label">Category</span>
+                <span className="meta-value">
+                  {assignments[activeMarksIndex]?.trainingCategory}
+                </span>
+              </div>
+              <div>
+                <span className="meta-label">Batch</span>
+                <span className="meta-value">
+                  {assignments[activeMarksIndex]?.batch || "-"}
+                </span>
+              </div>
+            </div>
+
+            {/* Rows header */}
+            <div className="marks-rows-header">
+              <span>Exam / Topic</span>
+              <span>Marks (%)</span>
+              <span>Remove</span>
+            </div>
+
+            {/* Rows */}
+            {marksRows.map((row) => (
+              <div key={row.id} className="marks-row">
+                <input
+                  type="text"
+                  className="marks-input course-input"
+                  placeholder="e.g. React Basics"
+                  value={row.exam}
+                  onChange={(e) =>
+                    updateMarksRow(row.id, "exam", e.target.value)
+                  }
+                />
+                <input
+                  type="number"
+                  className="marks-input marks-input-field"
+                  placeholder="0 - 100"
+                  min={0}
+                  max={100}
+                  value={row.marks}
+                  onChange={(e) =>
+                    updateMarksRow(row.id, "marks", e.target.value)
+                  }
+                />
+                <button
+                  type="button"
+                  className="row-remove-btn"
+                  onClick={() => removeMarksRow(row.id)}
+                  title="Remove this row"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              className="add-row-btn"
+              onClick={addMarksRow}
+            >
+              + Add Exam & Marks
+            </button>
+
+            <div className="marks-footer">
+              <button
+                type="button"
+                className="save-marks-btn"
+                onClick={saveMarks}
+              >
+                Save Marks
+              </button>
+              <button
+                type="button"
+                className="cancel-marks-btn"
+                onClick={closeMarksPopup}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -14,17 +14,27 @@ import {
 } from "recharts";
 
 import "./TrainingAssignment.css";
+const API_BASE = "https://internal-website-rho.vercel.app/api/training";
 
 const LS_KEY = "multiple_training_v2";
 
 const STATUS_OPTIONS = ["Not Started", "In Progress", "Completed"];
 
 const MONTHS = [
-  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
 
-// const DEPARTMENTS = ["Frontend", "Backend", "UI/UX", "Design"];
 const TRAINING_NAMES = ["ReactJS", "React Native", "UI/UX Design", "Node.js"];
 
 const LEVELS = ["Beginner", "Intermediate", "Advanced"];
@@ -36,69 +46,6 @@ const TRAINERS = [
   "Divya Shree",
   "Manoj Reddy",
 ];
-
-// const ALL_EMPLOYEES = [
-//   /* Frontend */
-//   { id: "F001", name: "Ravi Kumar", batchMonth: 0, yearOffset: 0, durationMonths: 1 },
-//   { id: "F002", name: "Anita Verma", batchMonth: 1, yearOffset: 0, durationMonths: 2 },
-//   { id: "F003", name: "Srikanth R", batchMonth: 2, yearOffset: 0, durationMonths: 1 },
-//   { id: "F004", name: "Kavya Das", batchMonth: 3, yearOffset: 0, durationMonths: 2 },
-//   { id: "F005", name: "Harish G", batchMonth: 4, yearOffset: 0, durationMonths: 1 },
-//   { id: "F006", name: "Lohit Sai", batchMonth: 0, yearOffset: 1, durationMonths: 2 },
-//   { id: "F007", name: "Ayesha Fatima", batchMonth: 1, yearOffset: 1, durationMonths: 3 },
-//   { id: "F008", name: "Vishal Sharma", batchMonth: 2, yearOffset: 1, durationMonths: 1 },
-//   { id: "F009", name: "Praneeth", batchMonth: 5, yearOffset: 0, durationMonths: 2 },
-//   { id: "F010", name: "Charitha", batchMonth: 6, yearOffset: 0, durationMonths: 1 },
-
-//   /* Backend */
-//   { id: "B001", name: "Kiran Kumar", batchMonth: 0, yearOffset: 0, durationMonths: 3 },
-//   { id: "B002", name: "Meghana T", batchMonth: 3, yearOffset: 0, durationMonths: 2 },
-//   { id: "B003", name: "Naveen R", batchMonth: 4, yearOffset: 0, durationMonths: 2 },
-//   { id: "B004", name: "Sunitha A", batchMonth: 1, yearOffset: 0, durationMonths: 3 },
-//   { id: "B005", name: "Rohit S", batchMonth: 2, yearOffset: 1, durationMonths: 2 },
-//   { id: "B006", name: "Dharani", batchMonth: 0, yearOffset: 1, durationMonths: 3 },
-//   { id: "B007", name: "Yogesh", batchMonth: 10, yearOffset: 0, durationMonths: 1 },
-//   { id: "B008", name: "Mounika", batchMonth: 11, yearOffset: 0, durationMonths: 2 },
-
-//   /* UI/UX */
-//   { id: "U001", name: "Harsha UI", batchMonth: 1, yearOffset: 0, durationMonths: 2 },
-//   { id: "U002", name: "Deepika UX", batchMonth: 2, yearOffset: 0, durationMonths: 1 },
-//   { id: "U003", name: "Vamshi UI", batchMonth: 0, yearOffset: 1, durationMonths: 2 },
-//   { id: "U004", name: "Hema UX", batchMonth: 4, yearOffset: 1, durationMonths: 2 },
-//   { id: "U005", name: "Tarun UI", batchMonth: 7, yearOffset: 0, durationMonths: 1 },
-//   { id: "U006", name: "Ananya UX", batchMonth: 8, yearOffset: 0, durationMonths: 1 },
-// ];
-
-// const EMPLOYEE_MASTER = {
-//   Frontend: ALL_EMPLOYEES.filter((e) => e.id.startsWith("F")),
-//   Backend: ALL_EMPLOYEES.filter((e) => e.id.startsWith("B")),
-//   "UI/UX": ALL_EMPLOYEES.filter((e) => e.id.startsWith("U")),
-//   Design: ALL_EMPLOYEES.filter((e) => e.id.startsWith("U")),
-// };
-
-function buildEmployeeDerivedFields(emp) {
-  const now = new Date();
-  const year = now.getFullYear() + (emp.yearOffset || 0);
-  const monthIndex =
-    typeof emp.batchMonth === "number" ? emp.batchMonth : now.getMonth();
-
-  const batch = `${MONTHS[monthIndex]} ${year}`;
-
-  const startDate = new Date();
-  const endDate = new Date(startDate);
-  endDate.setMonth(endDate.getMonth() + (emp.durationMonths || 1));
-
-  const durationDays = Math.ceil(
-    (endDate - startDate) / (1000 * 60 * 60 * 24)
-  );
-
-  return {
-    batch,
-    trainingStartDate: startDate.toISOString().slice(0, 10),
-    trainingEndDate: endDate.toISOString().slice(0, 10),
-    durationDays,
-  };
-}
 
 function progressFromStatus(status) {
   if (status === "Completed") return 100;
@@ -124,6 +71,66 @@ function calculateTimeBasedProgress(startDateStr, endDateStr) {
 
   return p;
 }
+
+// ======= Exam API helpers (use your endpoints) =========
+async function apiAddExam(taskId, exam, marks) {
+  const res = await fetch(
+    `${API_BASE}/${encodeURIComponent(taskId)}/add-exam`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ exam, marks }),
+    }
+  );
+  const data = await res.json();
+  console.log("ADD EXAM RESPONSE:", data);
+  return data;
+}
+
+async function apiUpdateExam(taskId, examId, exam, marks) {
+  // Endpoint as you described: api/training/taskId/update-exam/:examId
+  const res = await fetch(
+    `${API_BASE}/taskId/update-exam/${encodeURIComponent(examId)}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ taskId, exam, marks }),
+    }
+  );
+  const data = await res.json();
+  console.log("UPDATE EXAM RESPONSE:", data);
+  return data;
+}
+
+async function apiDeleteExam(taskId, examId) {
+  const res = await fetch(
+    `${API_BASE}/${encodeURIComponent(taskId)}/delete-exam/${encodeURIComponent(
+      examId
+    )}`,
+    {
+      method: "DELETE",
+    }
+  );
+  const data = await res.json();
+  console.log("DELETE EXAM RESPONSE:", data);
+  return data;
+}
+// ========== GET ALL ASSIGNED TRAINING TASKS ==========
+const loadAssignedTasks = async () => {
+  try {
+    const res = await fetch(`${API_BASE}/assigned`);
+    const data = await res.json();
+    console.log("ASSIGNED TASKS API RESPONSE:", data);
+
+    if (Array.isArray(data.tasks)) {
+      setAssignments(data.tasks);
+    } else {
+      console.warn("Unexpected assigned API format:", data);
+    }
+  } catch (err) {
+    console.error("Error loading assigned tasks:", err);
+  }
+};
 
 export default function TrainingAssignment() {
   const [form, setForm] = useState({
@@ -164,8 +171,21 @@ export default function TrainingAssignment() {
 
   const [categoryFilter, setCategoryFilter] = useState("All");
 
-    // ⭐ Fetch departments from API
+  // Departments from API
   const [DEPARTMENTS, setDEPARTMENTS] = useState([]);
+
+  // Employees for selected department (bulk & single)
+  const [employees, setEmployees] = useState([]);
+  const [loadingEmployees, setLoadingEmployees] = useState(false);
+
+  // Marks / performance popup state
+  const [showMarksPopup, setShowMarksPopup] = useState(false);
+  const [activeMarksIndex, setActiveMarksIndex] = useState(null);
+  const [marksRows, setMarksRows] = useState([
+    { id: 1, examId: null, exam: "", marks: "" },
+  ]);
+
+  /* ================== INITIAL LOAD: DEPARTMENTS + LOCALSTORAGE ================== */
 
   useEffect(() => {
     async function loadDepartments() {
@@ -174,8 +194,10 @@ export default function TrainingAssignment() {
           "https://internal-website-rho.vercel.app/api/training/departments"
         );
         const data = await res.json();
-        if (data.departments) {
+        if (Array.isArray(data.departments)) {
           setDEPARTMENTS(data.departments);
+        } else {
+          console.error("Departments response not in expected format:", data);
         }
       } catch (err) {
         console.error("Department fetch error:", err);
@@ -184,53 +206,6 @@ export default function TrainingAssignment() {
 
     loadDepartments();
   }, []);
-
-  const [employees, setEmployees] = useState([]);
-  const [loadingEmployees, setLoadingEmployees] = useState(false);
-
-useEffect(() => {
-  if (!bulkAssignCategory) return;
-
-  async function loadEmployees() {
-    try {
-      setLoadingEmployees(true);
-
-      const res = await fetch(
-        `https://internal-website-rho.vercel.app/api/training/departments/${bulkAssignCategory}`
-      );
-      const data = await res.json();
-
-      console.log("Employee API response:", data);
-
-      if (data.employees && data.employees.length > 0) {
-        const mapped = data.employees.map((emp) => ({
-          id: emp.employeeId,
-          name: emp.employeeName,
-          department: emp.department,
-          manager: emp.managerName,
-        }));
-
-        setEmployees(mapped);
-      } else {
-        setEmployees([]);
-      }
-    } catch (err) {
-      console.error("Employee fetch error:", err);
-      setEmployees([]);
-    } finally {
-      setLoadingEmployees(false);
-    }
-  }
-
-  loadEmployees();
-}, [bulkAssignCategory]);
-
-  // ⭐ Marks / Performance popup state (exam + marks)
-  const [showMarksPopup, setShowMarksPopup] = useState(false);
-  const [activeMarksIndex, setActiveMarksIndex] = useState(null);
-  const [marksRows, setMarksRows] = useState([
-    { id: 1, exam: "", marks: "" },
-  ]);
 
   useEffect(() => {
     const raw = localStorage.getItem(LS_KEY);
@@ -255,234 +230,113 @@ useEffect(() => {
       });
 
       setAssignments(migrated);
-    } catch {
+    } catch (err) {
+      console.error("Error parsing LS assignments:", err);
       setAssignments([]);
     }
   }, []);
 
+  // Sync with localStorage
   useEffect(() => {
     localStorage.setItem(LS_KEY, JSON.stringify(assignments));
   }, [assignments]);
 
-  // ⭐ AUTO UPDATE PROGRESS WHEN PAGE LOADS
-  useEffect(() => {
-    const updated = assignments.map((a) => {
-      const progress = calculateTimeBasedProgress(
-        a.trainingStartDate,
-        a.trainingEndDate
-      );
-
-      let status = "Not Started";
-      if (progress >= 100) status = "Completed";
-      else if (progress > 0) status = "In Progress";
-
-      return { ...a, progress, status };
-    });
-
-    setAssignments(updated);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // ⭐ AUTO UPDATE PROGRESS DAILY (24 hours)
+  // Auto update progress daily
   useEffect(() => {
     const interval = setInterval(() => {
-      const updated = assignments.map((a) => {
-        const progress = calculateTimeBasedProgress(
-          a.trainingStartDate,
-          a.trainingEndDate
-        );
+      setAssignments((prev) =>
+        prev.map((a) => {
+          const progress = calculateTimeBasedProgress(
+            a.trainingStartDate,
+            a.trainingEndDate
+          );
 
-        let status = "Not Started";
-        if (progress >= 100) status = "Completed";
-        else if (progress > 0) status = "In Progress";
+          let status = "Not Started";
+          if (progress >= 100) status = "Completed";
+          else if (progress > 0) status = "In Progress";
 
-        return { ...a, progress, status };
-      });
-
-      setAssignments(updated);
+          return { ...a, progress, status };
+        })
+      );
     }, 86400000); // 24 hours
 
     return () => clearInterval(interval);
-  }, [assignments]);
+  }, []);
 
-  // const employeesForCategory = useMemo(() => {
-  //   return EMPLOYEE_MASTER[form.trainingCategory] || [];
-  // }, [form.trainingCategory]);
-  const employeesForCategory = employees || [];
+  /* ================== LOAD EMPLOYEES WHEN DEPARTMENT CHANGES ================== */
 
-const filteredEmployeeOptions = useMemo(() => {
-  const search = (employeeSearch || "").toLowerCase();
-
-  return employees.filter((emp) => {
-    const name = (emp?.name || "").toLowerCase();
-    const id = (emp?.id || "").toLowerCase();
-
-    return name.includes(search) || id.includes(search);
-  });
-}, [employees, employeeSearch]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    setForm((prev) => {
-      let updated = { ...prev, [name]: value };
-
-      if (name === "trainingCategory") {
-        updated.selectedCourses = [];
-        updated.Id = "";
-        updated.Name = "";
-        updated.batch = "";
-        updated.trainingStartDate = "";
-        updated.trainingEndDate = "";
-        updated.durationDays = 0;
-        setEmployeeSearch("");
-      }
-
-      if (name === "trainingStartDate" || name === "trainingEndDate") {
-        if (updated.trainingStartDate && updated.trainingEndDate) {
-          const d1 = new Date(updated.trainingStartDate);
-          const d2 = new Date(updated.trainingEndDate);
-
-          updated.durationDays = Math.ceil(
-            (d2 - d1) / (1000 * 60 * 60 * 24)
-          );
-        } else {
-          updated.durationDays = 0;
-        }
-      }
-
-      return updated;
-    });
-  };
-
-const handleEmployeeSelect = async (e) => {
-  const id = e.target.value;
-
-  try {
-    const res = await fetch(
-      `https://internal-website-rho.vercel.app/api/training/departments/${bulkAssignCategory}/${id}`
-    );
-    const data = await res.json();
-
-    if (!data.employee) return;
-
-    const emp = data.employee;
-
-    setForm((prev) => ({
-      ...prev,
-      Id: emp.employeeId,
-      Name: emp.employeeName,
-      batch: "",
-      trainingStartDate: "",
-      trainingEndDate: "",
-      durationDays: 0,
-    }));
-  } catch (err) {
-    console.error("Employee fetch error:", err);
-  }
-};
-
-  const validateSingle = () =>
-    form.Name &&
-    form.Id &&
-    form.batch &&
-    form.trainingCategory &&
-    form.trainingStartDate &&
-    form.trainingEndDate &&
-    form.Mode &&
-    form.trainingName &&
-    form.level &&
-    form.trainer;
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!validateSingle()) {
-      alert("Please fill all required fields");
+  useEffect(() => {
+    if (!bulkAssignCategory) {
+      setEmployees([]);
       return;
     }
-    setShowConfirm(true);
-  };
 
-  const confirmAssignment = async () => {
-  const progress = calculateTimeBasedProgress(
-    form.trainingStartDate,
-    form.trainingEndDate
-  );
+    async function loadEmployees() {
+      try {
+        setLoadingEmployees(true);
 
-  let status = "Not Started";
-  if (progress >= 100) status = "Completed";
-  else if (progress > 0) status = "In Progress";
+        const res = await fetch(
+          `https://internal-website-rho.vercel.app/api/training/departments/${encodeURIComponent(
+            bulkAssignCategory
+          )}`
+        );
+        const data = await res.json();
 
-  const data = {
-    ...form,
-    progress,
-    status,
-    isBulk: false,
-    assignedDate: new Date().toISOString(),
-  };
+        console.log("Employee API response:", data);
 
-  try {
-    const res = await fetch(
-      "https://internal-website-rho.vercel.app/api/training/create",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        if (Array.isArray(data.employees) && data.employees.length > 0) {
+          const mapped = data.employees.map((emp, index) => ({
+  id: emp.employeeId,          // 🔥 correct
+  employeeId: emp.employeeId,  // 🔥 correct
+  name: emp.employeeName || "",
+  department: emp.department || bulkAssignCategory,
+  manager: emp.managerName || "",
+          }));
+
+          setEmployees(mapped);
+        } else {
+          setEmployees([]);
+        }
+      } catch (err) {
+        console.error("Employee fetch error:", err);
+        setEmployees([]);
+      } finally {
+        setLoadingEmployees(false);
       }
-    );
+    }
 
-    const result = await res.json();
-    console.log("CREATE API RESPONSE:", result);
-  } catch (err) {
-    console.error("Create API error:", err);
-  }
+    loadEmployees();
+  }, [bulkAssignCategory]);
 
-  if (editingIndex !== null) {
-    const updated = [...assignments];
-    updated[editingIndex] = data;
-    setAssignments(updated);
-    setEditingIndex(null);
-  } else {
-    setAssignments((prev) => [data, ...prev]);
-  }
+  /* ================== FILTERS / MEMOS ================== */
 
-  setShowConfirm(false);
+  // For single-employee dropdown search
+  const filteredEmployeeOptions = useMemo(() => {
+    const search = (employeeSearch || "").toLowerCase();
 
-  setForm({
-    Name: "",
-    Id: "",
-    batch: "",
-    trainingCategory: "",
-    selectedCourses: [],
-    trainingStartDate: "",
-    trainingEndDate: "",
-    durationDays: 0,
-    Mode: "",
-    trainingName: "",
-    level: "",
-    trainer: "",
-  });
-};
+    return employees.filter((emp) => {
+      const name = (emp?.name || "").toLowerCase();
+      const id = (emp?.id || "").toLowerCase();
 
+      return name.includes(search) || id.includes(search);
+    });
+  }, [employees, employeeSearch]);
+
+  // For bulk employee list – API already filters by department, just dedupe + safe map
 const bulkEmployeesForCategory = useMemo(() => {
-  if (!bulkAssignCategory || employees.length === 0) return [];
-  
+  if (!bulkAssignCategory || !Array.isArray(employees)) return [];
 
- const filtered = employees.filter((e) => {
-  const dept = e.department || ""; // safe fallback
-  const cat = bulkAssignCategory || ""; // safe fallback
-  return dept.toLowerCase().includes(cat.toLowerCase());
-});
-
-  // Remove duplicates by id
   const uniqueMap = new Map();
-  filtered.forEach((e) => {
-    if (!uniqueMap.has(e.id)) {
-      uniqueMap.set(e.id, {
-        id: e.id,
-        name: e.name,
-        department: e.department,
-        manager: e.manager,
+  employees.forEach((e, index) => {
+    const safeId = e?.id ?? `emp-${index}`;
+
+    if (!uniqueMap.has(safeId)) {
+      uniqueMap.set(safeId, {
+        id: safeId,
+        employeeId: e.employeeId,   // 🔥 REQUIRED FIELD
+        name: e?.name || "",
+        department: e?.department || bulkAssignCategory,
+        manager: e?.manager || "",
       });
     }
   });
@@ -490,187 +344,16 @@ const bulkEmployeesForCategory = useMemo(() => {
   return Array.from(uniqueMap.values());
 }, [employees, bulkAssignCategory]);
 
-const bulkFilteredEmployees = useMemo(() => {
-  const s = bulkSearch.toLowerCase();
-  return bulkEmployeesForCategory.filter(
-    (e) =>
-      e.id.toLowerCase().includes(s) ||
-      e.name.toLowerCase().includes(s)
-  );
-}, [bulkSearch, bulkEmployeesForCategory]);
+  // Search within bulk employees
+  const bulkFilteredEmployees = useMemo(() => {
+    const s = (bulkSearch || "").toLowerCase();
 
-  useEffect(() => {
-    if (bulkStartDate && bulkEndDate) {
-      const d1 = new Date(bulkStartDate);
-      const d2 = new Date(bulkEndDate);
-      if (!isNaN(d1) && !isNaN(d2) && d2 >= d1) {
-        const days = Math.ceil(
-          (d2 - d1) / (1000 * 60 * 60 * 24)
-        );
-        setBulkDurationDays(days);
-      } else {
-        setBulkDurationDays(0);
-      }
-    } else {
-      setBulkDurationDays(0);
-    }
-
-    if (bulkStartDate) {
-      const d = new Date(bulkStartDate);
-      if (!isNaN(d)) {
-        const monthName = MONTHS[d.getMonth()];
-        const year = d.getFullYear();
-        setBulkBatch(`${monthName} ${year}`);
-      } else {
-        setBulkBatch("");
-      }
-    } else {
-      setBulkBatch("");
-    }
-  }, [bulkStartDate, bulkEndDate]);
-
- const handleBulkAutoAssign = async () => {
-  if (!bulkAssignCategory)
-    return alert("Please select Department");
-  if (!bulkTrainingName)
-    return alert("Please select Training");
-  if (!bulkLevel)
-    return alert("Please select Level");
-  if (!bulkTrainer)
-    return alert("Please select Trainer");
-  if (!bulkStartDate || !bulkEndDate)
-    return alert("Please select Start Date and End Date");
-  if (!bulkMode)
-    return alert("Please select Mode");
-  if (selectedBulkEmployees.length === 0)
-    return alert("Please select employees");
-
-  const d1 = new Date(bulkStartDate);
-  const d2 = new Date(bulkEndDate);
-  if (d2 < d1) {
-    alert("End Date should be after Start Date");
-    return;
-  }
-
-  const empList = bulkEmployeesForCategory;
-
-  const progress = calculateTimeBasedProgress(bulkStartDate, bulkEndDate);
-
-  let status = "Not Started";
-  if (progress >= 100) status = "Completed";
-  else if (progress > 0) status = "In Progress";
-
-  const newItems = selectedBulkEmployees
-    .map((id) => {
-      const emp = empList.find((e) => e.id === id);
-      if (!emp) return null;
-
-      return {
-        Id: emp.id,
-        Name: emp.name,
-        trainingCategory: bulkAssignCategory,
-        trainingName: bulkTrainingName,
-        level: bulkLevel,
-        trainer: bulkTrainer,
-        batch: bulkBatch,
-        selectedCourses: [],
-        progress,
-        status,
-        isBulk: true,
-        Mode: bulkMode,
-        assignedDate: new Date().toISOString(),
-        trainingStartDate: bulkStartDate,
-        trainingEndDate: bulkEndDate,
-        durationDays: bulkDurationDays,
-      };
-    })
-    .filter(Boolean);
-
-  if (newItems.length === 0) {
-    return alert("No valid employees selected for assignment.");
-  }
-
-  // ⭐ SEND EACH EMPLOYEE TO CREATE API
-  for (const item of newItems) {
-    try {
-      const resp = await fetch(
-        "https://internal-website-rho.vercel.app/api/training/create",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(item),
-        }
-      );
-
-      const result = await resp.json();
-      console.log("BULK CREATE RESPONSE:", result);
-    } catch (err) {
-      console.error("Bulk create error:", err);
-    }
-  }
-
-  // Add locally
-  setAssignments((prev) => [...newItems, ...prev]);
-
-  setSelectedBulkEmployees([]);
-  setBulkSearch("");
-  setBulkMode("");
-  setBulkTrainingName("");
-  setBulkLevel("");
-  setBulkTrainer("");
-
-  alert("Bulk Assigned Successfully!");
-};
-
-
-
-  const updateStatus = (index, status) => {
-    const updated = [...assignments];
-    updated[index].status = status;
-    updated[index].progress = progressFromStatus(status);
-    setAssignments(updated);
-  };
-
-  const startEdit = (index) => {
-    const a = assignments[index];
-
-    setForm({
-      Name: a.Name,
-      Id: a.Id,
-      batch: a.batch,
-      trainingCategory: a.trainingCategory,
-      selectedCourses: a.selectedCourses || [],
-      trainingStartDate: a.trainingStartDate || "",
-      trainingEndDate: a.trainingEndDate || "",
-      durationDays: a.durationDays || 0,
-      Mode: a.Mode || "",
-      trainingName: a.trainingName || "",
-      level: a.level || "",
-      trainer: a.trainer || "",
+    return bulkEmployeesForCategory.filter((e) => {
+      const id = ((e && e.id) || "").toString().toLowerCase();
+      const name = ((e && e.name) || "").toString().toLowerCase();
+      return id.includes(s) || name.includes(s);
     });
-
-    setEmployeeSearch(a.Id || "");
-    setEditingIndex(index);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  // ⭐ filtered now keeps original index as _index
-  const filtered = assignments
-    .map((a, idx) => ({ ...a, _index: idx }))
-    .filter((a) => {
-      const s = search.toLowerCase();
-
-      const matchesSearch =
-        a.Name.toLowerCase().includes(s) ||
-        a.Id.toLowerCase().includes(s) ||
-        (a.trainingCategory || "").toLowerCase().includes(s) ||
-        (a.trainingName || "").toLowerCase().includes(s);
-
-      const matchesCategory =
-        categoryFilter === "All" || a.trainingCategory === categoryFilter;
-
-      return matchesSearch && matchesCategory;
-    });
+  }, [bulkSearch, bulkEmployeesForCategory]);
 
   const avgProgressByCategory = useMemo(() => {
     const categoryMap = {};
@@ -699,6 +382,407 @@ const bulkFilteredEmployees = useMemo(() => {
     });
   }, [assignments]);
 
+  /* ================== HANDLERS ================== */
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => {
+      let updated = { ...prev, [name]: value };
+
+      if (name === "trainingCategory") {
+        updated.selectedCourses = [];
+        updated.Id = "";
+        updated.Name = "";
+        updated.batch = "";
+        updated.trainingStartDate = "";
+        updated.trainingEndDate = "";
+        updated.durationDays = 0;
+        setEmployeeSearch("");
+      }
+
+      if (name === "trainingStartDate" || name === "trainingEndDate") {
+        if (updated.trainingStartDate && updated.trainingEndDate) {
+          const d1 = new Date(updated.trainingStartDate);
+          const d2 = new Date(updated.trainingEndDate);
+
+          if (!isNaN(d1) && !isNaN(d2) && d2 >= d1) {
+            updated.durationDays = Math.ceil(
+              (d2 - d1) / (1000 * 60 * 60 * 24)
+            );
+          } else {
+            updated.durationDays = 0;
+          }
+        } else {
+          updated.durationDays = 0;
+        }
+      }
+
+      return updated;
+    });
+  };
+
+  const handleEmployeeSelect = async (e) => {
+    const id = e.target.value;
+    if (!id || !bulkAssignCategory) return;
+
+    try {
+      const res = await fetch(
+        `https://internal-website-rho.vercel.app/api/training/departments/${encodeURIComponent(
+          bulkAssignCategory
+        )}/${encodeURIComponent(id)}`
+      );
+      const data = await res.json();
+
+      if (!data.employee) return;
+
+      const emp = data.employee;
+
+      setForm((prev) => ({
+        ...prev,
+        Id: emp.employeeId,
+        Name: emp.employeeName,
+        batch: "",
+        trainingStartDate: "",
+        trainingEndDate: "",
+        durationDays: 0,
+      }));
+    } catch (err) {
+      console.error("Employee fetch error:", err);
+    }
+  };
+
+  const validateSingle = () =>
+    form.Name &&
+    form.Id &&
+    form.batch &&
+    form.trainingCategory &&
+    form.trainingStartDate &&
+    form.trainingEndDate &&
+    form.Mode &&
+    form.trainingName &&
+    form.level &&
+    form.trainer;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!validateSingle()) {
+      alert("Please fill all required fields");
+      return;
+    }
+    setShowConfirm(true);
+  };
+
+  const confirmAssignment = async () => {
+    const progress = calculateTimeBasedProgress(
+      form.trainingStartDate,
+      form.trainingEndDate
+    );
+
+    let status = "Not Started";
+    if (progress >= 100) status = "Completed";
+    else if (progress > 0) status = "In Progress";
+
+    const data = {
+      ...form,
+      progress,
+      status,
+      isBulk: false,
+      assignedDate: new Date().toISOString(),
+    };
+
+    try {
+      const res = await fetch(`${API_BASE}/create`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const result = await res.json();
+      console.log("CREATE API RESPONSE:", result);
+
+      if (result && result.taskId) {
+        data.taskId = result.taskId;
+      }
+      if (result && Array.isArray(result.marksData)) {
+        data.marksData = result.marksData;
+      }
+    } catch (err) {
+      console.error("Create API error:", err);
+    }
+
+    if (editingIndex !== null) {
+      setAssignments((prev) => {
+        const updated = [...prev];
+        updated[editingIndex] = data;
+        return updated;
+      });
+      setEditingIndex(null);
+    } else {
+      setAssignments((prev) => [data, ...prev]);
+    }
+
+    setShowConfirm(false);
+
+    setForm({
+      Name: "",
+      Id: "",
+      batch: "",
+      trainingCategory: "",
+      selectedCourses: [],
+      trainingStartDate: "",
+      trainingEndDate: "",
+      durationDays: 0,
+      Mode: "",
+      trainingName: "",
+      level: "",
+      trainer: "",
+    });
+  };
+
+  useEffect(() => {
+    if (bulkStartDate && bulkEndDate) {
+      const d1 = new Date(bulkStartDate);
+      const d2 = new Date(bulkEndDate);
+      if (!isNaN(d1) && !isNaN(d2) && d2 >= d1) {
+        const days = Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+        setBulkDurationDays(days);
+      } else {
+        setBulkDurationDays(0);
+      }
+    } else {
+      setBulkDurationDays(0);
+    }
+
+    if (bulkStartDate) {
+      const d = new Date(bulkStartDate);
+      if (!isNaN(d)) {
+        const monthName = MONTHS[d.getMonth()];
+        const year = d.getFullYear();
+        setBulkBatch(`${monthName} ${year}`);
+      } else {
+        setBulkBatch("");
+      }
+    } else {
+      setBulkBatch("");
+    }
+  }, [bulkStartDate, bulkEndDate]);
+
+  const handleBulkAutoAssign = async () => {
+    if (!bulkAssignCategory) return alert("Please select Department");
+    if (!bulkTrainingName) return alert("Please select Training");
+    if (!bulkLevel) return alert("Please select Level");
+    if (!bulkTrainer) return alert("Please select Trainer");
+    if (!bulkStartDate || !bulkEndDate)
+      return alert("Please select Start Date and End Date");
+    if (!bulkMode) return alert("Please select Mode");
+    if (selectedBulkEmployees.length === 0)
+      return alert("Please select employees");
+
+    const d1 = new Date(bulkStartDate);
+    const d2 = new Date(bulkEndDate);
+    if (d2 < d1) {
+      alert("End Date should be after Start Date");
+      return;
+    }
+
+    const empList = bulkEmployeesForCategory;
+
+    const progress = calculateTimeBasedProgress(bulkStartDate, bulkEndDate);
+
+    let status = "assigned";
+    if (progress >= 100) status = "completed";
+    else if (progress > 0) status = "in-progress";
+
+    const newItems = selectedBulkEmployees
+      .map((id) => {
+        const emp = empList.find((e) => e.id === id);
+        if (!emp) return null;
+
+return {
+    employeeId: emp.employeeId,    // REAL ID
+  employeeName: emp.name,
+
+  trainingCategory: bulkAssignCategory,
+  trainingTitle: bulkTrainingName, // backend requires this
+  level: bulkLevel,
+  trainer: bulkTrainer,
+
+  batch: bulkBatch,
+  selectedCourses: [],
+
+  fromDate: bulkStartDate, // backend requires this
+  toDate: bulkEndDate,     // backend requires this
+
+    duration: bulkDurationDays,   // FIXED
+  mode: bulkMode,               // FIXED
+
+  progress,
+  status,
+  isBulk: true,
+  assignedDate: new Date().toISOString(),
+};
+      })
+      .filter(Boolean);
+
+    if (newItems.length === 0) {
+      return alert("No valid employees selected for assignment.");
+    }
+
+    const data = {
+      employeeId:selectedBulkEmployees,
+       trainingCategory: bulkAssignCategory,
+  trainingTitle: bulkTrainingName, // backend requires this
+  level: bulkLevel,
+  trainer: bulkTrainer,
+
+  batch: bulkBatch,
+  selectedCourses: [],
+
+  fromDate: bulkStartDate, // backend requires this
+  toDate: bulkEndDate,     // backend requires this
+
+    duration: bulkDurationDays,   // FIXED
+  mode: bulkMode,               // FIXED
+
+  progress,
+  status,
+  isBulk: true,
+  assignedDate: new Date().toISOString(),
+
+    }
+
+    console.log("data to send:", data);
+    // Send to API and attach taskId from backend
+// API CALL FOR EACH employee assignment
+for (const item of newItems) {
+  // try {
+  //   const resp = await fetch(`https://internal-website-rho.vercel.app/api/training/create`, {
+  //     method: "POST",
+  //     headers: { "Content-Type": "application/json" },
+  //     body: JSON.stringify(item),
+  //   });
+
+  //   const result = await resp.json();
+  //   console.log("BULK CREATE RESPONSE:", result);
+
+  //   // backend returns newly created taskId
+  //   if (result?.taskId) {
+  //     item.taskId = result.taskId;
+  //   }
+
+  //   // backend may return default marks structure
+  //   if (Array.isArray(result?.marksData)) {
+  //     item.marksData = result.marksData;
+  //   }
+  // } catch (err) {
+  //   console.error("Bulk create error:", err);
+  // }
+  // ----- CORRECT BULK ASSIGN API CALL -----
+// try {
+//   const resp = await fetch(
+//     "https://internal-website-rho.vercel.app/api/training/create",
+//     {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ employees: newItems }),
+//     }
+//   );
+
+//   const result = await resp.json();
+//   console.log("BULK CREATE RESPONSE:", result);
+
+//   // backend returns updated employees with taskId & marksData
+//   if (Array.isArray(result?.created)) {
+//     result.created.forEach((resItem, idx) => {
+//       newItems[idx].taskId = resItem.taskId;
+//       newItems[idx].marksData = resItem.marksData || [];
+//     });
+//   }
+// } catch (err) {
+//   console.error("Bulk Create Error:", err);
+// }
+console.log(newItems)
+try {
+  const resp = await fetch(
+    "https://internal-website-rho.vercel.app/api/training/create",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),   // ✅ CORRECT
+    }
+  );
+
+  const result = await resp.json();
+  console.log("BULK CREATE RESPONSE:", result);
+
+  if (Array.isArray(result.tasks)) {
+    result.tasks.forEach((task, index) => {
+      newItems[index].taskId = task._id;
+      newItems[index].marksData = task.marksData || [];
+    });
+  }
+} catch (err) {
+  console.error("Bulk Create Error:", err);
+}
+
+}
+
+    setAssignments((prev) => [...newItems, ...prev]);
+
+    setSelectedBulkEmployees([]);
+    setBulkSearch("");
+    setBulkMode("");
+    setBulkTrainingName("");
+    setBulkLevel("");
+    setBulkTrainer("");
+
+    alert("Bulk Assigned Successfully!");
+  };
+
+  const startEdit = (index) => {
+    const a = assignments[index];
+    if (!a) return;
+
+    setForm({
+      Name: a.Name,
+      Id: a.Id,
+      batch: a.batch,
+      trainingCategory: a.trainingCategory,
+      selectedCourses: a.selectedCourses || [],
+      trainingStartDate: a.trainingStartDate || "",
+      trainingEndDate: a.trainingEndDate || "",
+      durationDays: a.durationDays || 0,
+      Mode: a.Mode || "",
+      trainingName: a.trainingName || "",
+      level: a.level || "",
+      trainer: a.trainer || "",
+    });
+
+    setEmployeeSearch(a.Id || "");
+    setEditingIndex(index);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const filtered = assignments
+    .map((a, idx) => ({ ...a, _index: idx }))
+    .filter((a) => {
+      const s = (search || "").toLowerCase();
+
+      const matchesSearch =
+        (a.Name || "").toLowerCase().includes(s) ||
+        (a.Id || "").toLowerCase().includes(s) ||
+        (a.trainingCategory || "").toLowerCase().includes(s) ||
+        (a.trainingName || "").toLowerCase().includes(s);
+
+      const matchesCategory =
+        categoryFilter === "All" || a.trainingCategory === categoryFilter;
+
+      return matchesSearch && matchesCategory;
+    });
+
+    console.log("filtered assignments:", filtered);
+    console.log("full assignments:", assignments);
   const exportToExcel = () => {
     if (assignments.length === 0) {
       alert("No data to export!");
@@ -744,19 +828,19 @@ const bulkFilteredEmployees = useMemo(() => {
         "S.No": "",
         " ID": "",
         " Name": "",
-        "Department": "",
+        Department: "",
         "Training Name": "",
-        "Level": "",
-        "Trainer": "",
-        "Batch": "",
+        Level: "",
+        Trainer: "",
+        Batch: "",
         "Start Date": "",
         "End Date": "",
         "Duration (Days)": "",
         "Progress (%)": "",
-        "Status": "",
+        Status: "",
         "Assigned Date": "",
         "Assigned Type": "",
-        "Mode": "",
+        Mode: "",
       },
     ];
 
@@ -769,10 +853,11 @@ const bulkFilteredEmployees = useMemo(() => {
       type: "application/octet-stream",
     });
 
+    // Uncomment if you want to download
     // saveAs(blob, "Multiple_Training_Blank_Template.xlsx");
   };
 
-  /* ===================== MARKS POPUP HELPERS (exam + marks) ===================== */
+  /* ================== MARKS POPUP HELPERS ================== */
 
   const openMarksPopup = (assignmentIndex) => {
     const rec = assignments[assignmentIndex];
@@ -781,15 +866,15 @@ const bulkFilteredEmployees = useMemo(() => {
     setActiveMarksIndex(assignmentIndex);
 
     if (Array.isArray(rec.marksData) && rec.marksData.length > 0) {
-      // Support old structure (course/marks/remarks) & new (exam/marks)
       const mapped = rec.marksData.map((row, idx) => ({
         id: row.id ?? idx + 1,
+        examId: row.examId ?? row.id ?? idx + 1,
         exam: row.exam ?? row.course ?? "",
         marks: row.marks ?? "",
       }));
       setMarksRows(mapped);
     } else {
-      setMarksRows([{ id: 1, exam: "", marks: "" }]);
+      setMarksRows([{ id: 1, examId: null, exam: "", marks: "" }]);
     }
 
     setShowMarksPopup(true);
@@ -799,48 +884,110 @@ const bulkFilteredEmployees = useMemo(() => {
     setMarksRows((prev) => {
       const nextId =
         prev.length > 0 ? Math.max(...prev.map((r) => r.id || 0)) + 1 : 1;
-      return [...prev, { id: nextId, exam: "", marks: "" }];
+      return [...prev, { id: nextId, examId: null, exam: "", marks: "" }];
     });
   };
 
   const updateMarksRow = (rowId, field, value) => {
     setMarksRows((prev) =>
-      prev.map((row) =>
-        row.id === rowId ? { ...row, [field]: value } : row
-      )
+      prev.map((row) => (row.id === rowId ? { ...row, [field]: value } : row))
     );
   };
 
   const removeMarksRow = (rowId) => {
     setMarksRows((prev) => {
-      const filtered = prev.filter((row) => row.id !== rowId);
-      // Keep at least one row
-      return filtered.length > 0 ? filtered : prev;
+      const filteredRows = prev.filter((row) => row.id !== rowId);
+      return filteredRows.length > 0 ? filteredRows : prev;
     });
   };
 
-  const saveMarks = () => {
+  const saveMarks = async () => {
     if (activeMarksIndex === null) return;
 
-    setAssignments((prev) =>
-      prev.map((item, idx) =>
-        idx === activeMarksIndex ? { ...item, marksData: marksRows } : item
-      )
+    const assignment = assignments[activeMarksIndex];
+    if (!assignment) return;
+
+    const taskId = assignment.taskId;
+    if (!taskId) {
+      alert(
+        "Error: taskId missing for this assignment. Ensure it was created via the API."
+      );
+      return;
+    }
+
+    const existing = assignment.marksData || [];
+
+    // Identify new, updated, removed
+    const newRows = marksRows.filter(
+      (r) => !existing.some((e) => e.exam === r.exam)
     );
 
-    setShowMarksPopup(false);
-    setActiveMarksIndex(null);
+    const updatedRows = marksRows.filter((r) => {
+      const prev = existing.find((e) => e.exam === r.exam);
+      return prev && String(prev.marks) !== String(r.marks);
+    });
+
+    const removedRows = existing.filter(
+      (e) => !marksRows.some((r) => r.exam === e.exam)
+    );
+
+    try {
+      // ADD NEW
+      for (const row of newRows) {
+        const resp = await apiAddExam(taskId, row.exam, row.marks);
+        if (resp && resp.examId) {
+          row.examId = resp.examId;
+        }
+      }
+
+      // UPDATE EXISTING
+      for (const row of updatedRows) {
+        const prev = existing.find((e) => e.exam === row.exam);
+        const examId = prev?.examId ?? row.examId ?? row.id;
+        await apiUpdateExam(taskId, examId, row.exam, row.marks);
+      }
+
+      // DELETE REMOVED
+      for (const row of removedRows) {
+        const examId = row.examId ?? row.id;
+        await apiDeleteExam(taskId, examId);
+      }
+
+      // Update local state with latest marks
+      setAssignments((prev) =>
+        prev.map((item, idx) =>
+          idx === activeMarksIndex
+            ? {
+                ...item,
+                marksData: marksRows.map((r) => ({
+                  id: r.id,
+                  examId: r.examId,
+                  exam: r.exam,
+                  marks: r.marks,
+                })),
+              }
+            : item
+        )
+      );
+
+      alert("Marks saved successfully.");
+      setShowMarksPopup(false);
+      setActiveMarksIndex(null);
+    } catch (err) {
+      console.error("Error saving marks:", err);
+      alert("Failed to save marks. Please try again.");
+    }
   };
 
-  /* =======================  UI START  ======================= */
+  /* ================== UI ================== */
 
   return (
     <div className="ftd-root">
-      <h1 className="heading"> Training Assigned (Multiple)</h1>
+      <h1 className="heading">Training Assigned (Multiple)</h1>
 
-      {/* =================== BULK ASSIGN =================== */}
+      {/* =============== BULK ASSIGN =============== */}
       <div className="ftd-bulk-card">
-        <h3> – Select Employees (Multiple)</h3>
+        <h3>– Select Employees (Multiple)</h3>
 
         <div
           className="ftd-grid"
@@ -856,41 +1003,26 @@ const bulkFilteredEmployees = useMemo(() => {
                 setBulkAssignCategory(e.target.value);
                 setSelectedBulkEmployees([]);
                 setBulkSearch("");
+                setEmployees([]);
+                setForm((prev) => ({
+                  ...prev,
+                  Id: "",
+                  Name: "",
+                }));
               }}
             >
               <option value="">-- Select Department --</option>
-              {DEPARTMENTS.map((dep) => (
-                <option key={dep} value={dep}>
+              {DEPARTMENTS.map((dep, index) => (
+                <option key={`${dep}-${index}`} value={dep}>
                   {dep}
                 </option>
               ))}
             </select>
           </div>
+
           
           <div>
-  <label>Select Employee</label>
-
-  {loadingEmployees ? (
-    <p>Loading employees...</p>
-  ) : (
-    <select value={form.Id} onChange={handleEmployeeSelect}>
-      <option value="">-- Select Employee --</option>
-      console.log("FILTERED EMPLOYEE OPTIONS =", filteredEmployeeOptions);
-
-
-      {filteredEmployeeOptions.map((emp) => (
-        
-        <option key={emp.id} value={emp.id}>
-          {emp.name !== "Unknown" ? emp.name : emp.id} — {emp.id}
-        </option>
-      ))}
-    </select>
-  )}
-</div>
-
-
-          <div>
-            <label> Start Date</label>
+            <label>Start Date</label>
             <input
               type="date"
               value={bulkStartDate}
@@ -911,89 +1043,85 @@ const bulkFilteredEmployees = useMemo(() => {
         </div>
 
         {bulkAssignCategory && (
-          <div
-            className="ftd-grid"
-            style={{ gridTemplateColumns: "repeat(3, 1fr)", marginTop: 10 }}
-          >
-            <div>
-              <label>Batch (Month Year)</label>
-              <input value={bulkBatch} readOnly />
-            </div>
-
-            <div>
-              <label>Duration (Days)</label>
-              <input value={bulkDurationDays} readOnly />
-            </div>
-
-            <div>
-              <label>Mode</label>
-              <select
-                value={bulkMode}
-                onChange={(e) => setBulkMode(e.target.value)}
-              >
-                <option value="">-- Select Mode --</option>
-                <option value="Online">Online</option>
-                <option value="Offline">Offline</option>
-                <option value="Hybrid">Hybrid</option>
-              </select>
-            </div>
-          </div>
-        )}
-
-        {bulkAssignCategory && (
-          <div
-            className="ftd-grid"
-            style={{ gridTemplateColumns: "repeat(3, 1fr)", marginTop: 10 }}
-          >
-            <div>
-              <label>Trainer</label>
-              <select
-                value={bulkTrainer}
-                onChange={(e) => setBulkTrainer(e.target.value)}
-              >
-                <option value="">-- Select Trainer --</option>
-                {TRAINERS.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label>Training</label>
-              <select
-                value={bulkTrainingName}
-                onChange={(e) => setBulkTrainingName(e.target.value)}
-              >
-                <option value="">-- Select Training --</option>
-                {TRAINING_NAMES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label>Level</label>
-              <select
-                value={bulkLevel}
-                onChange={(e) => setBulkLevel(e.target.value)}
-              >
-                <option value="">-- Select Level --</option>
-                {LEVELS.map((lvl) => (
-                  <option key={lvl} value={lvl}>
-                    {lvl}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-        )}
-
-        {bulkAssignCategory && (
           <>
+            <div
+              className="ftd-grid"
+              style={{ gridTemplateColumns: "repeat(3, 1fr)", marginTop: 10 }}
+            >
+              <div>
+                <label>Batch (Month Year)</label>
+                <input value={bulkBatch} readOnly />
+              </div>
+
+              <div>
+                <label>Duration (Days)</label>
+                <input value={bulkDurationDays} readOnly />
+              </div>
+
+              <div>
+                <label>Mode</label>
+                <select
+                  value={bulkMode}
+                  onChange={(e) => setBulkMode(e.target.value)}
+                >
+                  <option value="">-- Select Mode --</option>
+                  <option value="Online">Online</option>
+                  <option value="Offline">Offline</option>
+                  <option value="Hybrid">Hybrid</option>
+                </select>
+              </div>
+            </div>
+
+            <div
+              className="ftd-grid"
+              style={{ gridTemplateColumns: "repeat(3, 1fr)", marginTop: 10 }}
+            >
+              <div>
+                <label>Trainer</label>
+                <select
+                  value={bulkTrainer}
+                  onChange={(e) => setBulkTrainer(e.target.value)}
+                >
+                  <option value="">-- Select Trainer --</option>
+                  {TRAINERS.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label>Training</label>
+                <select
+                  value={bulkTrainingName}
+                  onChange={(e) => setBulkTrainingName(e.target.value)}
+                >
+                  <option value="">-- Select Training --</option>
+                  {TRAINING_NAMES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label>Level</label>
+                <select
+                  value={bulkLevel}
+                  onChange={(e) => setBulkLevel(e.target.value)}
+                >
+                  <option value="">-- Select Level --</option>
+                  {LEVELS.map((lvl) => (
+                    <option key={lvl} value={lvl}>
+                      {lvl}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <div className="bulk-emp-list">
               <label>
                 <b>Select Employees</b>
@@ -1029,27 +1157,29 @@ const bulkFilteredEmployees = useMemo(() => {
                 </button>
               </div>
 
-{bulkFilteredEmployees.map((emp) => (
-  <div key={emp.id} className="bulk-emp-item">
-    <input
-      type="checkbox"
-      value={emp.id}
-      checked={selectedBulkEmployees.includes(emp.id)}
-      onChange={(e) => {
-        if (e.target.checked) {
-          setSelectedBulkEmployees((prev) => [...prev, emp.id]);
-        } else {
-          setSelectedBulkEmployees((prev) =>
-            prev.filter((id) => id !== emp.id)
-          );
-        }
-      }}
-    />
-    <span className="bulk-emp-text">
-      {emp.name !== "Unknown" ? emp.name : emp.id} – {emp.id}
-    </span>
-  </div>
-))}
+              {bulkFilteredEmployees.map((emp, index) => (
+                <div key={`${emp.id}-${index}`} className="bulk-emp-item">
+                  <input
+                    type="checkbox"
+                    value={emp.id}
+                    checked={selectedBulkEmployees.includes(emp.id)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setSelectedBulkEmployees((prev) =>
+                          prev.includes(emp.id) ? prev : [...prev, emp.id]
+                        );
+                      } else {
+                        setSelectedBulkEmployees((prev) =>
+                          prev.filter((id) => id !== emp.id)
+                        );
+                      }
+                    }}
+                  />
+                  <span className="bulk-emp-text">
+                    {(emp.name || emp.id) + " – " + emp.id}
+                  </span>
+                </div>
+              ))}
 
               {bulkFilteredEmployees.length === 0 && (
                 <div style={{ fontSize: 12, color: "#666", marginTop: 8 }}>
@@ -1080,7 +1210,7 @@ const bulkFilteredEmployees = useMemo(() => {
         )}
       </div>
 
-      {/* SEARCH BAR */}
+      {/* =============== SEARCH & FILTER BAR =============== */}
       <div className="ftd-search-row">
         <input
           placeholder="Search..."
@@ -1094,8 +1224,8 @@ const bulkFilteredEmployees = useMemo(() => {
           className="category-filter"
         >
           <option value="All">All Departments</option>
-          {DEPARTMENTS.map((dep) => (
-            <option key={dep} value={dep}>
+          {DEPARTMENTS.map((dep, index) => (
+            <option key={`${dep}-cat-${index}`} value={dep}>
               {dep}
             </option>
           ))}
@@ -1104,9 +1234,13 @@ const bulkFilteredEmployees = useMemo(() => {
         <div className="counts">
           Total Assignments: <strong>{assignments.length}</strong>
         </div>
+
+        <button className="secondary" type="button" onClick={exportToExcel}>
+          Export Excel
+        </button>
       </div>
 
-      {/* ================= TABLE ================= */}
+      {/* =============== TABLE =============== */}
       <div className="ftd-table-wrap">
         <table className="ftd-table">
           <thead>
@@ -1138,7 +1272,7 @@ const bulkFilteredEmployees = useMemo(() => {
             ) : (
               filtered.map((a) => (
                 <tr key={a._index}>
-                  <td>{a.Id}</td>
+                  <td>{a.employeeId}</td>
 
                   <td>
                     <button
@@ -1146,21 +1280,21 @@ const bulkFilteredEmployees = useMemo(() => {
                       className="name-link"
                       onClick={() => openMarksPopup(a._index)}
                     >
-                      {a.Name}
+                      {a.employeeName}
                     </button>
                     {a.isBulk && <span className="bulk-tag"> (Bulk)</span>}
                   </td>
 
                   <td>{a.trainingCategory}</td>
-                  <td>{a.trainingName || "-"}</td>
+                  <td>{a.trainingTitle || "-"}</td>
                   <td>{a.level || "-"}</td>
                   <td>{a.trainer || "-"}</td>
                   <td>{a.batch}</td>
 
-                  <td>{a.trainingStartDate}</td>
-                  <td>{a.trainingEndDate}</td>
-                  <td>{a.durationDays}</td>
-                  <td>{a.Mode}</td>
+                  <td>{a.fromDate}</td>
+                  <td>{a.toDate}</td>
+                  <td>{a.duration}</td>
+                  <td>{a.mode}</td>
 
                   <td style={{ minWidth: "150px" }}>
                     <div className="progress-line">
@@ -1232,7 +1366,7 @@ const bulkFilteredEmployees = useMemo(() => {
         </div>
       )}
 
-      {/* ⭐ MARKS / PERFORMANCE POPUP ⭐ (Exam + Marks) */}
+      {/* MARKS / PERFORMANCE POPUP */}
       {showMarksPopup && (
         <>
           <div className="marks-overlay"></div>
@@ -1308,9 +1442,3 @@ const bulkFilteredEmployees = useMemo(() => {
     </div>
   );
 }
-
-
-
-
-
-

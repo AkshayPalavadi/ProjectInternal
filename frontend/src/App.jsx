@@ -30,7 +30,7 @@ import AdminHiredApplicants from "./Components/Admin/AdminHiredApplicants.jsx";
 import AdminOnHold from "./Components/Admin/AdminOnHold.jsx";
 
 import TrainingDevelopment from "./Components/Admin/TrainingDevelopment.jsx";
-import OnGoing from "./Components/Admin/OnGoing.jsx";
+import Assigned from "./Components/Admin/Assigned.jsx";
 import InProgress from "./Components/Admin/InProgress.jsx";
 import CompletedTraining from "./Components/Admin/CompletedTraining.jsx";
 import TrainingModule from "./Components/Admin/TrainingModule.jsx";
@@ -253,7 +253,7 @@ const [applicationSubmitted, setApplicationSubmitted] = useState(false);
           <Route path="reports" element={<AdminReports />} /> */}
 
           <Route path="traininganddevelopment" element={<TrainingDevelopment />} />
-          <Route path="onGoing" element={<OnGoing />} />
+          <Route path="assigned" element={<Assigned />} />
           <Route path="InProgress" element={<InProgress />} />
           <Route path="CompletedTraining" element={<CompletedTraining />} />
           <Route path="ReportPage" element={<ReportPage />} />

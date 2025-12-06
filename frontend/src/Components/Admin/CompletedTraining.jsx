@@ -38,6 +38,8 @@ const CompletedTraining = () => {
   };
 
   const filterRef = useRef(null);
+ 
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -50,20 +52,37 @@ const CompletedTraining = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const data = [
-    { empId: "E001", employeeName: "Likith", courseName: "React-Native", startDate: "01-Sep-2024", completedDate: "01-Oct-2024", level: "Advanced" },
-    { empId: "E002", employeeName: "Sushma", courseName: "Node.js & Express Deep Dive", startDate: "25-Aug-2024", completedDate: "25-Sep-2024", level: "Senior" },
-    { empId: "E003", employeeName: "Devi", courseName: "AI for UI/UX Designers", startDate: "28-Aug-2024", completedDate: "28-Sep-2024", level: "Advanced" },
-    { empId: "E004", employeeName: "Sravani", courseName: "Web- Development", startDate: "05-Sep-2024", completedDate: "05-Oct-2024", level: "Senior" },
-    { empId: "E005", employeeName: "Ganagadhar", courseName: "React.js & React-Native", startDate: "10-Sep-2024", completedDate: "10-Oct-2024", level: "Advanced" },
-    { empId: "E006", employeeName: "Tataji", courseName: "Full Stack Web - Development", startDate: "12-Sep-2024", completedDate: "12-Oct-2024", level: "Senior" },
-    { empId: "E007", employeeName: "Jagadeesh", courseName: "React.js Mastery", startDate: "14-Sep-2024", completedDate: "14-Oct-2024", level: "Advanced" },
-    { empId: "E008", employeeName: "Lavanya", courseName: "Node.js & Express Deep Dive", startDate: "15-Sep-2024", completedDate: "15-Oct-2024", level: "Senior" },
-    { empId: "E009", employeeName: "Rohit Sai", courseName: "Node.js & Express Deep Dive", startDate: "17-Sep-2024", completedDate: "17-Oct-2024", level: "Advanced" },
-    { empId: "E010", employeeName: "Somu", courseName: "AI for UI/UX Designers", startDate: "18-Sep-2024", completedDate: "18-Oct-2024", level: "Senior" }
-  ];
+ const [data, setData] = useState([]);   // holds the tasks from API
+const [loading, setLoading] = useState(true);  // optional, for showing a loading message
+   useEffect(() => {
+  const fetchCompletedTasks = async () => {
+    try {
+      const response = await fetch("https://internal-website-rho.vercel.app/api/training/tasks/completed");
+      const result = await response.json();
 
-  const courseList = [...new Set(data.map((item) => item.courseName))];
+      // Format the data to match your table columns
+      const formattedData = result.tasks.map(task => ({
+        empId: task.employeeId,
+        employeeName: task.employeeName,
+        courseName: task.trainingTitle,
+        level: task.level,
+        startDate: new Date(task.fromDate).toLocaleDateString("en-GB"),
+        completedDate: new Date(task.toDate).toLocaleDateString("en-GB")
+      }));
+
+      setData(formattedData);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching completed tasks:", error);
+      setLoading(false);
+    }
+  };
+
+  fetchCompletedTasks();
+}, []);
+
+  const courseList = useMemo(() => [...new Set(data.map(item => item.courseName))], [data]);
+
 
   const handleCourseFilter = (course) => {
     setSelectedCourses((prev) =>
@@ -104,7 +123,8 @@ const CompletedTraining = () => {
     searchStartDate,
     searchCompletedDate,
     selectedCourses,
-    selectedLevel
+    selectedLevel,
+    loading
   ]);
 
   const exportToExcel = () => {
@@ -200,7 +220,7 @@ const downloadSkillMapPDF = async () => {
   pdf.save(`${selectedEmployee.employeeName}_SkillReport.pdf`);
 };
 
-
+console.log("Filtered Data:", filteredData); // Debugging line
 
   return (
     <div className="certifications-container">
@@ -254,89 +274,80 @@ const downloadSkillMapPDF = async () => {
         )}
       </div>
 
-      <div className="table-container">
-        <table className="certifications-table">
-          <thead>
-            <tr>
-              <th>Emp Id
-                <input className="col-search" placeholder="Search ID" value={searchEmpId} onChange={(e) => setSearchEmpId(e.target.value)} />
-              </th>
-
-              <th>Employee Name
-                <input className="col-search" placeholder="Search Name" value={searchEmpName} onChange={(e) => setSearchEmpName(e.target.value)} />
-              </th>
-
-              <th>Course Name
-                <input className="col-search" placeholder="Search Course" value={searchCourse} onChange={(e) => setSearchCourse(e.target.value)} />
-              </th>
-
-              <th>Level
-                <input className="col-search" placeholder="Search Level" value={searchLevelText} onChange={(e) => setSearchLevelText(e.target.value)} />
-              </th>
-
-              <th>Start Date
-                <input className="col-search" placeholder="Search Start" value={searchStartDate} onChange={(e) => setSearchStartDate(e.target.value)} />
-              </th>
-
-              <th>Completed Date
-                <input className="col-search" placeholder="Search Completed" value={searchCompletedDate} onChange={(e) => setSearchCompletedDate(e.target.value)} />
-              </th>
-
-              <th>Review</th>
-              <th>Certificate</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {filteredData.map((row, index) => (
-              <tr key={index}>
-                <td>{row.empId}</td>
-
-                {/* ⭐ Employee name opens POPUP */}
-                <td
-                  style={{ color: "#0056d6", fontWeight: "600", cursor: "pointer" }}
-                  onClick={() => {
-                    setSelectedEmployee(row);
-                    setShowSkillMap(true);
+     {loading ? (
+  <p>Loading completed trainings...</p>
+) : (
+  <div className="table-container">
+    <table className="certifications-table">
+      <thead>
+        <tr>
+          <th>Emp Id
+            <input className="col-search" placeholder="Search ID" value={searchEmpId} onChange={(e) => setSearchEmpId(e.target.value)} />
+          </th>
+          <th>Employee Name
+            <input className="col-search" placeholder="Search Name" value={searchEmpName} onChange={(e) => setSearchEmpName(e.target.value)} />
+          </th>
+          <th>Course Name
+            <input className="col-search" placeholder="Search Course" value={searchCourse} onChange={(e) => setSearchCourse(e.target.value)} />
+          </th>
+          <th>Level
+            <input className="col-search" placeholder="Search Level" value={searchLevelText} onChange={(e) => setSearchLevelText(e.target.value)} />
+          </th>
+          <th>Start Date
+            <input className="col-search" placeholder="Search Start" value={searchStartDate} onChange={(e) => setSearchStartDate(e.target.value)} />
+          </th>
+          <th>Completed Date
+            <input className="col-search" placeholder="Search Completed" value={searchCompletedDate} onChange={(e) => setSearchCompletedDate(e.target.value)} />
+          </th>
+          <th>Review</th>
+          <th>Certificate</th>
+        </tr>
+      </thead>
+      <tbody>
+        {filteredData.map((row, index) => (
+          <tr key={index}>
+            <td>{row.empId}</td>
+            <td
+              style={{ color: "#0056d6", fontWeight: "600", cursor: "pointer" }}
+              onClick={() => {
+                setSelectedEmployee(row);
+                setShowSkillMap(true);
+              }}
+            >
+              {row.employeeName}
+            </td>
+            <td>{row.courseName}</td>
+            <td>{row.level}</td>
+            <td>{row.startDate}</td>
+            <td>{row.completedDate}</td>
+            <td className="review-stars">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span
+                  key={star}
+                  onClick={() => handleRating(row.empId, star)}
+                  style={{
+                    cursor: "pointer",
+                    color: star <= (ratings[row.empId] || 0) ? "#f7c600" : "#ccc",
+                    fontSize: "20px",
+                    marginRight: "3px"
                   }}
                 >
-                  {row.employeeName}
-                </td>
+                  ★
+                </span>
+              ))}
+            </td>
+            <td className="icon-cell">
+              <button className="view-btn" onClick={() => handleViewCertificate(row)}>
+                👁️
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
 
-                <td>{row.courseName}</td>
-                <td>{row.level}</td>
-                <td>{row.startDate}</td>
-                <td>{row.completedDate}</td>
-                
-
-                {/* ⭐ HR STAR RATING */}
-                <td className="review-stars">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                      key={star}
-                      onClick={() => handleRating(row.empId, star)}
-                      style={{
-                        cursor: "pointer",
-                        color: star <= (ratings[row.empId] || 0) ? "#f7c600" : "#ccc",
-                        fontSize: "20px",
-                        marginRight: "3px"
-                      }}
-                    >
-                      ★
-                    </span>
-                  ))}
-                </td>
-
-                <td className="icon-cell">
-                  <button className="view-btn" onClick={() => handleViewCertificate(row)}>
-                    👁️
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
 
       <div className="bottom-section">
         <div className="total-count">Total Certifications: {filteredData.length}</div>

@@ -1,4 +1,3 @@
-// TrainingModule.jsx
 import React, { useEffect, useState } from "react";
 import "./TrainingModule.css";
 import { useLocation } from "react-router-dom";
@@ -21,7 +20,7 @@ const calculateDuration = (from, to) => {
   if (Number.isNaN(d1.getTime()) || Number.isNaN(d2.getTime())) return "";
   if (d2 < d1) return "";
   const diffDays = Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1;
-  return `${diffDays} days`;
+  return `${diffDays} days`;                                                                                                                                             tzz
 };
 
 export default function TrainingModule() {
@@ -155,10 +154,18 @@ export default function TrainingModule() {
     setFormData((prev) => {
       const updated = { ...prev, [name]: value };
 
-      if (name === "employeeId") {
-        // when employeeId selected, fetch profile details
-        fetchTrainingDetails(value);
-      }
+      // if (name === "employeeId") {
+      //   // when employeeId selected, fetch profile details
+      //   fetchTrainingDetails(value);
+      // }
+if (name === "employeeId") {
+  // If department selected → use department API
+  if (formData.department) {
+    fetchEmployeeDetails(formData.department, value);
+  } else {
+    fetchTrainingDetails(value);
+  }
+}
 
       if (name === "fromDate" || name === "toDate") {
         updated.duration = calculateDuration(

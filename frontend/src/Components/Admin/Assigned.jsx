@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import * as XLSX from "xlsx";
 import { FiSearch, FiFilter } from "react-icons/fi";
-import "./OnGoing.css";
+import "./Assigned.css";
 
-const OnGoing = () => {
+const Assigned = () => {
   const [searchFilters, setSearchFilters] = useState({
     id: "",
     name: "",
@@ -14,8 +14,43 @@ const OnGoing = () => {
   const [showFilter, setShowFilter] = useState(false);
   const [selectedCourses, setSelectedCourses] = useState([]);
   const [selectedProgress, setSelectedProgress] = useState("");
+  const [trainings, setTrainings] = useState([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState(null);
+
 
   const filterRef = useRef(null); // ⭐ NEW
+useEffect(() => {
+  const fetchAssignedTrainings = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        "https://internal-website-rho.vercel.app/api/training/assigned"
+      );
+      if (!response.ok) throw new Error("Failed to fetch data");
+      const data = await response.json();
+
+      // Map API response to match table structure
+      const formattedData = data.tasks.map((t) => ({
+        id: t.employeeId,
+        name: t.employeeName,
+        course: t.trainingTitle,
+        start: new Date(t.fromDate).toLocaleDateString("en-GB"),
+        end: new Date(t.toDate).toLocaleDateString("en-GB"),
+        progress: 0, // Set 0 or calculate if backend provides progress
+      }));
+
+      setTrainings(formattedData);
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to fetch assigned trainings");
+      setLoading(false);
+    }
+  };
+
+  fetchAssignedTrainings();
+}, []);
 
   // ⭐ CLICK OUTSIDE TO CLOSE FILTER
   useEffect(() => {
@@ -32,20 +67,10 @@ const OnGoing = () => {
     };
   }, []);
 
-  const trainings = [
-    { id: "E001", name: "Likith ", course: "React-Native", start: "01-Oct-2025", end: "01-Nov-2025", progress: 30 },
-    { id: "E002", name: "Sushma", course: "Node.js & Express Deep Dive", start: "25-Sep-2025", end: "25-Oct-2025", progress: 75 },
-    { id: "E003", name: "Devi", course: "AI for UI/UX Designers", start: "02-Oct-2025", end: "01-Nov-2025", progress: 80 },
-    { id: "E004", name: "Sravani", course: "Web- Development", start: "28-Oct-2025", end: "25-Nov-2025", progress: 25 },
-    { id: "E005", name: "Ganagadhar", course:" React.js & React-Native", start: "01-Oct-2025", end: "01-Nov-2025", progress: 55 },
-    { id: "E006", name: "Tataji", course: "Full Stack Web Development", start: "05-Oct-2025", end: "05-Nov-2025", progress: 60 },
-    { id: "E007", name: "Jagadeesh", course: "React.js Mastery", start: "06-Oct-2025", end: "06-Nov-2025", progress: 70 },
-    { id: "E008", name: "Lavanya", course: "Node.js & Express Deep Dive", start: "10-Oct-2025", end: "10-Nov-2025", progress: 40 },
-    { id: "E009", name: "Rohit Sai", course: "Node.js & Express Deep Dive", start: "12-Oct-2025", end: "12-Nov-2025", progress: 45 },
-    { id: "E010", name: "Somu Sunder", course: "AI for UI/UX Designers", start: "13-Oct-2025", end: "13-Nov-2025", progress: 50 },
-  ];
+  
 
-  const courses = [...new Set(trainings.map((t) => t.course))];
+ const courses = [...new Set(trainings.map((t) => t.course))];
+
 
   const handleCourseFilter = (course) => {
     setSelectedCourses((prev) =>
@@ -89,23 +114,23 @@ const OnGoing = () => {
   const exportToExcel = () => {
     const ws = XLSX.utils.json_to_sheet(filtered);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "OngoingTrainings");
-    XLSX.writeFile(wb, "Ongoing_Trainings.xlsx");
+    XLSX.utils.book_append_sheet(wb, ws, "AssignedTrainings");
+    XLSX.writeFile(wb, "Assigned_Trainings.xlsx");
   };
 
   return (
-    <div className="ongoing-container">
-      <h1 className="title">On-Going Trainings</h1>
+    <div className="Assigned-container">
+      <h1 className="title">Assign-Trainings</h1>
 
-      <div className="search-section-ongoing">
-        <div className="filter-box-ongoing">
+      <div className="search-section-Assigned">
+        <div className="filter-box-Assigned">
           <FiFilter
-            className="filter-icon-ongoing"
+            className="filter-icon-Assigned"
             onClick={() => setShowFilter(!showFilter)}
           />
 
           {showFilter && (
-            <div className="filter-dropdown-ongoing right" ref={filterRef}>  {/* ⭐ NEW */}
+            <div className="filter-dropdown-Assigned right" ref={filterRef}>  {/* ⭐ NEW */}
               <p className="filter-title">🎓 Filter by Course</p>
               {courses.map((course, index) => (
                 <div key={index} className="filter-option">
@@ -120,37 +145,8 @@ const OnGoing = () => {
 
               <hr className="divider" />
 
-              <p className="filter-title">📊 Filter by Progress</p>
+              {/* <p className="filter-title">📊 Filter by Progress</p> */}
 
-              <div className="filter-option">
-                <input
-                  type="radio"
-                  name="progress"
-                  checked={selectedProgress === "below50"}
-                  onChange={() => handleProgressFilter("below50")}
-                />
-                <label>Below 50%</label>
-              </div>
-
-              <div className="filter-option">
-                <input
-                  type="radio"
-                  name="progress"
-                  checked={selectedProgress === "50to75"}
-                  onChange={() => handleProgressFilter("50to75")}
-                />
-                <label>50% - 70%</label>
-              </div>
-
-              <div className="filter-option">
-                <input
-                  type="radio"
-                  name="progress"
-                  checked={selectedProgress === "above75"}
-                  onChange={() => handleProgressFilter("above75")}
-                />
-                <label>Above 75%</label>
-              </div>
 
               <button
                 className="clear-btn"
@@ -167,6 +163,8 @@ const OnGoing = () => {
       </div>
 
       <div className="table-wrapper">
+        {loading && <p>Loading assigned trainings...</p>} 
+        {error && <p style={{ color: "red" }}>{error}</p>}
         <table className="training-table">
           <thead>
             <tr>
@@ -235,7 +233,7 @@ const OnGoing = () => {
                 />
               </th>
 
-              <th>Status</th>
+              {/* <th>Status</th> */}
             </tr>
           </thead>
 
@@ -261,7 +259,7 @@ const OnGoing = () => {
                             : "#f97316",
                       }}
                     >
-                      <p className="progress-percentage-text">{t.progress}%</p>
+                      {/* <p className="progress-percentage-text">{t.progress}%</p> */}
                     </div>
                   </div>
                 </td>
@@ -272,12 +270,12 @@ const OnGoing = () => {
         </table>
       </div>
 
-      <div className="onGoing-footer">
+      <div className="Assigned-footer">
         <p>
           Total Employees in Training: <strong>{filtered.length}</strong>
         </p>
 
-        <button onClick={exportToExcel} className="export-btn-ongoing">
+        <button onClick={exportToExcel} className="export-btn-Assigned">
           ⬇️ Export to Excel
         </button>
       </div>
@@ -285,4 +283,4 @@ const OnGoing = () => {
   );
 };
 
-export default OnGoing;
+export default Assigned;

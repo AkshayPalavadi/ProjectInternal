@@ -1,6 +1,6 @@
 
 /* 🌟 On-Going Trainings Page Styling */
-.ongoing-container {
+.Assigned-container {
   font-family: "Poppins", sans-serif;
   padding: 40px;
   max-width: 1200px;
@@ -21,31 +21,31 @@
 }
 
 /* 🔍 Filter Icon Section */
-.search-section-ongoing {
+.search-section-Assigned {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 20px;
   position: relative;
 }
 
-.filter-box-ongoing {
+.filter-box-Assigned {
   position: relative;
 }
 
-.filter-icon-ongoing {
+.filter-icon-Assigned {
   font-size: 22px;
   color: #475569;
   cursor: pointer;
   transition: 0.25s ease;
 }
 
-.filter-icon-ongoing:hover {
+.filter-icon-Assigned:hover {
   color: #2563eb;
   transform: scale(1.1);
 }
 
 /* 🎯 Dropdown Filter Box */
-.filter-dropdown-ongoing {
+.filter-dropdown-Assigned {
   position: absolute;
   top: 40px;
   right: 0;
@@ -217,7 +217,7 @@ text-align: center;
 }
 
 /* 📤 Footer Section */
-.onGoing-footer {
+.Assigned-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -228,7 +228,7 @@ text-align: center;
   color: #334155;
 }
 
-.export-btn-ongoing {
+.export-btn-Assigned {
   background: #2563eb;
   color: white;
   border: none;
@@ -239,10 +239,10 @@ text-align: center;
   font-weight: 500;
   box-shadow: 0 3px 8px rgba(37, 99, 235, 0.3);
   transition: 0.3s;
-  margin-left: 200px;
+  margin-left: 300px;
 }
 
-.export-btn-ongoing:hover {
+.export-btn-Assigned:hover {
   background: #1e40af;
   transform: scale(1.05);
 }
@@ -267,7 +267,7 @@ text-align: center;
     margin: 5px 0 0;
   }
 
-  .onGoing-footer {
+  .Assigned-footer {
     flex-direction: column;
     text-align: center;
     gap: 12px;
@@ -275,7 +275,7 @@ text-align: center;
     color: #dc2626;
   }
 
-  .filter-dropdown-ongoing {
+  .filter-dropdown-Assigned {
     width: 220px;
   }
 }

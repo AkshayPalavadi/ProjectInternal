@@ -19,57 +19,42 @@ const InProgress = () => {
   const [selectedProgress, setSelectedProgress] = useState("");
 
   const filterRef = useRef(null); // ⭐ for closing on outside click
+const [trainings, setTrainings] = useState([]);
+const [loading, setLoading] = useState(true);
 
-  const trainings = [
-    {
-      id: "E001",
-      name: "Likith",
-      course: "React.js ",
-      level: "Beginner",
-      start: "01-Aug-2025",
-      end: "01-Sep-2025",
-      progress: 45,
-    },
-    {
-      id: "E002",
-      name: "Sushma",
-      course: "Node.js & Express Deep Dive",
-      level: "Advanced",
-      start: "01-Jul-2025",
-      end: "01-Aug-2025",
-      progress: 55,
-    },
-    {
-      id: "E003",
-      name: "Devi",
-      course: "AI for UI/UX Designers",
-      level: "Intermediate",
-      start: "15-Jul-2025",
-      end: "15-Aug-2025",
-      progress: 65,
-    },
-    {
-      id: "E004",
-      name: "Sravani",
-      course: "Web- Development",
-      level: "Beginner",
-      start: "10-Aug-2025",
-      end: "10-Sep-2025",
-      progress: 70,
-    },
-    {
-      id: "E005",
-      name: "Ganagadhar",
-      course: "React.js & React-Native",
-      level: "Advanced",
-      start: "20-Jul-2025",
-      end: "20-Aug-2025",
-      progress: 85,
-    },
-  ];
 
   const courses = [...new Set(trainings.map((t) => t.course))];
   const levels = [...new Set(trainings.map((t) => t.level))];
+useEffect(() => {
+  const fetchTrainings = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        "https://internal-website-rho.vercel.app/api/training/tasks/in-progress"
+      );
+      const data = await response.json();
+
+      // Map API response to the format your table expects
+      const mappedData = data.tasks.map((t) => ({
+        id: t.employeeId,
+        name: t.employeeName,
+        course: t.trainingTitle,
+        level: t.level,
+        start: new Date(t.fromDate).toLocaleDateString("en-GB"), // format DD/MM/YYYY
+        end: new Date(t.toDate).toLocaleDateString("en-GB"),
+        progress: 50, // Or any logic if your API has progress info
+      }));
+
+      setTrainings(mappedData);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching in-progress trainings:", error);
+      setLoading(false);
+    }
+  };
+
+  fetchTrainings();
+}, []);
 
   // ⭐ Handle clicking outside to close
   useEffect(() => {

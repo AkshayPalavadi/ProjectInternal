@@ -1,5 +1,6 @@
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
+
 import {
   BarChart,
   Bar,
@@ -23,9 +24,14 @@ const TrainingDevelopment = () => {
   const [selectedMonth, setSelectedMonth] = useState("All");
   const [selectedDept, setSelectedDept] = useState("All");
   const [openDropdown, setOpenDropdown] = useState(null);
-
+const [inProgressData, setInProgressData] = useState([]);
+const [loadingInProgress, setLoadingInProgress] = useState(true);
   // ⭐ NEW TAB STATE
   const [activeSkillTab, setActiveSkillTab] = useState("previous");
+  const [completedTrainingData, setCompletedTrainingData] = useState([]);
+const [loadingCompleted, setLoadingCompleted] = useState(true);
+
+  
 
   // ------------------------------------------------------
   // MONTHLY DATA
@@ -216,9 +222,67 @@ const TrainingDevelopment = () => {
     setOpenDropdown(null);
   };
 
-  // =========================================================
-  // UI RENDER
-  // =========================================================
+const [assignedData, setAssignedData] = useState([]);
+const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+  const fetchInProgressTasks = async () => {
+    try {
+      const response = await fetch(
+        "https://internal-website-rho.vercel.app/api/training/tasks/in-progress"
+      );
+      const data = await response.json();
+      if (data.tasks) {
+        setInProgressData(data.tasks);
+      }
+    } catch (error) {
+      console.error("Error fetching in-progress tasks:", error);
+    } finally {
+      setLoadingInProgress(false);
+    }
+  };
+
+  fetchInProgressTasks();
+}, []);
+useEffect(() => {
+  const fetchAssignedEmployees = async () => {
+    try {
+      const response = await fetch(
+        "https://internal-website-rho.vercel.app/api/training/assigned"
+      );
+      const data = await response.json();
+      if (data.tasks) {
+        setAssignedData(data.tasks);
+      }
+    } catch (error) {
+      console.error("Error fetching assigned employees:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchAssignedEmployees();
+}, []);
+useEffect(() => {
+  const fetchCompletedTraining = async () => {
+    try {
+      const response = await fetch(
+        "https://internal-website-rho.vercel.app/api/training/tasks/completed"
+      );
+      const data = await response.json();
+      if (data.tasks) {
+        setCompletedTrainingData(data.tasks); // store tasks array
+      }
+    } catch (error) {
+      console.error("Error fetching completed training:", error);
+    } finally {
+      setLoadingCompleted(false);
+    }
+  };
+
+  fetchCompletedTraining();
+}, []);
+
   return (
     <div className="training-development-training-container">
 
@@ -233,22 +297,27 @@ const TrainingDevelopment = () => {
 
         <div className="training-development-status-cards">
           <div className="training-development-card ongoing-card">
-            <h3>Ongoing</h3>
-            <p className="training-development-value">10</p>
-            <p className="training-development-percent positive">+10.5%</p>
-            <p className="training-development-label">Employees</p>
-            <button
-              className="training-development-view-btn"
-              onClick={() => navigate("/admin/ongoing")}
-            >
-              View Details
-            </button>
-          </div>
+  <h3>Assigned</h3>
+  <p className="training-development-value">
+    {loading ? "..." : assignedData.length}
+  </p>
+  <p className="training-development-label">Employees</p>
+  <button
+    className="training-development-view-btn"
+    onClick={() => navigate("/admin/Assigned", { state: { employees: assignedData } })}
+  >
+    View Details
+  </button>
+</div>
+
 
           <div className="training-development-card completed-card">
             <h3>In Progress</h3>
-            <p className="training-development-value">5</p>
-            <p className="training-development-percent positive">+22.0%</p>
+            <p className="training-development-value">
+  {loadingInProgress ? "..." : inProgressData.length}
+</p>
+
+            {/* <p className="training-development-percent positive">+22.0%</p> */}
             <p className="training-development-label">Employees</p>
             <button
               className="training-development-view-btn"
@@ -258,18 +327,20 @@ const TrainingDevelopment = () => {
             </button>
           </div>
 
-          <div className="training-development-card certificates-card">
-            <h3>Completed Training</h3>
-            <p className="training-development-value">10</p>
-            <p className="training-development-percent positive">+25.0%</p>
-            <p className="training-development-label">Employees</p>
-            <button
-              className="training-development-view-btn"
-              onClick={() => navigate("/admin/CompletedTraining")}
-            >
-              View Details
-            </button>
-          </div>
+         <div className="training-development-card certificates-card">
+  <h3>Completed Training</h3>
+  <p className="training-development-value">
+    {loadingCompleted ? "..." : completedTrainingData.length}
+  </p>
+  <p className="training-development-label">Employees</p>
+  <button
+    className="training-development-view-btn"
+    onClick={() => navigate("/admin/CompletedTraining")}
+  >
+    View Details
+  </button>
+</div>
+
         </div>
       </section>
 
